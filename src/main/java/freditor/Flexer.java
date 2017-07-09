@@ -34,6 +34,10 @@ public abstract class Flexer {
 
     protected abstract int nextStateOrEnd(int currentState, char input);
 
+    protected int operator(char expected, int nextState, char input) {
+        return input == expected ? nextState : END;
+    }
+
     protected int keyword(char expected, int nextState, char input) {
         return input == expected ? nextState : identifier(input);
     }
