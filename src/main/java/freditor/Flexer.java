@@ -26,8 +26,8 @@ public abstract class Flexer {
 
     public int nextState(int currentState, char input) {
         int nextState = nextStateOrEnd(currentState, input);
-        if (nextState == 0) {
-            nextState = nextStateOrEnd(0, input);
+        if (nextState == END) {
+            nextState = nextStateOrEnd(END, input);
         }
         return nextState;
     }
