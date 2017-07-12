@@ -191,4 +191,12 @@ public class IntVectorTest {
         assertEquals("shelter", toString(a));
         assertEquals("sheldon", toString(b));
     }
+
+    @Test
+    public void takeAndPopTwoLevelVector() {
+        IntVector len33 = valueOf(makeStringOfLength(33));
+        IntVector len1 = len33.take(1);
+        IntVector len0 = len1.pop();
+        assertTrue(len0.isEmpty());
+    }
 }

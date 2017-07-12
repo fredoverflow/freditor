@@ -81,6 +81,7 @@ final class IntVector0 extends IntVector {
         throw new AssertionError("pop on empty vector");
     }
 
+    @Override
     public IntVector take(int n) {
         assert n == 0;
         return this;
@@ -116,15 +117,6 @@ abstract class IntVectorN extends IntVector {
         System.arraycopy(leaf(m), 0, temp, offset + m, n - m);
         return temp;
     }
-
-    public IntVector take(int n) {
-        if (n == 0) return IntVector.empty;
-        if (n == length) return this;
-        assert n <= length;
-        return take_(n);
-    }
-
-    protected abstract IntVector take_(int n);
 
     static int[] array32of(int x) {
         int[] array = new int[32];
@@ -262,7 +254,10 @@ final class IntVector1 extends IntVectorN {
         return new IntVector1(length - 1, tail);
     }
 
-    public IntVector take_(int n) {
+    @Override
+    public IntVector take(int n) {
+        if (n == length) return this;
+        if (n == 0) return IntVector.empty;
         return new IntVector1(n, tail);
     }
 }
@@ -319,7 +314,11 @@ final class IntVector2 extends IntVectorN {
         return new IntVector2(length - 1, root);
     }
 
-    public IntVector take_(int n) {
+    @Override
+    public IntVector take(int n) {
+        if (n == length) return this;
+        if (n == 0) return IntVector.empty;
+        if (n <= 32) return new IntVector1(n, root[0]);
         return new IntVector2(n, root);
     }
 }
@@ -383,7 +382,12 @@ final class IntVector3 extends IntVectorN {
         return new IntVector3(length - 1, root);
     }
 
-    public IntVector take_(int n) {
+    @Override
+    public IntVector take(int n) {
+        if (n == length) return this;
+        if (n == 0) return IntVector.empty;
+        if (n <= 32) return new IntVector1(n, root[0][0]);
+        if (n <= 32 * 32) return new IntVector2(n, root[0]);
         return new IntVector3(n, root);
     }
 }
@@ -451,7 +455,13 @@ final class IntVector4 extends IntVectorN {
         return new IntVector4(length - 1, root);
     }
 
-    public IntVector take_(int n) {
+    @Override
+    public IntVector take(int n) {
+        if (n == length) return this;
+        if (n == 0) return IntVector.empty;
+        if (n <= 32) return new IntVector1(n, root[0][0][0]);
+        if (n <= 32 * 32) return new IntVector2(n, root[0][0]);
+        if (n <= 32 * 32 * 32) return new IntVector3(n, root[0]);
         return new IntVector4(n, root);
     }
 }
@@ -522,7 +532,14 @@ final class IntVector5 extends IntVectorN {
         return new IntVector5(length - 1, root);
     }
 
-    public IntVector take_(int n) {
+    @Override
+    public IntVector take(int n) {
+        if (n == length) return this;
+        if (n == 0) return IntVector.empty;
+        if (n <= 32) return new IntVector1(n, root[0][0][0][0]);
+        if (n <= 32 * 32) return new IntVector2(n, root[0][0][0]);
+        if (n <= 32 * 32 * 32) return new IntVector3(n, root[0][0]);
+        if (n <= 32 * 32 * 32 * 32) return new IntVector4(n, root[0]);
         return new IntVector5(n, root);
     }
 }
@@ -596,7 +613,15 @@ final class IntVector6 extends IntVectorN {
         return new IntVector6(length - 1, root);
     }
 
-    public IntVector take_(int n) {
+    @Override
+    public IntVector take(int n) {
+        if (n == length) return this;
+        if (n == 0) return IntVector.empty;
+        if (n <= 32) return new IntVector1(n, root[0][0][0][0][0]);
+        if (n <= 32 * 32) return new IntVector2(n, root[0][0][0][0]);
+        if (n <= 32 * 32 * 32) return new IntVector3(n, root[0][0][0]);
+        if (n <= 32 * 32 * 32 * 32) return new IntVector4(n, root[0][0]);
+        if (n <= 32 * 32 * 32 * 32 * 32) return new IntVector5(n, root[0]);
         return new IntVector6(n, root);
     }
 }
