@@ -49,6 +49,10 @@ public final class Freditor extends CharZipper {
 
     // CURSOR
 
+    public int cursor() {
+        return cursor;
+    }
+
     public int row() {
         return rowOfPosition(cursor);
     }

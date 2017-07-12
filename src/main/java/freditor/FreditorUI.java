@@ -328,13 +328,17 @@ public class FreditorUI extends JComponent {
         }
     }
 
-    public void setCursor(int position) {
-        freditor.setCursorTo(position);
-        adjustView();
+    public int cursor() {
+        return freditor.cursor();
     }
 
     public int lineOfPosition(int position) {
         return freditor.rowOfPosition(position);
+    }
+
+    public void setCursorTo(int position) {
+        freditor.setCursorTo(position);
+        adjustView();
     }
 
     public void setCursorTo(String prefix) {
