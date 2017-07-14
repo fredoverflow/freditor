@@ -39,23 +39,20 @@ public class CharZipper implements CharSequence {
         lineBreaksAfter = lineBreaksAfter.pop();
     }
 
-    public Runnable remember() {
-        return new Runnable() {
-            private final IntVector before = CharZipper.this.before;
-            private final IntVector after = CharZipper.this.after;
+    protected class Memento {
+        private final IntVector before = CharZipper.this.before;
+        private final IntVector after = CharZipper.this.after;
 
-            private final IntVector lineBreaksBefore = CharZipper.this.lineBreaksBefore;
-            private final IntVector lineBreaksAfter = CharZipper.this.lineBreaksAfter;
+        private final IntVector lineBreaksBefore = CharZipper.this.lineBreaksBefore;
+        private final IntVector lineBreaksAfter = CharZipper.this.lineBreaksAfter;
 
-            @Override
-            public void run() {
-                CharZipper.this.before = before;
-                CharZipper.this.after = after;
+        public void restore() {
+            CharZipper.this.before = before;
+            CharZipper.this.after = after;
 
-                CharZipper.this.lineBreaksBefore = lineBreaksBefore;
-                CharZipper.this.lineBreaksAfter = lineBreaksAfter;
-            }
-        };
+            CharZipper.this.lineBreaksBefore = lineBreaksBefore;
+            CharZipper.this.lineBreaksAfter = lineBreaksAfter;
+        }
     }
 
     // CHARSEQUENCE

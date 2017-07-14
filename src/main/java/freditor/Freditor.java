@@ -15,21 +15,18 @@ public final class Freditor extends CharZipper {
     private int cursor;
     private int desiredColumn;
 
-    public Runnable remember() {
-        return new Runnable() {
-            private final Runnable rememberZipper = Freditor.super.remember();
-            private final int origin = Freditor.this.origin;
-            private final int cursor = Freditor.this.cursor;
-            private final int desiredColumn = Freditor.this.desiredColumn;
+    private class Memento extends CharZipper.Memento {
+        private final int origin = Freditor.this.origin;
+        private final int cursor = Freditor.this.cursor;
+        private final int desiredColumn = Freditor.this.desiredColumn;
 
-            @Override
-            public void run() {
-                rememberZipper.run();
-                Freditor.this.origin = origin;
-                Freditor.this.cursor = cursor;
-                Freditor.this.desiredColumn = desiredColumn;
-            }
-        };
+        @Override
+        public void restore() {
+            super.restore();
+            Freditor.this.origin = origin;
+            Freditor.this.cursor = cursor;
+            Freditor.this.desiredColumn = desiredColumn;
+        }
     }
 
     private void forgetDesiredColumn() {
@@ -124,30 +121,30 @@ public final class Freditor extends CharZipper {
 
     // TEXT MANIPULATION
 
-    private final ArrayDeque<Runnable> past = new ArrayDeque<>();
-    private final ArrayDeque<Runnable> future = new ArrayDeque<>();
+    private final ArrayDeque<Memento> past = new ArrayDeque<>();
+    private final ArrayDeque<Memento> future = new ArrayDeque<>();
 
     private int lastCursor = -1;
     private EditorAction lastAction = EditorAction.OTHER;
 
     private void commit() {
-        past.push(remember());
+        past.push(new Memento());
         future.clear();
     }
 
     public void undo() {
         if (past.isEmpty()) return;
 
-        future.push(remember());
-        past.pop().run();
+        future.push(new Memento());
+        past.pop().restore();
         lastAction = EditorAction.OTHER;
     }
 
     public void redo() {
         if (future.isEmpty()) return;
 
-        past.push(remember());
-        future.pop().run();
+        past.push(new Memento());
+        future.pop().restore();
         lastAction = EditorAction.OTHER;
     }
 
