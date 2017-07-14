@@ -96,7 +96,21 @@ public class FreditorUI extends JComponent {
                         break;
 
                     case KeyEvent.VK_DELETE:
-                        freditor.deleteRight();
+                        if (event.isShiftDown()) {
+                            freditor.cut();
+                        } else {
+                            freditor.deleteRight();
+                        }
+                        break;
+
+                    case KeyEvent.VK_INSERT:
+                        if (event.isControlDown()) {
+                            freditor.copy();
+                        } else if (event.isShiftDown()) {
+                            freditor.paste();
+                        } else {
+                            freditor.deleteRight();
+                        }
                         break;
 
                     case KeyEvent.VK_LEFT:
