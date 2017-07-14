@@ -174,7 +174,7 @@ public class CharZipper implements CharSequence {
         lineBreaksAfter = empty;
     }
 
-    private void focus(int index) {
+    private void focusOn(int index) {
         while (index < before.length()) {
             int x = before.top();
             before = before.pop();
@@ -198,7 +198,7 @@ public class CharZipper implements CharSequence {
     }
 
     public void insertAt(int index, char x) {
-        focus(index);
+        focusOn(index);
         insertAtFocus(x);
         fixAfterStates();
     }
@@ -239,7 +239,7 @@ public class CharZipper implements CharSequence {
     }
 
     public void insertAt(int index, String s) {
-        focus(index);
+        focusOn(index);
         insertAtFocus(s);
         fixAfterStates();
     }
@@ -252,19 +252,19 @@ public class CharZipper implements CharSequence {
     }
 
     public void insertSpacesAt(int index, int len) {
-        focus(index);
+        focusOn(index);
         for (; len > 0; --len) {
             insertAtFocus(' ');
         }
     }
 
     public void deleteSpacesAt(int index, int len) {
-        focus(index + len);
+        focusOn(index + len);
         before = before.take(index);
     }
 
     public void deleteLeftOf(int index) {
-        focus(index);
+        focusOn(index);
         if ((char) before.top() == '\n') {
             popLineBreakBefore();
         }
@@ -273,7 +273,7 @@ public class CharZipper implements CharSequence {
     }
 
     public void deleteRightOf(int index) {
-        focus(index);
+        focusOn(index);
         if ((char) after.top() == '\n') {
             popLineBreakAfter();
         }
@@ -282,7 +282,7 @@ public class CharZipper implements CharSequence {
     }
 
     public String deleteRange(int start, int end) {
-        focus(end);
+        focusOn(end);
         String result = beforeSlice(start, end);
 
         int firstObsoleteLineBreak = lineBreaksBefore.binarySearch(start);
@@ -309,7 +309,7 @@ public class CharZipper implements CharSequence {
         int c = homePositionOfRow(below);
         int d = endPositionOfRow(below);
 
-        focus(d);
+        focusOn(d);
         String first = beforeSlice(a, b);
         String second = beforeSlice(c, d);
 
