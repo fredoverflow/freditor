@@ -221,20 +221,20 @@ public class CharZipper implements CharSequence {
     }
 
     private void fixAfterStates() {
-        int n = 0;
         int state = stateAtFocus();
         while (!after.isEmpty()) {
-            int top = after.top();
-            state = flexer.nextState(state, (char) top);
-            if (state == top >> 16) break;
+            int x = after.top();
+            char c = (char) x;
+            int cachedState = x >> 16;
+            state = flexer.nextState(state, c);
+            if (state == cachedState) break;
+
             after = after.pop();
-            pushWithState((char) top, state);
-            ++n;
-        }
-        for (; n > 0; --n) {
-            int x = before.top();
-            before = before.pop();
-            after = after.push(x);
+            if (c == '\n') {
+                popLineBreakAfter();
+                pushLineBreakBefore();
+            }
+            pushWithState(c, state);
         }
     }
 
