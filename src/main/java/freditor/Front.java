@@ -12,7 +12,8 @@ import static javax.swing.JOptionPane.QUESTION_MESSAGE;
 import static javax.swing.JOptionPane.showInputDialog;
 
 public class Front {
-    public static final Front font = new Front("/fonts/" + pickFontSize() + ".png");
+    public static final String size = pickFontSize();
+    public static final Front font = new Front("/fonts/" + size + ".png");
 
     private static String pickFontSize() {
         String title = "Almost there...";
