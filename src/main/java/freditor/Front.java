@@ -8,8 +8,21 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
+import static javax.swing.JOptionPane.QUESTION_MESSAGE;
+import static javax.swing.JOptionPane.showInputDialog;
+
 public class Front {
-    public static final Front font = new Front("/font.png");
+    public static final Front font = new Front("/fonts/" + pickFontSize() + ".png");
+
+    private static String pickFontSize() {
+        String title = "Almost there...";
+        String prompt = "Please pick a font size:";
+        String[] possibilities = {"medium", "large"};
+        String defaultChoice = "medium";
+        Object choice = showInputDialog(null, prompt, title, QUESTION_MESSAGE, null, possibilities, defaultChoice);
+        String size = String.valueOf(choice);
+        return size;
+    }
 
     private final int[] argb;
     private final int imageWidth;
