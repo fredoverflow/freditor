@@ -14,6 +14,7 @@ import java.io.IOException;
 import javax.swing.JComponent;
 
 public class FreditorUI extends JComponent {
+    public static final int VISIBLE_LINES_ABOVE_CURSOR = 1;
     public static final int VISIBLE_LINES_BELOW_CURSOR = 1;
     public static final int width = Front.font.width;
     public static final int height = Front.font.height;
@@ -45,11 +46,12 @@ public class FreditorUI extends JComponent {
 
     private void adjustView() {
         int cursorLine = freditor.row();
-        if (cursorLine < firstVisibleLine) {
-            firstVisibleLine = cursorLine;
+        if (cursorLine - VISIBLE_LINES_ABOVE_CURSOR < firstVisibleLine) {
+            firstVisibleLine = cursorLine - VISIBLE_LINES_ABOVE_CURSOR;
         } else if (cursorLine + VISIBLE_LINES_BELOW_CURSOR > lastVisibleLine()) {
             firstVisibleLine = cursorLine + VISIBLE_LINES_BELOW_CURSOR - visibleLines() + 1;
         }
+        firstVisibleLine = Math.max(0, firstVisibleLine);
         componentToRepaint.repaint();
     }
 
