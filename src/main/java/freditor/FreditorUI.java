@@ -46,8 +46,12 @@ public class FreditorUI extends JComponent {
 
     private void adjustView() {
         int cursorLine = freditor.row();
-        if (cursorLine - VISIBLE_LINES_ABOVE_CURSOR < firstVisibleLine) {
+        if (cursorLine < firstVisibleLine) {
+            firstVisibleLine = cursorLine - visibleLines() / 4;
+        } else if (cursorLine - VISIBLE_LINES_ABOVE_CURSOR < firstVisibleLine) {
             firstVisibleLine = cursorLine - VISIBLE_LINES_ABOVE_CURSOR;
+        } else if (cursorLine > lastVisibleLine()) {
+            firstVisibleLine = cursorLine - visibleLines() * 3 / 4;
         } else if (cursorLine + VISIBLE_LINES_BELOW_CURSOR > lastVisibleLine()) {
             firstVisibleLine = cursorLine + VISIBLE_LINES_BELOW_CURSOR - visibleLines() + 1;
         }
