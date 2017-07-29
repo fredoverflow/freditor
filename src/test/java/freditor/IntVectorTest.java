@@ -8,118 +8,94 @@ import java.util.Random;
 import org.junit.Test;
 
 public class IntVectorTest {
-    private static IntVector valueOf(char x) {
-        return empty.push(x);
-    }
-
-    private static IntVector valueOf(String s) {
-        IntVector result = empty;
-        final int len = s.length();
-        for (int i = 0; i < len; ++i) {
-            result = result.push(s.charAt(i));
-        }
-        return result;
-    }
-
-    private static String toString(IntVector v) {
-        final int len = v.length();
-        StringBuilder sb = new StringBuilder(len);
-        for (int i = 0; i < len; ++i) {
-            sb.append((char) v.intAt(i));
-        }
-        return sb.toString();
-    }
-
     @Test
     public void emptyVector() {
         assertTrue(empty.isEmpty());
         assertEquals(0, empty.length());
-        assertEquals("", toString(empty));
+        assertArrayEquals(new int[0], empty.toArray());
     }
 
     @Test
     public void take0isEmpty() {
-        assertTrue(valueOf('x').take(0).isEmpty());
+        assertTrue(IntVector.of(42).take(0).isEmpty());
     }
 
     @Test
-    public void oneChar() {
-        IntVector v = valueOf('x');
+    public void oneInt() {
+        IntVector v = IntVector.of(42);
         assertFalse(v.isEmpty());
         assertEquals(1, v.length());
-        assertEquals("x", toString(v));
+        assertArrayEquals(new int[]{42}, v.toArray());
     }
 
     @Test
-    public void twoChars() {
-        IntVector v = valueOf('x').push('y');
+    public void twoInts() {
+        IntVector v = IntVector.of(11, 13);
         assertFalse(v.isEmpty());
         assertEquals(2, v.length());
-        assertEquals("xy", toString(v));
+        assertArrayEquals(new int[]{11, 13}, v.toArray());
     }
 
-    private static String makeStringOfLength(int len) {
-        final String atom = "0123456789_";
-        final int n = atom.length();
-        StringBuilder sb = new StringBuilder(len);
-        int i;
-        for (i = len; i >= n; i -= n) {
-            sb.append(atom);
+    private static int[] makeArrayOfLength(int len) {
+        int[] temp = new int[len];
+        for (int i = 0; i < len; ++i) {
+            temp[i] = 1 + i % 7;
         }
-        sb.append(atom, 0, i);
-        return sb.toString();
+        return temp;
     }
 
     @Test
-    public void makeString32() {
-        assertEquals("0123456789_0123456789_0123456789", makeStringOfLength(32));
+    public void makeArrayOfLength15() {
+        int[] expected = {1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1};
+        int[] actual = makeArrayOfLength(15);
+        assertArrayEquals(expected, actual);
     }
 
-    private static void appendStringOfLength(int len) {
-        String s = makeStringOfLength(len);
-        IntVector v = valueOf(s);
-        assertEquals(s.length(), v.length());
-        assertEquals(s, toString(v));
+    private static void testVectorOfLength(int len) {
+        int[] a = makeArrayOfLength(len);
+        IntVector v = IntVector.of(a);
+        assertEquals(len, v.length());
+        assertArrayEquals(a, v.toArray());
     }
 
     @Test
     public void fillLevel1() {
-        appendStringOfLength(32);
+        testVectorOfLength(32);
     }
 
     @Test
     public void overflowLevel1() {
-        appendStringOfLength(32 + 1);
+        testVectorOfLength(32 + 1);
     }
 
     @Test
     public void fillLevel2() {
-        appendStringOfLength(32 * 32);
+        testVectorOfLength(32 * 32);
     }
 
     @Test
     public void overflowLevel2() {
-        appendStringOfLength(32 * 32 + 1);
+        testVectorOfLength(32 * 32 + 1);
     }
 
     @Test
     public void fillLevel3() {
-        appendStringOfLength(32 * 32 * 32);
+        testVectorOfLength(32 * 32 * 32);
     }
 
     @Test
     public void overflowLevel3() {
-        appendStringOfLength(32 * 32 * 32 + 1);
+        testVectorOfLength(32 * 32 * 32 + 1);
     }
 
     @Test
     public void fillLevel4() {
-        appendStringOfLength(32 * 32 * 32 * 32);
+        testVectorOfLength(32 * 32 * 32 * 32);
     }
 
     @Test
     public void overflowLevel4() {
-        appendStringOfLength(32 * 32 * 32 * 32 + 1);
+        testVectorOfLength(32 * 32 * 32 * 32 + 1);
     }
 
     private static final Random rng = new Random(System.nanoTime() / 1_000_000_000L);
@@ -127,12 +103,20 @@ public class IntVectorTest {
     private static void randomBranch(int startLength, int endLength) {
         int len = startLength + rng.nextInt(endLength - startLength);
         System.out.println("split after length " + len);
-        String s = makeStringOfLength(len);
-        IntVector v = valueOf(s);
-        IntVector a = v.push('-').push('a');
-        IntVector b = v.push('-').push('b');
-        assertEquals(s + "-a", toString(a));
-        assertEquals(s + "-b", toString(b));
+        int[] a = makeArrayOfLength(len);
+        IntVector v = IntVector.of(a);
+        IntVector w = v.push(42).push(11);
+        IntVector x = v.push(42).push(13);
+        int[] b = w.toArray();
+        int[] c = x.toArray();
+        for (int i = 0; i < len; ++i) {
+            assertEquals(a[i], b[i]);
+            assertEquals(a[i], c[i]);
+        }
+        assertEquals(42, b[len]);
+        assertEquals(11, b[len + 1]);
+        assertEquals(42, c[len]);
+        assertEquals(13, c[len + 1]);
     }
 
     @Test
@@ -162,39 +146,39 @@ public class IntVectorTest {
 
     @Test
     public void popFromOne() {
-        IntVector x = valueOf('x');
-        assertSame(empty, x.pop());
+        IntVector v = IntVector.of(42);
+        assertSame(empty, v.pop());
     }
 
     @Test
     public void popFromTwo() {
-        IntVector xy = valueOf('x').push('y');
-        assertEquals("x", toString(xy.pop()));
+        IntVector v = IntVector.of(11, 13);
+        assertArrayEquals(new int[]{11}, v.pop().toArray());
     }
 
     @Test
     public void popFrom33() {
-        IntVector v = valueOf("0123456789abcdefghijklmnopqrstuvw");
-        assertEquals("0123456789abcdefghijklmnopqrstuv", toString(v.pop()));
+        IntVector v = IntVector.of(makeArrayOfLength(33));
+        assertArrayEquals(makeArrayOfLength(32), v.pop().toArray());
     }
 
     @Test
     public void popFrom34() {
-        IntVector v = valueOf("0123456789abcdefghijklmnopqrstuvwx");
-        assertEquals("0123456789abcdefghijklmnopqrstuvw", toString(v.pop()));
+        IntVector v = IntVector.of(makeArrayOfLength(34));
+        assertArrayEquals(makeArrayOfLength(33), v.pop().toArray());
     }
 
     @Test
     public void popAndAppend() {
-        IntVector a = valueOf("shelter");
-        IntVector b = a.pop().pop().pop().push('d').push('o').push('n');
-        assertEquals("shelter", toString(a));
-        assertEquals("sheldon", toString(b));
+        IntVector v = IntVector.of(1, 2, 3, 4);
+        IntVector w = v.pop().pop().push(4).push(8);
+        assertArrayEquals(new int[]{1, 2, 3, 4}, v.toArray());
+        assertArrayEquals(new int[]{1, 2, 4, 8}, w.toArray());
     }
 
     @Test
     public void takeAndPopTwoLevelVector() {
-        IntVector len33 = valueOf(makeStringOfLength(33));
+        IntVector len33 = IntVector.of(makeArrayOfLength(33));
         IntVector len1 = len33.take(1);
         IntVector len0 = len1.pop();
         assertTrue(len0.isEmpty());

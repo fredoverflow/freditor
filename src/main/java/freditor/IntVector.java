@@ -1,15 +1,26 @@
 package freditor;
 
+import java.util.Arrays;
+
 public abstract class IntVector {
     public static final IntVector empty = IntVector0.instance;
+
+    public static IntVector of(int... values) {
+        int len = values.length;
+        if (len <= 32) return new IntVector1(len, Arrays.copyOf(values, 32));
+
+        IntVector temp = empty;
+        for (int x : values) {
+            temp = temp.push(x);
+        }
+        return temp;
+    }
 
     public abstract boolean isEmpty();
 
     public abstract int length();
 
     public abstract int intAt(int index);
-
-    public abstract int[] copyIntoArray(int[] temp, int offset);
 
     public int top() {
         return intAt(length() - 1);
@@ -20,6 +31,12 @@ public abstract class IntVector {
     public abstract IntVector pop();
 
     public abstract IntVector take(int n);
+
+    public int[] toArray() {
+        return copyIntoArray(new int[length()], 0);
+    }
+
+    public abstract int[] copyIntoArray(int[] temp, int offset);
 
     public int binarySearch(int key) {
         int left = 0; // inclusive
@@ -62,16 +79,6 @@ final class IntVector0 extends IntVector {
     }
 
     @Override
-    public String toString() {
-        return "";
-    }
-
-    @Override
-    public int[] copyIntoArray(int[] temp, int offset) {
-        return temp;
-    }
-
-    @Override
     public IntVector push(int x) {
         return new IntVector1(x);
     }
@@ -85,6 +92,11 @@ final class IntVector0 extends IntVector {
     public IntVector take(int n) {
         assert n == 0;
         return this;
+    }
+
+    @Override
+    public int[] copyIntoArray(int[] temp, int offset) {
+        return temp;
     }
 }
 
