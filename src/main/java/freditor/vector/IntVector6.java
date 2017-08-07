@@ -5,7 +5,7 @@ final class IntVector6 extends IntVectorN {
     private final int[] tail;
 
     IntVector6(int[][][][][] full, int x) {
-        super(32 * 32 * 32 * 32 * 32 + 1);
+        super(CAPACITY_5 + 1);
 
         root = new int[32][][][][][];
         root[0] = full;
@@ -45,7 +45,7 @@ final class IntVector6 extends IntVectorN {
             tail[a] = x;
             return new IntVector6(length + 1, root, tail);
         }
-        if (length == 32 * 32 * 32 * 32 * 32 * 32) throw new AssertionError("vector exhausted");
+        if (length == CAPACITY_6) throw new AssertionError("vector exhausted");
 
         int b = (length >>> 5) & 31;
         int c = (length >>> 10) & 31;
@@ -67,19 +67,19 @@ final class IntVector6 extends IntVectorN {
     @Override
     public IntVector pop() {
         int len1 = length - 1;
-        if (len1 == 32 * 32 * 32 * 32 * 32) return new IntVector5(len1, root[0]);
+        if (len1 == CAPACITY_5) return new IntVector5(len1, root[0]);
         return new IntVector6(len1, root);
     }
 
     @Override
     public IntVector take(int n) {
         if (n == length) return this;
-        if (n == 0) return IntVector.empty;
-        if (n <= 32) return new IntVector1(n, root[0][0][0][0][0]);
-        if (n <= 32 * 32) return new IntVector2(n, root[0][0][0][0]);
-        if (n <= 32 * 32 * 32) return new IntVector3(n, root[0][0][0]);
-        if (n <= 32 * 32 * 32 * 32) return new IntVector4(n, root[0][0]);
-        if (n <= 32 * 32 * 32 * 32 * 32) return new IntVector5(n, root[0]);
+        if (n == CAPACITY_0) return IntVector.empty;
+        if (n <= CAPACITY_1) return new IntVector1(n, root[0][0][0][0][0]);
+        if (n <= CAPACITY_2) return new IntVector2(n, root[0][0][0][0]);
+        if (n <= CAPACITY_3) return new IntVector3(n, root[0][0][0]);
+        if (n <= CAPACITY_4) return new IntVector4(n, root[0][0]);
+        if (n <= CAPACITY_5) return new IntVector5(n, root[0]);
         return new IntVector6(n, root);
     }
 }

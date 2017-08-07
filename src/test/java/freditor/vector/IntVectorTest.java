@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.Random;
 
-import static freditor.vector.IntVector.empty;
+import static freditor.vector.IntVector.*;
 import static org.junit.Assert.*;
 
 public class IntVectorTest {
@@ -60,42 +60,42 @@ public class IntVectorTest {
 
     @Test
     public void fillLevel1() {
-        testVectorOfLength(32);
+        testVectorOfLength(CAPACITY_1);
     }
 
     @Test
     public void overflowLevel1() {
-        testVectorOfLength(32 + 1);
+        testVectorOfLength(CAPACITY_1 + 1);
     }
 
     @Test
     public void fillLevel2() {
-        testVectorOfLength(32 * 32);
+        testVectorOfLength(CAPACITY_2);
     }
 
     @Test
     public void overflowLevel2() {
-        testVectorOfLength(32 * 32 + 1);
+        testVectorOfLength(CAPACITY_2 + 1);
     }
 
     @Test
     public void fillLevel3() {
-        testVectorOfLength(32 * 32 * 32);
+        testVectorOfLength(CAPACITY_3);
     }
 
     @Test
     public void overflowLevel3() {
-        testVectorOfLength(32 * 32 * 32 + 1);
+        testVectorOfLength(CAPACITY_3 + 1);
     }
 
     @Test
     public void fillLevel4() {
-        testVectorOfLength(32 * 32 * 32 * 32);
+        testVectorOfLength(CAPACITY_4);
     }
 
     @Test
     public void overflowLevel4() {
-        testVectorOfLength(32 * 32 * 32 * 32 + 1);
+        testVectorOfLength(CAPACITY_4 + 1);
     }
 
     private static final Random rng = new Random(System.nanoTime() / 1_000_000_000L);
@@ -121,27 +121,27 @@ public class IntVectorTest {
 
     @Test
     public void randomBranchLevel1() {
-        randomBranch(1, 32);
+        randomBranch(1, CAPACITY_1);
     }
 
     @Test
     public void randomBranchLevel2() {
-        randomBranch(32, 32 * 32);
+        randomBranch(CAPACITY_1, CAPACITY_2);
     }
 
     @Test
     public void randomBranchLevel3() {
-        randomBranch(32 * 32, 32 * 32 * 32);
+        randomBranch(CAPACITY_2, CAPACITY_3);
     }
 
     @Test
     public void randomBranchLevel4() {
-        randomBranch(32 * 32 * 32, 32 * 32 * 32 * 32);
+        randomBranch(CAPACITY_3, CAPACITY_4);
     }
 
     @Test
     public void randomBranchLevel5() {
-        randomBranch(32 * 32 * 32 * 32, 32 * 32 * 32 * 32 * 2);
+        randomBranch(CAPACITY_4, CAPACITY_5);
     }
 
     @Test

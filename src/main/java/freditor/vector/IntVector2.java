@@ -5,7 +5,7 @@ final class IntVector2 extends IntVectorN {
     private final int[] tail;
 
     IntVector2(int[] full, int x) {
-        super(32 + 1);
+        super(CAPACITY_1 + 1);
 
         root = new int[32][];
         root[0] = full;
@@ -41,7 +41,7 @@ final class IntVector2 extends IntVectorN {
             tail[a] = x;
             return new IntVector2(length + 1, root, tail);
         }
-        if (length == 32 * 32) return new IntVector3(root, x);
+        if (length == CAPACITY_2) return new IntVector3(root, x);
         int b = length >>> 5;
         return new IntVector2(length + 1, with(root, b, with(tail, a, x)));
     }
@@ -49,15 +49,15 @@ final class IntVector2 extends IntVectorN {
     @Override
     public IntVector pop() {
         int len1 = length - 1;
-        if (len1 == 32) return new IntVector1(len1, root[0]);
+        if (len1 == CAPACITY_1) return new IntVector1(len1, root[0]);
         return new IntVector2(len1, root);
     }
 
     @Override
     public IntVector take(int n) {
         if (n == length) return this;
-        if (n == 0) return IntVector.empty;
-        if (n <= 32) return new IntVector1(n, root[0]);
+        if (n == CAPACITY_0) return IntVector.empty;
+        if (n <= CAPACITY_1) return new IntVector1(n, root[0]);
         return new IntVector2(n, root);
     }
 }

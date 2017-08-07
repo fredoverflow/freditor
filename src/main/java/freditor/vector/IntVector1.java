@@ -25,7 +25,7 @@ final class IntVector1 extends IntVectorN {
 
     @Override
     public IntVector push(int x) {
-        if (length == 32) return new IntVector2(tail, x);
+        if (length == CAPACITY_1) return new IntVector2(tail, x);
         if (tail[length] == 0) {
             tail[length] = x;
             return new IntVector1(length + 1, tail);
@@ -36,14 +36,14 @@ final class IntVector1 extends IntVectorN {
     @Override
     public IntVector pop() {
         int len1 = length - 1;
-        if (len1 == 0) return IntVector.empty;
+        if (len1 == CAPACITY_0) return IntVector.empty;
         return new IntVector1(len1, tail);
     }
 
     @Override
     public IntVector take(int n) {
         if (n == length) return this;
-        if (n == 0) return IntVector.empty;
+        if (n == CAPACITY_0) return IntVector.empty;
         return new IntVector1(n, tail);
     }
 }

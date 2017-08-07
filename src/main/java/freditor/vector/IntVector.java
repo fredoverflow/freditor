@@ -54,4 +54,14 @@ public abstract class IntVector {
         }
         return left;
     }
+
+    // CAPACITY CONSTANTS
+
+    static final int CAPACITY_0 = 0;
+    static final int CAPACITY_1 = 32;
+    static final int CAPACITY_2 = 32 * 32;
+    static final int CAPACITY_3 = 32 * 32 * 32;
+    static final int CAPACITY_4 = 32 * 32 * 32 * 32;
+    static final int CAPACITY_5 = 32 * 32 * 32 * 32 * 32;
+    static final int CAPACITY_6 = 32 * 32 * 32 * 32 * 32 * 32;
 }
