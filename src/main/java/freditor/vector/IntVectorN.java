@@ -2,6 +2,9 @@ package freditor.vector;
 
 abstract class IntVectorN extends IntVector {
     protected final int length;
+    // Maintenance note: Don't try to pull the int[] tail member up
+    // from the subclasses! You won't be able to initialize it
+    // without duplicating the leaf method logic inside all super calls.
 
     IntVectorN(int length) {
         this.length = length;
