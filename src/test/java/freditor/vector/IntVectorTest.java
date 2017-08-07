@@ -183,4 +183,11 @@ public class IntVectorTest {
         IntVector len0 = len1.pop();
         assertTrue(len0.isEmpty());
     }
+
+    @Test
+    public void zeroVarargs() {
+        IntVector v = IntVector.of();
+        assertTrue(v.isEmpty());
+        assertSame(empty, v);
+    }
 }
