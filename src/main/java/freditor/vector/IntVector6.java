@@ -13,7 +13,7 @@ final class IntVector6 extends IntVectorN {
         root[1][0] = new int[32][][][];
         root[1][0][0] = new int[32][][];
         root[1][0][0][0] = new int[32][];
-        root[1][0][0][0][0] = tail = array32of(x);
+        root[1][0][0][0][0] = tail = makeTail(x);
     }
 
     private IntVector6(int length, int[][][][][][] root, int[] tail) {

@@ -5,7 +5,7 @@ final class IntVector1 extends IntVectorN {
 
     IntVector1(int x) {
         super(1);
-        tail = array32of(x);
+        tail = makeTail(x);
     }
 
     IntVector1(int length, int[] tail) {

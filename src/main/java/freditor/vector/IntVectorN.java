@@ -33,9 +33,9 @@ abstract class IntVectorN extends IntVector {
         return temp;
     }
 
-    static int[] array32of(int x) {
+    static int[] makeTail(int firstEntry) {
         int[] array = new int[32];
-        array[0] = x;
+        array[0] = firstEntry;
         return array;
     }
 

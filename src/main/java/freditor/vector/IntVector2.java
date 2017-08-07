@@ -9,7 +9,7 @@ final class IntVector2 extends IntVectorN {
 
         root = new int[32][];
         root[0] = full;
-        root[1] = tail = array32of(x);
+        root[1] = tail = makeTail(x);
     }
 
     private IntVector2(int length, int[][] root, int[] tail) {
