@@ -35,8 +35,9 @@ final class IntVector1 extends IntVectorN {
 
     @Override
     public IntVector pop() {
-        if (length == 1) return IntVector.empty;
-        return new IntVector1(length - 1, tail);
+        int len1 = length - 1;
+        if (len1 == 0) return IntVector.empty;
+        return new IntVector1(len1, tail);
     }
 
     @Override

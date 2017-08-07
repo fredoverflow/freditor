@@ -48,8 +48,9 @@ final class IntVector2 extends IntVectorN {
 
     @Override
     public IntVector pop() {
-        if (length == 32 + 1) return new IntVector1(length - 1, root[0]);
-        return new IntVector2(length - 1, root);
+        int len1 = length - 1;
+        if (len1 == 32) return new IntVector1(len1, root[0]);
+        return new IntVector2(len1, root);
     }
 
     @Override
