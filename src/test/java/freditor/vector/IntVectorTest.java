@@ -1,11 +1,11 @@
-package freditor;
+package freditor.vector;
 
-import static freditor.IntVector.empty;
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import java.util.Random;
 
-import org.junit.Test;
+import static freditor.vector.IntVector.empty;
+import static org.junit.Assert.*;
 
 public class IntVectorTest {
     @Test
