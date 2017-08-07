@@ -63,10 +63,8 @@ abstract class IntVectorN extends IntVector {
 
     // WITH
 
-    static final boolean optimize = true;
-
     static int[] with(int[] array, int index, int entry) {
-        if (optimize && array[index] == entry) return array;
+        if (array[index] == entry) return array;
         int[] old = array;
         array = new int[32];
         System.arraycopy(old, 0, array, 0, index);
@@ -75,8 +73,8 @@ abstract class IntVectorN extends IntVector {
     }
 
     static int[][] with(int[][] array, int index, int[] entry) {
-        if (optimize && array[index] == entry) return array;
-        if (!optimize || array[index] != null) {
+        if (array[index] == entry) return array;
+        if (array[index] != null) {
             int[][] old = array;
             array = new int[32][];
             System.arraycopy(old, 0, array, 0, index);
@@ -86,8 +84,8 @@ abstract class IntVectorN extends IntVector {
     }
 
     static int[][][] with(int[][][] array, int index, int[][] entry) {
-        if (optimize && array[index] == entry) return array;
-        if (!optimize || array[index] != null) {
+        if (array[index] == entry) return array;
+        if (array[index] != null) {
             int[][][] old = array;
             array = new int[32][][];
             System.arraycopy(old, 0, array, 0, index);
@@ -97,8 +95,8 @@ abstract class IntVectorN extends IntVector {
     }
 
     static int[][][][] with(int[][][][] array, int index, int[][][] entry) {
-        if (optimize && array[index] == entry) return array;
-        if (!optimize || array[index] != null) {
+        if (array[index] == entry) return array;
+        if (array[index] != null) {
             int[][][][] old = array;
             array = new int[32][][][];
             System.arraycopy(old, 0, array, 0, index);
@@ -108,8 +106,8 @@ abstract class IntVectorN extends IntVector {
     }
 
     static int[][][][][] with(int[][][][][] array, int index, int[][][][] entry) {
-        if (optimize && array[index] == entry) return array;
-        if (!optimize || array[index] != null) {
+        if (array[index] == entry) return array;
+        if (array[index] != null) {
             int[][][][][] old = array;
             array = new int[32][][][][];
             System.arraycopy(old, 0, array, 0, index);
@@ -119,8 +117,8 @@ abstract class IntVectorN extends IntVector {
     }
 
     static int[][][][][][] with(int[][][][][][] array, int index, int[][][][][] entry) {
-        if (optimize && array[index] == entry) return array;
-        if (!optimize || array[index] != null) {
+        if (array[index] == entry) return array;
+        if (array[index] != null) {
             int[][][][][][] old = array;
             array = new int[32][][][][][];
             System.arraycopy(old, 0, array, 0, index);
