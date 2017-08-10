@@ -21,6 +21,11 @@ final class IntVector0 extends IntVector {
     }
 
     @Override
+    public int top()  {
+        throw new AssertionError("top on empty vector");
+    }
+
+    @Override
     public IntVector push(int x) {
         return new IntVector1(x);
     }

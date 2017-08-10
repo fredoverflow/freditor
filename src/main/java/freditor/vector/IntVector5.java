@@ -38,6 +38,11 @@ final class IntVector5 extends IntVectorN {
     }
 
     @Override
+    public int top() {
+        return tail[(length - 1) & 31];
+    }
+
+    @Override
     public IntVector push(int x) {
         int a = length & 31;
         if (tail[a] == 0) {

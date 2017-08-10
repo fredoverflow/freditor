@@ -23,9 +23,7 @@ public abstract class IntVector {
 
     public abstract int intAt(int index);
 
-    public int top() {
-        return intAt(length() - 1);
-    }
+    public abstract int top();
 
     public abstract IntVector push(int x);
 

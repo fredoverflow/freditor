@@ -24,6 +24,11 @@ final class IntVector1 extends IntVectorN {
     }
 
     @Override
+    public int top() {
+        return tail[length - 1];
+    }
+
+    @Override
     public IntVector push(int x) {
         if (length == CAPACITY_1) return new IntVector2(tail, x);
         if (tail[length] == 0) {
