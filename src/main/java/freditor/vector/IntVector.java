@@ -39,23 +39,6 @@ public abstract class IntVector {
 
     public abstract int[] copyIntoArray(int[] temp, int offset);
 
-    public int binarySearch(int key) {
-        int left = 0; // inclusive
-        int right = length(); // exclusive
-        while (left < right) {
-            int middle = (left + right) >>> 1;
-            int element = intAt(middle);
-            if (element < key) {
-                left = middle + 1;
-            } else if (element > key) {
-                right = middle;
-            } else {
-                return middle;
-            }
-        }
-        return left;
-    }
-
     // CAPACITY CONSTANTS
 
     static final int CAPACITY_0 = 0;

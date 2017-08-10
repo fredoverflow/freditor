@@ -139,9 +139,9 @@ public class CharZipper implements CharSequence {
 
     public int rowOfPosition(int position) {
         if (position < before.length()) {
-            return lineBreaksBefore.binarySearch(position);
+            return binarySearch(lineBreaksBefore, position);
         } else {
-            return numberOfLineBreaks() - lineBreaksAfter.binarySearch(length() - position);
+            return numberOfLineBreaks() - binarySearch(lineBreaksAfter, length() - position);
         }
     }
 
@@ -278,7 +278,7 @@ public class CharZipper implements CharSequence {
         focusOn(end);
         String result = beforeSlice(start, end);
 
-        int firstObsoleteLineBreak = lineBreaksBefore.binarySearch(start);
+        int firstObsoleteLineBreak = binarySearch(lineBreaksBefore, start);
         lineBreaksBefore = lineBreaksBefore.take(firstObsoleteLineBreak);
 
         before = before.take(start);
@@ -354,5 +354,24 @@ public class CharZipper implements CharSequence {
                 out.newLine();
             }
         }
+    }
+
+    // BINARY SEARCH
+
+    private static int binarySearch(IntVector lineBreaks, int key) {
+        int left = 0; // inclusive
+        int right = lineBreaks.length(); // exclusive
+        while (left < right) {
+            int middle = (left + right) >>> 1;
+            int element = lineBreaks.intAt(middle);
+            if (element < key) {
+                left = middle + 1; // inclusive
+            } else if (element > key) {
+                right = middle; // exclusive
+            } else {
+                return middle;
+            }
+        }
+        return left;
     }
 }
