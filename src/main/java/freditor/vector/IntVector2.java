@@ -42,8 +42,13 @@ final class IntVector2 extends IntVectorN {
             return new IntVector2(length + 1, root, tail);
         }
         if (length == CAPACITY_2) return new IntVector3(root, x);
+
         int b = length >>> 5;
-        return new IntVector2(length + 1, with(root, b, with(tail, a, x)));
+
+        int[][] B = root;
+        int[] A = lazy(B[b]);
+
+        return new IntVector2(length + 1, with(B, b, with(A, a, x)));
     }
 
     @Override
