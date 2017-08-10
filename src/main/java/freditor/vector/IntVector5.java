@@ -59,8 +59,13 @@ final class IntVector5 extends IntVectorN {
         int[][] B = lazy(C[c]);
         int[] A = lazy(B[b]);
 
-        return new IntVector5(length + 1,
-                with(E, e, with(D, d, with(C, c, with(B, b, with(A, a, x))))));
+        A = with(A, a, x);
+        B = with(B, b, A);
+        C = with(C, c, B);
+        D = with(D, d, C);
+        E = with(E, e, D);
+
+        return new IntVector5(length + 1, E);
     }
 
     @Override

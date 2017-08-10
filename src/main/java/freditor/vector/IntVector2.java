@@ -50,7 +50,10 @@ final class IntVector2 extends IntVectorN {
         int[][] B = root;
         int[] A = lazy(B[b]);
 
-        return new IntVector2(length + 1, with(B, b, with(A, a, x)));
+        A = with(A, a, x);
+        B = with(B, b, A);
+
+        return new IntVector2(length + 1, B);
     }
 
     @Override

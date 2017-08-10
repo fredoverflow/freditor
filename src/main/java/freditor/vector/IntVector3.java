@@ -53,7 +53,11 @@ final class IntVector3 extends IntVectorN {
         int[][] B = lazy(C[c]);
         int[] A = lazy(B[b]);
 
-        return new IntVector3(length + 1, with(C, c, with(B, b, with(A, a, x))));
+        A = with(A, a, x);
+        B = with(B, b, A);
+        C = with(C, c, B);
+
+        return new IntVector3(length + 1, C);
     }
 
     @Override
