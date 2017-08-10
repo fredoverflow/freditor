@@ -71,66 +71,54 @@ abstract class IntVectorN extends IntVector {
     // WITH
 
     static int[] with(int[] array, int index, int entry) {
-        if (array[index] == entry) return array;
-        int[] old = array;
-        array = new int[32];
-        System.arraycopy(old, 0, array, 0, index);
-        array[index] = entry;
+        if (array[index] != entry) {
+            prefixCopy(array, array = new int[32], index);
+            array[index] = entry;
+        }
         return array;
     }
 
+    private static void prefixCopy(Object src, Object dst, int prefixLength) {
+        System.arraycopy(src, 0, dst, 0, prefixLength);
+    }
+
     static int[][] with(int[][] array, int index, int[] entry) {
-        if (array[index] == entry) return array;
-        if (array[index] != null) {
-            int[][] old = array;
-            array = new int[32][];
-            System.arraycopy(old, 0, array, 0, index);
+        if (array[index] != entry) {
+            if (array[index] != null) prefixCopy(array, array = new int[32][], index);
+            array[index] = entry;
         }
-        array[index] = entry;
         return array;
     }
 
     static int[][][] with(int[][][] array, int index, int[][] entry) {
-        if (array[index] == entry) return array;
-        if (array[index] != null) {
-            int[][][] old = array;
-            array = new int[32][][];
-            System.arraycopy(old, 0, array, 0, index);
+        if (array[index] != entry) {
+            if (array[index] != null) prefixCopy(array, array = new int[32][][], index);
+            array[index] = entry;
         }
-        array[index] = entry;
         return array;
     }
 
     static int[][][][] with(int[][][][] array, int index, int[][][] entry) {
-        if (array[index] == entry) return array;
-        if (array[index] != null) {
-            int[][][][] old = array;
-            array = new int[32][][][];
-            System.arraycopy(old, 0, array, 0, index);
+        if (array[index] != entry) {
+            if (array[index] != null) prefixCopy(array, array = new int[32][][][], index);
+            array[index] = entry;
         }
-        array[index] = entry;
         return array;
     }
 
     static int[][][][][] with(int[][][][][] array, int index, int[][][][] entry) {
-        if (array[index] == entry) return array;
-        if (array[index] != null) {
-            int[][][][][] old = array;
-            array = new int[32][][][][];
-            System.arraycopy(old, 0, array, 0, index);
+        if (array[index] != entry) {
+            if (array[index] != null) prefixCopy(array, array = new int[32][][][][], index);
+            array[index] = entry;
         }
-        array[index] = entry;
         return array;
     }
 
     static int[][][][][][] with(int[][][][][][] array, int index, int[][][][][] entry) {
-        if (array[index] == entry) return array;
-        if (array[index] != null) {
-            int[][][][][][] old = array;
-            array = new int[32][][][][][];
-            System.arraycopy(old, 0, array, 0, index);
+        if (array[index] != entry) {
+            if (array[index] != null) prefixCopy(array, array = new int[32][][][][][], index);
+            array[index] = entry;
         }
-        array[index] = entry;
         return array;
     }
 }
