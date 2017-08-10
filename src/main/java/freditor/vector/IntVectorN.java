@@ -33,9 +33,16 @@ abstract class IntVectorN extends IntVector {
         return temp;
     }
 
+    // TAIL
+
     static int[] makeTail(int firstEntry) {
         int[] array = new int[32];
         array[0] = firstEntry;
+        return array;
+    }
+
+    static int[] storeInto(int[] array, int index, int entry) {
+        array[index] = entry;
         return array;
     }
 

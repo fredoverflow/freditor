@@ -42,10 +42,7 @@ final class IntVector2 extends IntVectorN {
     @Override
     public IntVector push(int x) {
         int a = length & 31;
-        if (tail[a] == 0) {
-            tail[a] = x;
-            return new IntVector2(length + 1, root, tail);
-        }
+        if (tail[a] == 0) return new IntVector2(length + 1, root, storeInto(tail, a, x));
         if (length == CAPACITY_2) return new IntVector3(root, x);
 
         int b = length >>> 5;
