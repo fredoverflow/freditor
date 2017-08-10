@@ -7,10 +7,10 @@ public abstract class IntVector {
 
     public static IntVector of(int... values) {
         int len = values.length;
-        if (len == 0) return empty;
+        if (len == 0) return IntVector.empty;
         if (len <= 32) return new IntVector1(len, Arrays.copyOf(values, 32));
 
-        IntVector temp = empty;
+        IntVector temp = IntVector.empty;
         for (int x : values) {
             temp = temp.push(x);
         }

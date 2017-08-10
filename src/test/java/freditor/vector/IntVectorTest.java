@@ -10,9 +10,9 @@ import static org.junit.Assert.*;
 public class IntVectorTest {
     @Test
     public void emptyVector() {
-        assertTrue(empty.isEmpty());
-        assertEquals(0, empty.length());
-        assertArrayEquals(new int[0], empty.toArray());
+        assertTrue(IntVector.empty.isEmpty());
+        assertEquals(0, IntVector.empty.length());
+        assertArrayEquals(new int[0], IntVector.empty.toArray());
     }
 
     @Test
@@ -147,7 +147,7 @@ public class IntVectorTest {
     @Test
     public void popFromOne() {
         IntVector v = IntVector.of(42);
-        assertSame(empty, v.pop());
+        assertSame(IntVector.empty, v.pop());
     }
 
     @Test
@@ -188,6 +188,6 @@ public class IntVectorTest {
     public void zeroVarargs() {
         IntVector v = IntVector.of();
         assertTrue(v.isEmpty());
-        assertSame(empty, v);
+        assertSame(IntVector.empty, v);
     }
 }

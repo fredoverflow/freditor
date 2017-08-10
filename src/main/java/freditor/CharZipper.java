@@ -4,8 +4,6 @@ import freditor.vector.IntVector;
 
 import java.io.*;
 
-import static freditor.vector.IntVector.empty;
-
 public class CharZipper implements CharSequence {
     public final Flexer flexer;
 
@@ -13,11 +11,11 @@ public class CharZipper implements CharSequence {
         this.flexer = flexer;
     }
 
-    private IntVector before = empty;
-    private IntVector after = empty;
+    private IntVector before = IntVector.empty;
+    private IntVector after = IntVector.empty;
 
-    private IntVector lineBreaksBefore = empty;
-    private IntVector lineBreaksAfter = empty;
+    private IntVector lineBreaksBefore = IntVector.empty;
+    private IntVector lineBreaksAfter = IntVector.empty;
 
     private void pushLineBreakBefore() {
         lineBreaksBefore = lineBreaksBefore.push(before.length());
@@ -160,11 +158,11 @@ public class CharZipper implements CharSequence {
     // TEXT MANIPULATION
 
     public void clear() {
-        before = empty;
-        after = empty;
+        before = IntVector.empty;
+        after = IntVector.empty;
 
-        lineBreaksBefore = empty;
-        lineBreaksAfter = empty;
+        lineBreaksBefore = IntVector.empty;
+        lineBreaksAfter = IntVector.empty;
     }
 
     private void focusOn(int index) {
