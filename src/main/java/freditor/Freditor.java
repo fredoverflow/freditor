@@ -346,8 +346,8 @@ public final class Freditor extends CharZipper {
     // INDENTATION
 
     public void indent() {
-        final int openingBrace = flexer.openBrace() << 16 | '{';
-        final int closingBrace = flexer.closeBrace() << 16 | '}';
+        final int openingBrace = flexer.openingBrace() << 16 | '{';
+        final int closingBrace = flexer.closingBrace() << 16 | '}';
 
         final int oldRow = row();
         final int len = rows();

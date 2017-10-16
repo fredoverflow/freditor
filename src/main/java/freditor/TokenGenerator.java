@@ -125,14 +125,14 @@ public class TokenGenerator {
 
     private static final String[] asciiNames = {
             "SPACE", "BANG", "QUOTE", "HASH", "DOLLAR", "PERCENT", "AMPERSAND", "APOSTROPHE",
-            "OPEN_PAREN", "CLOSE_PAREN", "ASTERISK", "PLUS", "COMMA", "HYPHEN", "DOT", "SLASH",
+            "OPENING_PAREN", "CLOSING_PAREN", "ASTERISK", "PLUS", "COMMA", "HYPHEN", "DOT", "SLASH",
             "ZERO", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE",
             "COLON", "SEMICOLON", "LESS", "EQUAL", "MORE", "QUESTION", "AT",
             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
             "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-            "OPEN_BRACKET", "BACKSLASH", "CLOSE_BRACKET", "CARET", "UNDERSCORE", "GRAVE",
+            "OPENING_BRACKET", "BACKSLASH", "CLOSING_BRACKET", "CARET", "UNDERSCORE", "GRAVE",
             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
             "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-            "OPEN_BRACE", "BAR", "CLOSE_BRACE", "TILDE"
+            "OPENING_BRACE", "BAR", "CLOSING_BRACE", "TILDE"
     };
 }
