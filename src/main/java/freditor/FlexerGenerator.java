@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class TokenGenerator {
-    public TokenGenerator(int lastNegative, int lastPositive) {
+public class FlexerGenerator {
+    public FlexerGenerator(int lastNegative, int lastPositive) {
         negative = lastNegative;
         positive = lastPositive;
     }
