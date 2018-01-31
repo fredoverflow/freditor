@@ -325,21 +325,47 @@ public final class Freditor extends CharZipper {
         forgetDesiredColumn();
     }
 
-    public void moveLineUp() {
-        int row = row();
-        if (row > 0) {
-            rememberColumn();
-            swapWithLineAbove(row);
-            setRowAndColumn(row - 1, desiredColumn);
+    public void moveSelectedLinesUp() {
+        int above = rowOfPosition(selectionStart()) - 1;
+        if (above >= 0) {
+            if (lastAction != EditorAction.LINE_MOVE) {
+                commit();
+                lastAction = EditorAction.LINE_MOVE;
+            }
+            int home = homePositionOfRow(above);
+            int end = endPositionOfRow(above);
+            int len = end - home + 1;
+            deleteRightOf(end);
+            String line = deleteRange(home, end);
+
+            cursor -= len;
+            origin -= len;
+
+            int destination = endPositionOf(selectionEnd());
+            insertAt(destination, '\n');
+            insertAt(destination + 1, line);
         }
     }
 
-    public void moveLineDown() {
-        int row = row() + 1;
-        if (row < rows()) {
-            rememberColumn();
-            swapWithLineAbove(row);
-            setRowAndColumn(row, desiredColumn);
+    public void moveSelectedLinesDown() {
+        int below = rowOfPosition(selectionEnd()) + 1;
+        if (below < rows()) {
+            if (lastAction != EditorAction.LINE_MOVE) {
+                commit();
+                lastAction = EditorAction.LINE_MOVE;
+            }
+            int home = homePositionOfRow(below);
+            int end = endPositionOfRow(below);
+            int len = end - home + 1;
+            String line = deleteRange(home, end);
+            deleteLeftOf(home);
+
+            int destination = homePositionOf(selectionStart());
+            insertAt(destination, line);
+            insertAt(destination + len - 1, '\n');
+
+            cursor += len;
+            origin += len;
         }
     }
 

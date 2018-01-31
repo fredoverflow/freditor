@@ -139,7 +139,8 @@ public class FreditorUI extends JComponent {
 
                     case KeyEvent.VK_UP:
                         if (event.isAltDown()) {
-                            freditor.moveLineUp();
+                            freditor.moveSelectedLinesUp();
+                            break;
                         } else if (event.isControlDown()) {
                             if (firstVisibleLine > 0) {
                                 --firstVisibleLine;
@@ -154,7 +155,8 @@ public class FreditorUI extends JComponent {
 
                     case KeyEvent.VK_DOWN:
                         if (event.isAltDown()) {
-                            freditor.moveLineDown();
+                            freditor.moveSelectedLinesDown();
+                            break;
                         } else if (event.isControlDown()) {
                             ++firstVisibleLine;
                             componentToRepaint.repaint();

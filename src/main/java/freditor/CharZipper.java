@@ -293,27 +293,6 @@ public class CharZipper implements CharSequence {
         return new String(temp);
     }
 
-    public void swapWithLineAbove(int below) {
-        int above = below - 1;
-        int a = homePositionOfRow(above);
-        int b = endPositionOfRow(above);
-        int c = homePositionOfRow(below);
-        int d = endPositionOfRow(below);
-
-        focusOn(d);
-        String first = beforeSlice(a, b);
-        String second = beforeSlice(c, d);
-
-        before = before.take(a);
-        popLineBreakBefore();
-
-        insertAtFocus(second);
-        insertAtFocus('\n');
-        insertAtFocus(first);
-
-        fixAfterStates();
-    }
-
     // PERSISTENCE
 
     public void loadFromFile(String pathname) throws IOException {
