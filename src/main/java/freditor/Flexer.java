@@ -16,9 +16,7 @@ package freditor;
 public abstract class Flexer {
     public static final int END = 0;
 
-    public abstract int openingBrace();
-
-    public abstract int closingBrace();
+    public abstract int indentationDelta(int state);
 
     public int pickColorForLexeme(int endState) {
         return 0x000000;

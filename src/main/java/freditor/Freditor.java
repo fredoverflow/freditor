@@ -372,9 +372,6 @@ public final class Freditor extends CharZipper {
     // INDENTATION
 
     public void indent() {
-        final int openingBrace = flexer.openingBrace() << 16 | '{';
-        final int closingBrace = flexer.closingBrace() << 16 | '}';
-
         final int oldRow = row();
         final int len = rows();
         int[] indentation = new int[len];
@@ -382,8 +379,8 @@ public final class Freditor extends CharZipper {
         int minimum = 0;
         for (int row = 0; row < len; ++row) {
             int line = homePositionOfRow(row);
-            indentation[row] = reference - leadingClosingBraces(line, closingBrace);
-            reference = reference + openingMinusClosingBraces(line, openingBrace, closingBrace);
+            indentation[row] = reference - leadingClosers(line);
+            reference = reference + openersMinusClosers(line);
             minimum = Math.min(minimum, reference);
         }
         for (int row = len - 1; row >= 0; --row) {
@@ -394,30 +391,30 @@ public final class Freditor extends CharZipper {
         forgetDesiredColumn();
     }
 
-    private int leadingClosingBraces(int i, int closingBrace) {
+    private int leadingClosers(int i) {
         int n = 0;
-        for (; i < length(); ++i) {
+        final int len = length();
+        for (; i < len; ++i) {
             int x = intAt(i);
-            if (x == closingBrace) {
+            if (flexer.indentationDelta(x >> 16) < 0) {
                 ++n;
-            } else if ((char) x != ' ') {
+            }
+            else if ((char) x != ' ') {
                 return n;
             }
         }
         return n;
     }
 
-    private int openingMinusClosingBraces(int i, int openingBrace, int closingBrace) {
+    private int openersMinusClosers(int i) {
         int difference = 0;
-        for (; i < length(); ++i) {
+        final int len = length();
+        for (; i < len; ++i) {
             int x = intAt(i);
-            if (x == openingBrace) {
-                ++difference;
-            } else if (x == closingBrace) {
-                --difference;
-            } else if ((char) x == '\n') {
+            if ((char) x == '\n') {
                 return difference;
             }
+            difference += flexer.indentationDelta(x >> 16);
         }
         return difference;
     }
