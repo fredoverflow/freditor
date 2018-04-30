@@ -59,10 +59,10 @@ public class FreditorUI extends JComponent {
         componentToRepaint.repaint();
     }
 
-    public FreditorUI(Flexer flexer, int columns, int rows) {
+    public FreditorUI(Flexer flexer, Indenter indenter, int columns, int rows) {
         setPreferredSize(new Dimension(columns * width, rows * height));
 
-        freditor = new Freditor(flexer);
+        freditor = new Freditor(flexer, indenter);
         // We want to be able to listen to keys...
         setFocusable(true);
         // ...including the TAB key :)

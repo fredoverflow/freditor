@@ -242,6 +242,15 @@ public class CharZipper implements CharSequence {
         }
     }
 
+    public int leadingSpaces(int index) {
+        int start = index;
+        final int len = length();
+        while (index < len && charAt(index) == ' ') {
+            ++index;
+        }
+        return index - start;
+    }
+
     public void insertSpacesAt(int index, int len) {
         focusOn(index);
         for (; len > 0; --len) {

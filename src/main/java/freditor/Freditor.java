@@ -3,12 +3,13 @@ package freditor;
 import java.util.ArrayDeque;
 
 public final class Freditor extends CharZipper {
-    public static final int INDENT_BY = 4;
+    private final Indenter indenter;
 
     private static String clipboard = "";
 
-    public Freditor(Flexer flexer) {
+    public Freditor(Flexer flexer, Indenter indenter) {
         super(flexer);
+        this.indenter = indenter;
     }
 
     private int origin;
@@ -373,68 +374,21 @@ public final class Freditor extends CharZipper {
 
     public void indent() {
         final int oldRow = row();
-        final int len = rows();
-        int[] indentation = new int[len];
-        int reference = 0;
-        int minimum = 0;
-        for (int row = 0; row < len; ++row) {
-            int line = homePositionOfRow(row);
-            indentation[row] = reference - leadingClosers(line);
-            reference = reference + openersMinusClosers(line);
-            minimum = Math.min(minimum, reference);
-        }
-        for (int row = len - 1; row >= 0; --row) {
-            indent(row, INDENT_BY * (indentation[row] - minimum));
+        int[] corrections = indenter.corrections(this);
+        for (int row = rows() - 1; row >= 0; --row) {
+            correct(row, corrections[row]);
         }
         setRowAndColumn(oldRow, leadingSpaces(homePositionOfRow(oldRow)));
         adjustOrigin();
         forgetDesiredColumn();
     }
 
-    private int leadingClosers(int i) {
-        int n = 0;
-        final int len = length();
-        for (; i < len; ++i) {
-            int x = intAt(i);
-            if (flexer.indentationDelta(x >> 16) < 0) {
-                ++n;
-            }
-            else if ((char) x != ' ') {
-                return n;
-            }
-        }
-        return n;
-    }
-
-    private int openersMinusClosers(int i) {
-        int difference = 0;
-        final int len = length();
-        for (; i < len; ++i) {
-            int x = intAt(i);
-            if ((char) x == '\n') {
-                return difference;
-            }
-            difference += flexer.indentationDelta(x >> 16);
-        }
-        return difference;
-    }
-
-    private void indent(int row, int indentation) {
+    private void correct(int row, int correction) {
         int start = homePositionOfRow(row);
-        indentation -= leadingSpaces(start);
-        if (indentation > 0) {
-            insertSpacesAt(start, indentation);
-        } else if (indentation < 0) {
-            deleteSpacesAt(start, -indentation);
+        if (correction > 0) {
+            insertSpacesAt(start, correction);
+        } else if (correction < 0) {
+            deleteSpacesAt(start, -correction);
         }
-    }
-
-    private int leadingSpaces(int i) {
-        int start = i;
-        final int len = length();
-        while (i < len && charAt(i) == ' ') {
-            ++i;
-        }
-        return i - start;
     }
 }
