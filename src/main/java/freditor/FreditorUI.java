@@ -388,12 +388,14 @@ public class FreditorUI extends JComponent {
 
     public void loadFromFile(String pathname) throws IOException {
         freditor.loadFromFile(pathname);
-        componentToRepaint.repaint();
+        freditor.adjustOrigin();
+        adjustView();
     }
 
     public void loadFromString(String program) {
         freditor.loadFromString(program);
-        componentToRepaint.repaint();
+        freditor.adjustOrigin();
+        adjustView();
     }
 
     public void saveToFile(String pathname) throws IOException {
