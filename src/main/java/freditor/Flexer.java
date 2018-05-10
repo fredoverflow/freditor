@@ -63,4 +63,8 @@ public abstract class Flexer {
     public String synthesizeOnInsert(int state, int nextState) {
         return "";
     }
+
+    public boolean preventInsertion(int nextState) {
+        return false;
+    }
 }

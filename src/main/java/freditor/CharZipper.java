@@ -196,6 +196,9 @@ public class CharZipper implements CharSequence {
 
     public void insertWithSynthAt(int index, char x) {
         focusOn(index);
+        final int nextState = flexer.nextState(stateAtFocus(), x);
+        if (nextState == stateAfterFocus() && flexer.preventInsertion(nextState)) return;
+
         insertAtFocus(x);
         String synth = flexer.synthesizeOnInsert(stateAtFocus(), stateAfterFocus());
         insertAtFocus(synth);
