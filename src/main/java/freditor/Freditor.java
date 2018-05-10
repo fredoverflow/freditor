@@ -342,14 +342,20 @@ public final class Freditor extends CharZipper {
             cursor -= len;
             origin -= len;
 
-            int destination = endPositionOf(selectionEnd());
+            int destination = endPositionOf(selectionEndForLineMovement());
             insertAt(destination, '\n');
             insertAt(destination + 1, line);
         }
     }
 
+    private int selectionEndForLineMovement() {
+        // When multiple lines are selected, the last line should not be moved
+        // if the cursor is at the beginning of the line.
+        return selectionIsEmpty() ? selectionEnd() : selectionEnd() - 1;
+    }
+
     public void moveSelectedLinesDown() {
-        int below = rowOfPosition(selectionEnd()) + 1;
+        int below = rowOfPosition(selectionEndForLineMovement()) + 1;
         if (below < rows()) {
             if (lastAction != EditorAction.LINE_MOVE) {
                 commit();
