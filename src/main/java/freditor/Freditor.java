@@ -86,6 +86,13 @@ public final class Freditor extends CharZipper {
         adjustOrigin();
     }
 
+    public void setCursorTo(int row, int column) {
+        cursor = Math.min(homePositionOfRow(row) + column, endPositionOfRow(row));
+        desiredColumn = column;
+        adjustOrigin();
+    }
+
+
     public void setCursorTo(String prefix) {
         // TODO optimize
         int index = toString().indexOf(prefix);
