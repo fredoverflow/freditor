@@ -203,11 +203,11 @@ public final class Freditor extends CharZipper {
         lastAction = EditorAction.OTHER;
     }
 
-    public void onEnter(String synthesize) {
+    public void onEnter(char previousCharTyped) {
         deleteSelection();
         commit();
 
-        insertAt(cursor, synthesize);
+        insertAt(cursor, indenter.synthesizeOnEnterAfter(previousCharTyped));
         insertAt(cursor++, '\n');
         adjustOrigin();
         indent();

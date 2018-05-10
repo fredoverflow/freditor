@@ -1,7 +1,12 @@
 package freditor;
 
-public abstract class JavaIndenter implements Indenter {
+public abstract class JavaIndenter extends Indenter {
     private CharZipper text;
+
+    @Override
+    public String synthesizeOnEnterAfter(char previousCharTyped) {
+        return previousCharTyped == '{' ? "\n}" : "";
+    }
 
     @Override
     public int[] corrections(CharZipper text) {

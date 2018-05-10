@@ -1,5 +1,9 @@
 package freditor;
 
-public interface Indenter {
-    int[] corrections(CharZipper text);
+public abstract class Indenter {
+    public abstract int[] corrections(CharZipper text);
+
+    public String synthesizeOnEnterAfter(char previousCharTyped) {
+        return "";
+    }
 }

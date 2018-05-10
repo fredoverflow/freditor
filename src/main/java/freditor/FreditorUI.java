@@ -90,7 +90,7 @@ public class FreditorUI extends JComponent {
                 charTyped = 0;
                 switch (event.getKeyCode()) {
                     case KeyEvent.VK_ENTER:
-                        freditor.onEnter(previousCharTyped == '{' ? "\n}" : "");
+                        freditor.onEnter(previousCharTyped);
                         break;
 
                     case KeyEvent.VK_TAB:
