@@ -194,6 +194,14 @@ public class CharZipper implements CharSequence {
         fixAfterStates();
     }
 
+    public void insertWithSynthAt(int index, char x) {
+        focusOn(index);
+        insertAtFocus(x);
+        String synth = flexer.synthesizeOnInsert(stateAtFocus(), stateAfterFocus());
+        insertAtFocus(synth);
+        fixAfterStates();
+    }
+
     private void insertAtFocus(char x) {
         if (x == '\n') {
             pushLineBreakBefore();
@@ -205,6 +213,10 @@ public class CharZipper implements CharSequence {
 
     private int stateAtFocus() {
         return before.isEmpty() ? Flexer.END : before.top() >> 16;
+    }
+
+    private int stateAfterFocus() {
+        return after.isEmpty() ? Flexer.END : after.top() >> 16;
     }
 
     private void pushWithState(char x, int state) {

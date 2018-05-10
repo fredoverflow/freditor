@@ -186,7 +186,7 @@ public final class Freditor extends CharZipper {
             lastAction = EditorAction.SINGLE_INSERT;
         }
 
-        insertAt(cursor++, c);
+        insertWithSynthAt(cursor++, c);
         lastCursor = cursor;
         forgetDesiredColumn();
         adjustOrigin();
