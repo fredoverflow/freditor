@@ -260,8 +260,11 @@ public class CharZipper implements CharSequence {
     public int leadingSpaces(int index) {
         int start = index;
         final int len = length();
-        while (index < len && charAt(index) == ' ') {
+        if (index < len && intAt(index) >> 16 == Flexer.FIRST_SPACE) {
             ++index;
+            while (index < len && intAt(index) >> 16 == Flexer.NEXT_SPACE) {
+                ++index;
+            }
         }
         return index - start;
     }
@@ -271,11 +274,13 @@ public class CharZipper implements CharSequence {
         for (; len > 0; --len) {
             insertAtFocus(' ');
         }
+        fixAfterStates();
     }
 
     public void deleteSpacesAt(int index, int len) {
         focusOn(index + len);
         before = before.take(index);
+        fixAfterStates();
     }
 
     public void deleteLeftOf(int index) {

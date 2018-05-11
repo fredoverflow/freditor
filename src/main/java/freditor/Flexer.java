@@ -15,6 +15,11 @@ package freditor;
  */
 public abstract class Flexer {
     public static final int END = 0;
+    public static final int ERROR = -1;
+
+    public static final int NEWLINE = -2;
+    public static final int FIRST_SPACE = -3;
+    public static final int NEXT_SPACE = 1;
 
     public int pickColorForLexeme(int endState) {
         return 0x000000;
