@@ -14,18 +14,17 @@ public abstract class JavaIndenter extends Indenter {
         final int rows = text.rows();
         int[] corrections = new int[rows];
         int indentation = 0;
-        int minimum = 0;
         for (int row = 0; row < rows; ++row) {
             int home = text.homePositionOfRow(row);
             int end = text.endPositionOfRow(row);
-            corrections[row] = indentation + leadingClosers(home, end) - text.leadingSpaces(home);
-            indentation = indentation + openersAndClosers(home, end);
-            minimum = Math.min(minimum, indentation);
-        }
-        for (int row = 0; row < rows; ++row) {
-            corrections[row] -= minimum;
+            corrections[row] = nonNegative(indentation + leadingClosers(home, end)) - text.leadingSpaces(home);
+            indentation = nonNegative(indentation + openersAndClosers(home, end));
         }
         return corrections;
+    }
+
+    private static int nonNegative(int o) {
+        return o < 0 ? 0 : o;
     }
 
     private int leadingClosers(int home, int end) {
