@@ -312,7 +312,7 @@ public class FreditorUI extends JComponent {
         out:
         for (int i = freditor.homePositionOfRow(firstVisibleLine); i < freditor.length(); ) {
             int k = freditor.endOfLexeme(i);
-            int endState = freditor.intAt(k - 1) >> 16;
+            int endState = freditor.stateAt(k - 1);
             int rgb = freditor.flexer.pickColorForLexeme(endState);
             for (; i < k; ++i) {
                 char c = freditor.charAt(i);

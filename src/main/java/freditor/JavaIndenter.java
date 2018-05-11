@@ -30,29 +30,27 @@ public abstract class JavaIndenter extends Indenter {
 
     private int leadingClosers(int i) {
         int difference = 0;
+        int space = Flexer.FIRST_SPACE;
         final int len = text.length();
         for (; i < len; ++i) {
-            int x = text.intAt(i);
-            int delta = indentationDelta(x >> 16);
+            int state = text.stateAt(i);
+            int delta = indentationDelta(state);
             if (delta < 0) {
                 difference += delta;
-            }
-            else if ((char) x != ' ') {
+            } else if (state != space) {
                 return difference;
             }
+            space = Flexer.NEXT_SPACE;
         }
         return difference;
     }
 
     private int openersAndClosers(int i) {
         int difference = 0;
-        final int len = text.length();
-        for (; i < len; ++i) {
-            int x = text.intAt(i);
-            if ((char) x == '\n') {
-                return difference;
-            }
-            difference += indentationDelta(x >> 16);
+        final int end = text.endPositionOf(i);
+        for (; i < end; ++i) {
+            int state = text.stateAt(i);
+            difference += indentationDelta(state);
         }
         return difference;
     }

@@ -67,6 +67,10 @@ public class CharZipper implements CharSequence {
         return after.intAt(after.length() - 1 - index);
     }
 
+    public int stateAt(int index) {
+        return intAt(index) >> 16;
+    }
+
     @Override
     public String subSequence(int start, int end) {
         final int len = end - start;
@@ -260,9 +264,9 @@ public class CharZipper implements CharSequence {
     public int leadingSpaces(int index) {
         int start = index;
         final int len = length();
-        if (index < len && intAt(index) >> 16 == Flexer.FIRST_SPACE) {
+        if (index < len && stateAt(index) == Flexer.FIRST_SPACE) {
             ++index;
-            while (index < len && intAt(index) >> 16 == Flexer.NEXT_SPACE) {
+            while (index < len && stateAt(index) == Flexer.NEXT_SPACE) {
                 ++index;
             }
         }
