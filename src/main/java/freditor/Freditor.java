@@ -388,7 +388,7 @@ public final class Freditor extends CharZipper {
     public void indent() {
         final int oldRow = row();
         int[] corrections = indenter.corrections(this);
-        for (int row = rows() - 1; row >= 0; --row) {
+        for (int row = corrections.length - 1; row >= 0; --row) {
             correct(row, corrections[row]);
         }
         setRowAndColumn(oldRow, leadingSpaces(homePositionOfRow(oldRow)));
