@@ -1,19 +1,14 @@
 package freditor;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
 
-import javax.swing.JComponent;
-
 public class FreditorUI extends JComponent {
+    public static final Color CURRENT_LINE_COLOR = new Color(0xffffaa);
+    public static final Color SELECTION_COLOR = new Color(0xc8c8ff);
+
     public static final int VISIBLE_LINES_ABOVE_CURSOR = 1;
     public static final int VISIBLE_LINES_BELOW_CURSOR = 1;
     public static final int width = Front.font.width;
@@ -295,59 +290,91 @@ public class FreditorUI extends JComponent {
 
     @Override
     public void paint(Graphics g) {
-        int cursorY = (freditor.row() - firstVisibleLine) * height;
+        paintBackground(g);
+        paintCurrentLineOrSelection(g);
+        paintLexemes(g);
+        paintCursor(g);
+    }
+
+    private int x(int column) {
+        return column * width;
+    }
+
+    private int y(int row) {
+        return (row - firstVisibleLine) * height;
+    }
+
+    private void paintBackground(Graphics g) {
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, getWidth(), getHeight());
+    }
+
+    private void paintCurrentLineOrSelection(Graphics g) {
         int start = freditor.selectionStart();
         int end = freditor.selectionEnd();
-        if (start != end) {
+        if (start == end) {
+            paintCurrentLine(g);
+        } else {
             paintSelection(g, freditor.rowOfPosition(start), freditor.columnOfPosition(start),
                     freditor.rowOfPosition(end), freditor.columnOfPosition(end));
-        } else {
-            g.setColor(new Color(0xffffaa));
-            g.fillRect(0, cursorY, getWidth(), height);
         }
+    }
+
+    private void paintCurrentLine(Graphics g) {
+        g.setColor(CURRENT_LINE_COLOR);
+        g.fillRect(0, y(freditor.row()), getWidth(), height);
+    }
+
+    private void paintSelection(Graphics g, int startRow, int startColumn, int endRow,
+                                int endColumn) {
+        g.setColor(SELECTION_COLOR);
+        if (startRow == endRow) {
+            paintLineSelection(g, startRow, startColumn, endColumn);
+        } else {
+            paintMultiLineSelection(g, startRow, startColumn, endRow, endColumn);
+        }
+    }
+
+    private void paintLineSelection(Graphics g, int row, int startColumn, int endColumn) {
+        g.fillRect(x(startColumn), y(row), x(endColumn - startColumn), height);
+    }
+
+    private void paintMultiLineSelection(Graphics g, int startRow, int startColumn, int endRow, int endColumn) {
+        paintLineSelection(g, startRow, startColumn, freditor.lengthOfRow(startRow));
+        for (int row = startRow + 1; row < endRow; ++row) {
+            paintLineSelection(g, row, 0, freditor.lengthOfRow(row));
+        }
+        paintLineSelection(g, endRow, 0, endColumn);
+    }
+
+    private void paintLexemes(Graphics g) {
+        final int componentHeight = super.getHeight();
         int y = 0;
         int x = 0;
-        out:
-        for (int i = freditor.homePositionOfRow(firstVisibleLine); i < freditor.length(); ) {
+        final int len = freditor.length();
+        for (int i = freditor.homePositionOfRow(firstVisibleLine); i < len; ) {
             int k = freditor.endOfLexeme(i);
             int endState = freditor.stateAt(k - 1);
             int rgb = freditor.flexer.pickColorForLexeme(endState);
             for (; i < k; ++i) {
                 char c = freditor.charAt(i);
                 if (c == '\n') {
-                    x = 0;
                     y += height;
-                    if (y >= getHeight()) break out;
+                    if (y >= componentHeight) return;
+                    x = 0;
                 } else {
                     Front.font.drawCharacter(g, x, y, c, rgb);
                     x += width;
                 }
             }
         }
-        x = freditor.column() * width;
-        g.setColor(Color.BLACK);
-        g.drawLine(x, cursorY, x, cursorY + height - 1);
     }
 
-    private void paintSelection(Graphics g, int startRow, int startColumn, int endRow,
-                                int endColumn) {
-        g.setColor(new Color(0xc8c8ff));
-        if (startRow == endRow) {
-            // selection is limited to a single line
-            g.fillRect(startColumn * width, (startRow - firstVisibleLine) * height,
-                    (endColumn - startColumn) * width, height);
-        } else {
-            // selection spawns multiple lines
-            g.fillRect(startColumn * width, (startRow - firstVisibleLine) * height,
-                    (freditor.lengthOfRow(startRow) - startColumn) * width, height);
-            for (int row = startRow + 1; row < endRow; ++row) {
-                g.fillRect(0, (row - firstVisibleLine) * height, freditor.lengthOfRow(row) * width,
-                        height);
-            }
-            g.fillRect(0, (endRow - firstVisibleLine) * height, endColumn * width, height);
-        }
+    private void paintCursor(Graphics g) {
+        int cursorX = x(freditor.column());
+        int cursorY = y(freditor.row());
+        g.setColor(Color.BLACK);
+        g.drawLine(cursorX, cursorY, cursorX, cursorY + height - 1);
     }
 
     public int cursor() {
