@@ -1,7 +1,7 @@
-package freditor.vector;
+package freditor.persistent;
 
-final class IntVector0 extends IntVector {
-    IntVector0() {
+final class CharVector0 extends CharVector {
+    CharVector0() {
         // prevent external instantiations
     }
 
@@ -16,33 +16,33 @@ final class IntVector0 extends IntVector {
     }
 
     @Override
-    public int intAt(int index) {
-        throw new AssertionError("intAt on empty vector");
+    public char charAt(int index) {
+        throw new AssertionError("charAt on empty vector");
     }
 
     @Override
-    public int top()  {
+    public char top() {
         throw new AssertionError("top on empty vector");
     }
 
     @Override
-    public IntVector push(int x) {
-        return new IntVector1(x);
+    public CharVector push(char x) {
+        return new CharVector1(x);
     }
 
     @Override
-    public IntVector pop() {
+    public CharVector pop() {
         throw new AssertionError("pop on empty vector");
     }
 
     @Override
-    public IntVector take(int n) {
+    public CharVector take(int n) {
         assert n == 0;
         return this;
     }
 
     @Override
-    public int[] copyIntoArray(int[] temp, int offset) {
+    public char[] copyIntoArray(char[] temp, int offset) {
         return temp;
     }
 }

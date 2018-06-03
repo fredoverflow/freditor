@@ -3,7 +3,7 @@ package freditor;
 public class Indenter {
     public static final Indenter instance = new Indenter();
 
-    public int[] corrections(CharZipper text) {
+    public int[] corrections(Freditor text) {
         return new int[0];
     }
 

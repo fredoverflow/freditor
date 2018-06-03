@@ -65,11 +65,11 @@ public abstract class Flexer {
 
     protected abstract int identifier(char input);
 
-    public String synthesizeOnInsert(int state, int nextState) {
-        return "";
-    }
-
     public boolean preventInsertion(int nextState) {
         return false;
+    }
+
+    public String synthesizeOnInsert(int state, int nextState) {
+        return "";
     }
 }

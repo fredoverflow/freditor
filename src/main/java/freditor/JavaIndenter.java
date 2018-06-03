@@ -1,7 +1,7 @@
 package freditor;
 
 public abstract class JavaIndenter extends Indenter {
-    private CharZipper text;
+    private Freditor text;
 
     @Override
     public String synthesizeOnEnterAfter(char previousCharTyped) {
@@ -9,7 +9,7 @@ public abstract class JavaIndenter extends Indenter {
     }
 
     @Override
-    public int[] corrections(CharZipper text) {
+    public int[] corrections(Freditor text) {
         this.text = text;
         final int rows = text.rows();
         int[] corrections = new int[rows];

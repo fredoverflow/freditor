@@ -1,14 +1,29 @@
 package freditor;
 
+import freditor.ephemeral.IntStack;
+import freditor.ephemeral.IntGapBuffer;
+
+import java.io.*;
 import java.util.ArrayDeque;
 
 public final class Freditor extends CharZipper {
-    private final Indenter indenter;
+    private IntStack lineBreaksBefore;
+    private IntStack lineBreaksAfter;
+
+    private IntGapBuffer flexerStates;
+
+    public final Flexer flexer;
+    public final Indenter indenter;
 
     private static String clipboard = "";
 
     public Freditor(Flexer flexer, Indenter indenter) {
-        super(flexer);
+        lineBreaksBefore = new IntStack();
+        lineBreaksAfter = new IntStack();
+
+        flexerStates = new IntGapBuffer();
+
+        this.flexer = flexer;
         this.indenter = indenter;
     }
 
@@ -24,10 +39,18 @@ public final class Freditor extends CharZipper {
         @Override
         public void restore() {
             super.restore();
+
             Freditor.this.origin = origin;
             Freditor.this.cursor = cursor;
             Freditor.this.desiredColumn = desiredColumn;
+
+            refreshBookkeeping();
         }
+    }
+
+    private void refreshBookkeeping() {
+        refreshLineBreaks();
+        refreshFlexerStates();
     }
 
     private void forgetDesiredColumn() {
@@ -43,6 +66,218 @@ public final class Freditor extends CharZipper {
 
     public String getLineUntilCursor() {
         return subSequence(homePositionOf(cursor), cursor);
+    }
+
+    // LINE BREAKS
+
+    private void refreshLineBreaks() {
+        refreshLineBreaks(before(), lineBreaksBefore);
+        refreshLineBreaks(after(), lineBreaksAfter);
+    }
+
+    private static void refreshLineBreaks(CharSequence text, IntStack lineBreaks) {
+        lineBreaks.clear();
+        final int len = text.length();
+        for (int i = 0; i < len; ++i) {
+            if (text.charAt(i) == '\n') {
+                lineBreaks.push(i);
+            }
+        }
+    }
+
+    private int numberOfLineBreaks() {
+        return lineBreaksBefore.size() + lineBreaksAfter.size();
+    }
+
+    public int rows() {
+        return numberOfLineBreaks() + 1;
+    }
+
+    public int lengthOfRow(int row) {
+        return endPositionOfRow(row) - homePositionOfRow(row);
+    }
+
+    public int homePositionOfRow(int row) {
+        if (row == 0) return 0;
+        --row;
+        if (row < lineBreaksBefore.size()) return lineBreaksBefore.get(row) + 1;
+        final int n = numberOfLineBreaks();
+        if (row < n) return length() - 1 - lineBreaksAfter.get(n - 1 - row) + 1;
+        return length();
+    }
+
+    public int endPositionOfRow(int row) {
+        if (row < lineBreaksBefore.size()) return lineBreaksBefore.get(row);
+        final int n = numberOfLineBreaks();
+        if (row < n) return length() - 1 - lineBreaksAfter.get(n - 1 - row);
+        return length();
+    }
+
+    public int rowOfPosition(int position) {
+        if (position < before().length()) {
+            return lineBreaksBefore.binarySearch(position);
+        } else {
+            return numberOfLineBreaks() - lineBreaksAfter.binarySearch(length() - position);
+        }
+    }
+
+    public int homePositionOf(int position) {
+        return homePositionOfRow(rowOfPosition(position));
+    }
+
+    public int endPositionOf(int position) {
+        return endPositionOfRow(rowOfPosition(position));
+    }
+
+    public int columnOfPosition(int position) {
+        return position - homePositionOf(position);
+    }
+
+    // FLEXER
+
+    public int stateAt(int index) {
+        return (0 <= index) && (index < length()) ? flexerStates.get(index) : Flexer.END;
+    }
+
+    private void refreshFlexerStates() {
+        flexerStates.clear();
+        int state = Flexer.END;
+        final int len = length();
+        for (int i = 0; i < len; ++i) {
+            char x = charAt(i);
+            state = flexer.nextState(state, x);
+            flexerStates.add(state);
+        }
+    }
+
+    private void fixFlexerStatesFrom(int index) {
+        int state = stateAt(index - 1);
+        final int len = length();
+        for (int i = index; i < len; ++i) {
+            char x = charAt(i);
+            state = flexer.nextState(state, x);
+            if (flexerStates.set(i, state) == state) return;
+        }
+    }
+
+    public int startOfLexeme(int index) {
+        while (!lexemeStartsAt(index)) {
+            --index;
+        }
+        return index;
+    }
+
+    public int endOfLexeme(int index) {
+        do {
+            ++index;
+        } while (!lexemeStartsAt(index));
+        return index;
+    }
+
+    private boolean lexemeStartsAt(int index) {
+        return stateAt(index) <= 0;
+    }
+
+    // CHARZIPPER OVERRIDES
+
+    @Override
+    public void clear() {
+        lineBreaksBefore.clear();
+        lineBreaksAfter.clear();
+
+        flexerStates.clear();
+
+        super.clear();
+    }
+
+    @Override
+    protected void focusOn(int index) {
+        super.focusOn(index);
+        final int len = length();
+        mirrorLineBreaks(lineBreaksBefore, lineBreaksAfter, index, len - 1);
+        mirrorLineBreaks(lineBreaksAfter, lineBreaksBefore, len - index, len - 1);
+    }
+
+    private void mirrorLineBreaks(IntStack src, IntStack dst, int threshold, int mirror) {
+        while (!src.isEmpty() && src.top() >= threshold) {
+            dst.push(mirror - src.pop());
+        }
+    }
+
+    @Override
+    public void insertAt(int index, char x) {
+        super.insertAt(index, x);
+        if (x == '\n') {
+            lineBreaksBefore.push(index);
+        }
+        flexerStates.add(index, Integer.MIN_VALUE);
+        fixFlexerStatesFrom(index);
+    }
+
+    @Override
+    public void insertAt(int index, CharSequence s) {
+        super.insertAt(index, s);
+        final CharSequence before = before();
+        final int end = before.length();
+        for (int i = index; i < end; ++i) {
+            if (before.charAt(i) == '\n') {
+                lineBreaksBefore.push(i);
+            }
+            flexerStates.add(i, Integer.MIN_VALUE);
+        }
+        fixFlexerStatesFrom(index);
+    }
+
+    private void insertAt(int index, char x, CharSequence s) {
+        super.insertAt(index, x);
+        if (x == '\n') {
+            lineBreaksBefore.push(index);
+        }
+        flexerStates.add(index, Integer.MIN_VALUE);
+
+        final int start = after().length();
+        insertAfterFocus(s);
+        final CharSequence after = after();
+        final int end = after.length();
+        for (int i = start; i < end; ++i) {
+            if (after.charAt(i) == '\n') {
+                lineBreaksAfter.push(i);
+            }
+            flexerStates.add(index + 1, Integer.MIN_VALUE);
+        }
+        fixFlexerStatesFrom(index);
+    }
+
+    @Override
+    public char deleteLeftOf(int index) {
+        char deleted = super.deleteLeftOf(index);
+        if (deleted == '\n') {
+            lineBreaksBefore.pop();
+        }
+        flexerStates.remove(index - 1);
+        fixFlexerStatesFrom(index - 1);
+        return deleted;
+    }
+
+    @Override
+    public char deleteRightOf(int index) {
+        char deleted = super.deleteRightOf(index);
+        if (deleted == '\n') {
+            lineBreaksAfter.pop();
+        }
+        flexerStates.remove(index);
+        fixFlexerStatesFrom(index);
+        return deleted;
+    }
+
+    @Override
+    public String deleteRange(int start, int end) {
+        String result = super.deleteRange(start, end);
+        int firstObsoleteLineBreak = lineBreaksBefore.binarySearch(start);
+        lineBreaksBefore.shrinkToSize(firstObsoleteLineBreak);
+        flexerStates.remove(start, end);
+        fixFlexerStatesFrom(start);
+        return result;
     }
 
     // CURSOR
@@ -92,7 +327,6 @@ public final class Freditor extends CharZipper {
         adjustOrigin();
     }
 
-
     public void setCursorTo(String prefix) {
         // TODO optimize
         int index = toString().indexOf(prefix);
@@ -107,24 +341,6 @@ public final class Freditor extends CharZipper {
             cursor = endOfLexeme(cursor);
         }
         forgetDesiredColumn();
-    }
-
-    private boolean lexemeStartsAt(int index) {
-        return index == length() || intAt(index) < 0;
-    }
-
-    public int startOfLexeme(int index) {
-        while (!lexemeStartsAt(index)) {
-            --index;
-        }
-        return index;
-    }
-
-    public int endOfLexeme(int index) {
-        do {
-            ++index;
-        } while (!lexemeStartsAt(index));
-        return index;
     }
 
     // TEXT MANIPULATION
@@ -199,6 +415,19 @@ public final class Freditor extends CharZipper {
         adjustOrigin();
     }
 
+    private void insertWithSynthAt(int index, char x) {
+        final int oldState = stateAt(index);
+        final int newState = flexer.nextState(stateAt(index - 1), x);
+        if (newState == oldState && flexer.preventInsertion(newState)) return;
+
+        String synth = flexer.synthesizeOnInsert(newState, oldState);
+        if (synth.isEmpty()) {
+            insertAt(index, x);
+        } else {
+            insertAt(index, x, synth);
+        }
+    }
+
     public void insertString(String s) {
         deleteSelection();
         commit();
@@ -214,8 +443,12 @@ public final class Freditor extends CharZipper {
         deleteSelection();
         commit();
 
-        insertAt(cursor, indenter.synthesizeOnEnterAfter(previousCharTyped));
-        insertAt(cursor++, '\n');
+        String synth = indenter.synthesizeOnEnterAfter(previousCharTyped);
+        if (synth.isEmpty()) {
+            insertAt(cursor++, '\n');
+        } else {
+            insertAt(cursor++, '\n', synth);
+        }
         adjustOrigin();
         indent();
         lastAction = EditorAction.OTHER;
@@ -399,9 +632,62 @@ public final class Freditor extends CharZipper {
     private void correct(int row, int correction) {
         int start = homePositionOfRow(row);
         if (correction > 0) {
-            insertSpacesAt(start, correction);
+            insertAt(start, SpaceSequence.of(correction));
         } else if (correction < 0) {
-            deleteSpacesAt(start, -correction);
+            deleteRange(start, start - correction);
+        }
+    }
+
+    public int leadingSpaces(int index) {
+        int start = index;
+        final int len = length();
+        if (index < len && stateAt(index) == Flexer.FIRST_SPACE) {
+            ++index;
+            while (index < len && stateAt(index) == Flexer.NEXT_SPACE) {
+                ++index;
+            }
+        }
+        return index - start;
+    }
+
+    // PERSISTENCE
+
+    public void loadFromFile(String pathname) throws IOException {
+        loadFromReader(new FileReader(pathname));
+    }
+
+    public void loadFromString(String program) {
+        try {
+            loadFromReader(new StringReader(program));
+        } catch (IOException impossible) {
+            impossible.printStackTrace();
+        }
+    }
+
+    private void loadFromReader(Reader reader) throws IOException {
+        try (BufferedReader in = new BufferedReader(reader)) {
+            String line = in.readLine();
+            if (line != null) {
+                super.clear();
+                insertBeforeFocus(line);
+                while ((line = in.readLine()) != null) {
+                    insertBeforeFocus("\n");
+                    insertBeforeFocus(line);
+                }
+                refreshBookkeeping();
+            }
+        }
+    }
+
+    public void saveToFile(String pathname) throws IOException {
+        String text = toString();
+        try (BufferedWriter out = new BufferedWriter(new FileWriter(pathname))) {
+            for (int i = 0; i < rows(); ++i) {
+                int start = homePositionOfRow(i);
+                int end = endPositionOfRow(i);
+                out.write(text, start, end - start);
+                out.newLine();
+            }
         }
     }
 }
