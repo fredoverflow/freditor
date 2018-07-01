@@ -337,10 +337,14 @@ public final class Freditor extends CharZipper {
 
     public void selectLexemeAtCursor() {
         origin = startOfLexeme(cursor);
-        if (cursor < length()) {
-            cursor = endOfLexeme(cursor);
-        }
+        cursor = Math.min(length(), endOfLexeme(cursor));
         forgetDesiredColumn();
+    }
+
+    public String lexemeAtCursor() {
+        int start = startOfLexeme(cursor);
+        int end = Math.min(length(), endOfLexeme(cursor));
+        return subSequence(start, end);
     }
 
     // TEXT MANIPULATION

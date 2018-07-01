@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class FreditorUI extends JComponent {
     public static final Color CURRENT_LINE_COLOR = new Color(0xffffaa);
@@ -22,6 +23,8 @@ public class FreditorUI extends JComponent {
     public void setComponentToRepaint(JComponent componentToRepaint) {
         this.componentToRepaint = componentToRepaint;
     }
+
+    public Consumer<String> onRightClick = ignored -> {};
 
     public int visibleLines() {
         return getHeight() / height;
@@ -252,6 +255,9 @@ public class FreditorUI extends JComponent {
                         int column = event.getX() / width;
                         freditor.setRowAndColumn(row + firstVisibleLine, column);
                         if (!event.isShiftDown()) freditor.adjustOrigin();
+                        if (event.getButton() != MouseEvent.BUTTON1) {
+                            onRightClick.accept(freditor.lexemeAtCursor());
+                        }
                         break;
 
                     case 2:
