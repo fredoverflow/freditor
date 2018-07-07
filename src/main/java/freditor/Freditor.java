@@ -15,8 +15,6 @@ public final class Freditor extends CharZipper {
     public final Flexer flexer;
     public final Indenter indenter;
 
-    private static String clipboard = "";
-
     public Freditor(Flexer flexer, Indenter indenter) {
         lineBreaksBefore = new IntStack();
         lineBreaksAfter = new IntStack();
@@ -389,7 +387,7 @@ public final class Freditor extends CharZipper {
     public void copy() {
         if (selectionIsEmpty()) return;
 
-        clipboard = subSequence(selectionStart(), selectionEnd());
+        SystemClipboard.set(subSequence(selectionStart(), selectionEnd()));
         lastAction = EditorAction.OTHER;
     }
 
@@ -397,13 +395,13 @@ public final class Freditor extends CharZipper {
         if (selectionIsEmpty()) return;
 
         commit();
-        clipboard = deleteRange(selectionStart(), selectionEnd());
+        SystemClipboard.set(deleteRange(selectionStart(), selectionEnd()));
         cursor = origin = selectionStart();
         lastAction = EditorAction.OTHER;
     }
 
     public void paste() {
-        insertString(clipboard);
+        insert(SystemClipboard.getVisibleLatin1());
     }
 
     public void insertCharacter(char c) {
@@ -432,7 +430,7 @@ public final class Freditor extends CharZipper {
         }
     }
 
-    public void insertString(String s) {
+    public void insert(CharSequence s) {
         deleteSelection();
         commit();
 

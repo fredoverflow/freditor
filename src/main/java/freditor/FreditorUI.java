@@ -415,7 +415,7 @@ public class FreditorUI extends JComponent {
     }
 
     public void insertString(String s) {
-        freditor.insertString(s);
+        freditor.insert(s);
         componentToRepaint.repaint();
     }
 
