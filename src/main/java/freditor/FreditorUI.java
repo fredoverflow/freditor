@@ -360,8 +360,7 @@ public class FreditorUI extends JComponent {
         final int len = freditor.length();
         for (int i = freditor.homePositionOfRow(firstVisibleLine); i < len; ) {
             int k = freditor.endOfLexeme(i);
-            int endState = freditor.stateAt(k - 1);
-            int rgb = freditor.flexer.pickColorForLexeme(endState);
+            int rgb = freditor.flexer.pickColorForLexeme(freditor.stateAt(i - 1), freditor.charAt(i), freditor.stateAt(k - 1));
             for (; i < k; ++i) {
                 char c = freditor.charAt(i);
                 if (c == '\n') {
