@@ -25,6 +25,14 @@ public abstract class Flexer {
         return 0x000000;
     }
 
+    public boolean preventInsertion(int nextState) {
+        return false;
+    }
+
+    public String synthesizeOnInsert(int state, int nextState) {
+        return "";
+    }
+
     public int nextState(int currentState, char input) {
         int nextState = nextStateOrEnd(currentState, input);
         if (nextState == END) {
@@ -34,42 +42,4 @@ public abstract class Flexer {
     }
 
     protected abstract int nextStateOrEnd(int currentState, char input);
-
-    protected int operator(char expected, int nextState, char input) {
-        return input == expected ? nextState : END;
-    }
-
-    protected int operator(char expected1, int nextState1, char expected2, int nextState2, char input) {
-        return input == expected1 ? nextState1 : input == expected2 ? nextState2 : END;
-    }
-
-    protected int operator(char expected1, int nextState1, char expected2, int nextState2, char expected3, int nextState3, char input) {
-        return input == expected1 ? nextState1 : input == expected2 ? nextState2 : input == expected3 ? nextState3 : END;
-    }
-
-    protected int keyword(char expected, int nextState, char input) {
-        return input == expected ? nextState : identifier(input);
-    }
-
-    protected int keyword(char expected1, int nextState1, char expected2, int nextState2, char input) {
-        return input == expected1 ? nextState1 : input == expected2 ? nextState2 : identifier(input);
-    }
-
-    protected int keyword(char expected1, int nextState1, char expected2, int nextState2, char expected3, int nextState3, char input) {
-        return input == expected1 ? nextState1 : input == expected2 ? nextState2 : input == expected3 ? nextState3 : identifier(input);
-    }
-
-    protected int keyword(char expected1, int nextState1, char expected2, int nextState2, char expected3, int nextState3, char expected4, int nextState4, char input) {
-        return input == expected1 ? nextState1 : input == expected2 ? nextState2 : input == expected3 ? nextState3 : input == expected4 ? nextState4 : identifier(input);
-    }
-
-    protected abstract int identifier(char input);
-
-    public boolean preventInsertion(int nextState) {
-        return false;
-    }
-
-    public String synthesizeOnInsert(int state, int nextState) {
-        return "";
-    }
 }
