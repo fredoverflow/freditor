@@ -670,7 +670,7 @@ public final class Freditor extends CharZipper {
         try (BufferedReader in = new BufferedReader(reader)) {
             String line = in.readLine();
             if (line != null) {
-                super.clear();
+                commitAndClear();
                 insertBeforeFocus(line);
                 while ((line = in.readLine()) != null) {
                     insertBeforeFocus("\n");
@@ -678,6 +678,16 @@ public final class Freditor extends CharZipper {
                 }
                 refreshBookkeeping();
             }
+        }
+    }
+
+    private void commitAndClear() {
+        if (length() != 0) {
+            commit();
+            lastAction = EditorAction.OTHER;
+            super.clear();
+            moveCursorTop();
+            adjustOrigin();
         }
     }
 
