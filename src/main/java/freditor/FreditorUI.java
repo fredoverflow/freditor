@@ -256,7 +256,7 @@ public class FreditorUI extends JComponent {
                         freditor.setRowAndColumn(row + firstVisibleLine, column);
                         if (!event.isShiftDown()) freditor.adjustOrigin();
                         if (event.getButton() != MouseEvent.BUTTON1) {
-                            onRightClick.accept(freditor.lexemeAtCursor());
+                            onRightClick.accept(lexemeAtCursor());
                         }
                         break;
 
@@ -292,6 +292,10 @@ public class FreditorUI extends JComponent {
                 componentToRepaint.repaint();
             }
         });
+    }
+
+    public String lexemeAtCursor() {
+        return freditor.lexemeAtCursor();
     }
 
     @Override
@@ -384,6 +388,14 @@ public class FreditorUI extends JComponent {
 
     public int cursor() {
         return freditor.cursor();
+    }
+
+    public int row() {
+        return freditor.row();
+    }
+
+    public int column() {
+        return freditor.column();
     }
 
     public int lineOfPosition(int position) {
