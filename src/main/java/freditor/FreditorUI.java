@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 public class FreditorUI extends JComponent {
     public static final Color CURRENT_LINE_COLOR = new Color(0xffffaa);
     public static final Color SELECTION_COLOR = new Color(0xc8c8ff);
+    public static final Color MATCHING_PARENS_BACKGROUND_COLOR = new Color(0xe0e0e0);
 
     public static final int VISIBLE_LINES_ABOVE_CURSOR = 1;
     public static final int VISIBLE_LINES_BELOW_CURSOR = 1;
@@ -24,7 +25,8 @@ public class FreditorUI extends JComponent {
         this.componentToRepaint = componentToRepaint;
     }
 
-    public Consumer<String> onRightClick = ignored -> {};
+    public Consumer<String> onRightClick = ignored -> {
+    };
 
     public int visibleLines() {
         return getHeight() / height;
@@ -118,19 +120,23 @@ public class FreditorUI extends JComponent {
                         break;
 
                     case KeyEvent.VK_LEFT:
-                        if (!event.isControlDown()) {
-                            freditor.moveCursorLeft();
-                        } else {
+                        if (event.isAltDown()) {
+                          freditor.moveCursorBeforePreviousOpeningParen(event.isShiftDown());
+                        } else if (event.isControlDown()) {
                             freditor.moveCursorToPreviousLexeme();
+                        } else {
+                            freditor.moveCursorLeft();
                         }
                         if (!event.isShiftDown()) freditor.adjustOrigin();
                         break;
 
                     case KeyEvent.VK_RIGHT:
-                        if (!event.isControlDown()) {
-                            freditor.moveCursorRight();
-                        } else {
+                        if (event.isAltDown()) {
+                            freditor.moveCursorAfterNextClosingParen(event.isShiftDown());
+                        } else if (event.isControlDown()) {
                             freditor.moveCursorToNextLexeme();
+                        } else {
+                            freditor.moveCursorRight();
                         }
                         if (!event.isShiftDown()) freditor.adjustOrigin();
                         break;
@@ -302,6 +308,7 @@ public class FreditorUI extends JComponent {
     public void paint(Graphics g) {
         paintBackground(g);
         paintCurrentLineOrSelection(g);
+        paintMatchingParensBackground(g);
         paintLexemes(g);
         paintCursor(g);
     }
@@ -355,6 +362,18 @@ public class FreditorUI extends JComponent {
             paintLineSelection(g, row, 0, freditor.lengthOfRow(row));
         }
         paintLineSelection(g, endRow, 0, endColumn);
+    }
+
+    private void paintMatchingParensBackground(Graphics g) {
+        paintParensBackground(g, freditor.indexOfOpeningParenOr(-1));
+        paintParensBackground(g, freditor.indexOfClosingParenOr(-1));
+    }
+
+    private void paintParensBackground(Graphics g, int position) {
+        if (position == -1) return;
+
+        g.setColor(MATCHING_PARENS_BACKGROUND_COLOR);
+        g.fillRect(x(freditor.columnOfPosition(position)), y(freditor.rowOfPosition(position)), width, height);
     }
 
     private void paintLexemes(Graphics g) {

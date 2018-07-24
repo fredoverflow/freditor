@@ -1,7 +1,7 @@
 package freditor;
 
-public abstract class JavaIndenter extends Indenter {
-    private Freditor text;
+public class JavaIndenter extends Indenter {
+    public static final JavaIndenter instance = new JavaIndenter();
 
     @Override
     public String synthesizeOnEnterAfter(char previousCharTyped) {
@@ -9,29 +9,29 @@ public abstract class JavaIndenter extends Indenter {
     }
 
     @Override
-    public int[] corrections(Freditor text) {
-        this.text = text;
-        final int rows = text.rows();
+    public int[] corrections(Freditor freditor) {
+        final int rows = freditor.rows();
         int[] corrections = new int[rows];
         int indentation = 0;
         for (int row = 0; row < rows; ++row) {
-            int home = text.homePositionOfRow(row);
-            int end = text.endPositionOfRow(row);
-            corrections[row] = nonNegative(indentation + leadingClosers(home, end)) - text.leadingSpaces(home);
-            indentation = nonNegative(indentation + openersAndClosers(home, end));
+            int home = freditor.homePositionOfRow(row);
+            int end = freditor.endPositionOfRow(row);
+            corrections[row] = atLeastZero(indentation + leadingClosers(freditor, home, end)) - freditor.leadingSpaces(home);
+            indentation = atLeastZero(indentation + openersAndClosers(freditor, home, end));
         }
         return corrections;
     }
 
-    private static int nonNegative(int o) {
-        return o < 0 ? 0 : o;
+    private static int atLeastZero(int x) {
+        int sign = x >> 31;
+        return (x | sign) - sign;
     }
 
-    private int leadingClosers(int home, int end) {
+    private int leadingClosers(Freditor freditor, int home, int end) {
         int difference = 0;
         int space = Flexer.FIRST_SPACE;
         for (int i = home; i < end; ++i) {
-            int state = text.stateAt(i);
+            int state = freditor.stateAt(i);
             int delta = indentationDelta(state);
             if (delta < 0) {
                 difference += delta;
@@ -43,14 +43,29 @@ public abstract class JavaIndenter extends Indenter {
         return difference;
     }
 
-    private int openersAndClosers(int home, int end) {
+    private int openersAndClosers(Freditor freditor, int home, int end) {
         int difference = 0;
         for (int i = home; i < end; ++i) {
-            int state = text.stateAt(i);
+            int state = freditor.stateAt(i);
             difference += indentationDelta(state);
         }
         return difference;
     }
 
-    protected abstract int indentationDelta(int state);
+    private int indentationDelta(int state) {
+        switch (state) {
+            case Flexer.OPENING_PAREN:
+            case Flexer.OPENING_BRACKET:
+            case Flexer.OPENING_BRACE:
+                return +4;
+
+            case Flexer.CLOSING_PAREN:
+            case Flexer.CLOSING_BRACKET:
+            case Flexer.CLOSING_BRACE:
+                return -4;
+
+            default:
+                return 0;
+        }
+    }
 }

@@ -176,6 +176,47 @@ public final class Freditor extends CharZipper {
         return stateAt(index) <= 0;
     }
 
+    public int indexOfOpeningParenOr(int defaultValue) {
+        int nesting = 0;
+        for (int i = cursor - 1; i >= 0; --i) {
+            switch (stateAt(i)) {
+                case Flexer.CLOSING_PAREN:
+                case Flexer.CLOSING_BRACKET:
+                case Flexer.CLOSING_BRACE:
+                    --nesting;
+                    break;
+
+                case Flexer.OPENING_PAREN:
+                case Flexer.OPENING_BRACKET:
+                case Flexer.OPENING_BRACE:
+                    if (nesting == 0) return i;
+                    ++nesting;
+            }
+        }
+        return defaultValue;
+    }
+
+    public int indexOfClosingParenOr(int defaultValue) {
+        int nesting = 0;
+        final int len = length();
+        for (int i = cursor; i < len; ++i) {
+            switch (stateAt(i)) {
+                case Flexer.OPENING_PAREN:
+                case Flexer.OPENING_BRACKET:
+                case Flexer.OPENING_BRACE:
+                    ++nesting;
+                    break;
+
+                case Flexer.CLOSING_PAREN:
+                case Flexer.CLOSING_BRACKET:
+                case Flexer.CLOSING_BRACE:
+                    if (nesting == 0) return i;
+                    --nesting;
+            }
+        }
+        return defaultValue;
+    }
+
     // CHARZIPPER OVERRIDES
 
     @Override
@@ -512,6 +553,14 @@ public final class Freditor extends CharZipper {
         }
     }
 
+    public void moveCursorBeforePreviousOpeningParen(boolean isShiftDown) {
+        if (isShiftDown) {
+            origin = indexOfClosingParenOr(length() - 1) + 1;
+        }
+        cursor = indexOfOpeningParenOr(0);
+        forgetDesiredColumn();
+    }
+
     public void moveCursorRight() {
         if (cursor < length()) {
             ++cursor;
@@ -524,6 +573,14 @@ public final class Freditor extends CharZipper {
             cursor = endOfLexeme(cursor);
             forgetDesiredColumn();
         }
+    }
+
+    public void moveCursorAfterNextClosingParen(boolean isShiftDown) {
+        if (isShiftDown) {
+            origin = indexOfOpeningParenOr(0);
+        }
+        cursor = indexOfClosingParenOr(length() - 1) + 1;
+        forgetDesiredColumn();
     }
 
     public void moveCursorUp() {
