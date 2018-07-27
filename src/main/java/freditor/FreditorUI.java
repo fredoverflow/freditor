@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 public class FreditorUI extends JComponent {
     public static final Color CURRENT_LINE_COLOR = new Color(0xffffaa);
@@ -121,7 +122,7 @@ public class FreditorUI extends JComponent {
 
                     case KeyEvent.VK_LEFT:
                         if (event.isAltDown()) {
-                          freditor.moveCursorBeforePreviousOpeningParen(event.isShiftDown());
+                            freditor.moveCursorBeforePreviousOpeningParen(event.isShiftDown());
                         } else if (event.isControlDown()) {
                             freditor.moveCursorToPreviousLexeme();
                         } else {
@@ -365,16 +366,22 @@ public class FreditorUI extends JComponent {
     }
 
     private void paintMatchingParensBackground(Graphics g) {
-        paintParensBackground(g, freditor.indexOfOpeningParenOr(-1));
-        paintParensBackground(g, freditor.indexOfClosingParenOr(-1));
+        IntConsumer paint = position -> paintParensBackground(g, position);
+
+        int start = freditor.homePositionOfRow(firstVisibleLine());
+        freditor.findOpeningParen(start, paint, doNothing);
+
+        int end = freditor.homePositionOfRow(lastVisibleLine() + 2);
+        freditor.findClosingParen(end, paint, doNothing);
     }
 
     private void paintParensBackground(Graphics g, int position) {
-        if (position == -1) return;
-
         g.setColor(MATCHING_PARENS_BACKGROUND_COLOR);
         g.fillRect(x(freditor.columnOfPosition(position)), y(freditor.rowOfPosition(position)), width, height);
     }
+
+    private static final Runnable doNothing = () -> {
+    };
 
     private void paintLexemes(Graphics g) {
         final int componentHeight = super.getHeight();

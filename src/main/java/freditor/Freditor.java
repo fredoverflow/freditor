@@ -5,6 +5,7 @@ import freditor.ephemeral.IntGapBuffer;
 
 import java.io.*;
 import java.util.ArrayDeque;
+import java.util.function.IntConsumer;
 
 public final class Freditor extends CharZipper {
     private IntStack lineBreaksBefore;
@@ -176,9 +177,9 @@ public final class Freditor extends CharZipper {
         return stateAt(index) <= 0;
     }
 
-    public int indexOfOpeningParenOr(int defaultValue) {
+    public void findOpeningParen(int start, IntConsumer present, Runnable missing) {
         int nesting = 0;
-        for (int i = cursor - 1; i >= 0; --i) {
+        for (int i = cursor - 1; i >= start; --i) {
             switch (stateAt(i)) {
                 case Flexer.CLOSING_PAREN:
                 case Flexer.CLOSING_BRACKET:
@@ -189,17 +190,19 @@ public final class Freditor extends CharZipper {
                 case Flexer.OPENING_PAREN:
                 case Flexer.OPENING_BRACKET:
                 case Flexer.OPENING_BRACE:
-                    if (nesting == 0) return i;
+                    if (nesting == 0) {
+                        present.accept(i);
+                        return;
+                    }
                     ++nesting;
             }
         }
-        return defaultValue;
+        missing.run();
     }
 
-    public int indexOfClosingParenOr(int defaultValue) {
+    public void findClosingParen(int end, IntConsumer present, Runnable missing) {
         int nesting = 0;
-        final int len = length();
-        for (int i = cursor; i < len; ++i) {
+        for (int i = cursor; i < end; ++i) {
             switch (stateAt(i)) {
                 case Flexer.OPENING_PAREN:
                 case Flexer.OPENING_BRACKET:
@@ -210,11 +213,14 @@ public final class Freditor extends CharZipper {
                 case Flexer.CLOSING_PAREN:
                 case Flexer.CLOSING_BRACKET:
                 case Flexer.CLOSING_BRACE:
-                    if (nesting == 0) return i;
+                    if (nesting == 0) {
+                        present.accept(i);
+                        return;
+                    }
                     --nesting;
             }
         }
-        return defaultValue;
+        missing.run();
     }
 
     // CHARZIPPER OVERRIDES
@@ -559,9 +565,9 @@ public final class Freditor extends CharZipper {
 
     public void moveCursorBeforePreviousOpeningParen(boolean isShiftDown) {
         if (isShiftDown) {
-            origin = indexOfClosingParenOr(length() - 1) + 1;
+            findClosingParen(length(), closing -> origin = closing + 1, () -> origin = length());
         }
-        cursor = indexOfOpeningParenOr(0);
+        findOpeningParen(0, opening -> cursor = opening, () -> cursor = 0);
         forgetDesiredColumn();
     }
 
@@ -585,9 +591,9 @@ public final class Freditor extends CharZipper {
 
     public void moveCursorAfterNextClosingParen(boolean isShiftDown) {
         if (isShiftDown) {
-            origin = indexOfOpeningParenOr(0);
+            findOpeningParen(0, opening -> origin = opening, () -> origin = 0);
         }
-        cursor = indexOfClosingParenOr(length() - 1) + 1;
+        findClosingParen(length(), closing -> cursor = closing + 1, () -> cursor = length());
         forgetDesiredColumn();
     }
 
