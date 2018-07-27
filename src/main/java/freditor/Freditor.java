@@ -547,9 +547,13 @@ public final class Freditor extends CharZipper {
     }
 
     public void moveCursorToPreviousLexeme() {
-        if (cursor > 0) {
+        while (cursor > 0) {
             cursor = startOfLexeme(cursor - 1);
+            int state = stateAt(cursor);
+            if (state == Flexer.NEWLINE || state == Flexer.FIRST_SPACE) continue;
+
             forgetDesiredColumn();
+            break;
         }
     }
 
@@ -569,9 +573,13 @@ public final class Freditor extends CharZipper {
     }
 
     public void moveCursorToNextLexeme() {
-        if (cursor < length()) {
+        while (cursor < length()) {
             cursor = endOfLexeme(cursor);
+            int state = stateAt(cursor);
+            if (state == Flexer.NEWLINE || state == Flexer.FIRST_SPACE) continue;
+
             forgetDesiredColumn();
+            break;
         }
     }
 
