@@ -748,6 +748,11 @@ public final class Freditor extends CharZipper {
                     insertBeforeFocus(line);
                 }
                 refreshBookkeeping();
+                if (cursor >= length()) {
+                    cursor = length();
+                }
+                adjustOrigin();
+                forgetDesiredColumn();
             }
         }
     }
