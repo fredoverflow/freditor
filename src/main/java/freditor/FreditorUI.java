@@ -305,6 +305,10 @@ public class FreditorUI extends JComponent {
         return freditor.lexemeAtCursor();
     }
 
+    public String lexemeNearCursor(int startState) {
+        return freditor.lexemeNearCursor(startState);
+    }
+
     @Override
     public void paint(Graphics g) {
         paintBackground(g);
