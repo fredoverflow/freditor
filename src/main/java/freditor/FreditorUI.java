@@ -388,23 +388,25 @@ public class FreditorUI extends JComponent {
     };
 
     private void paintLexemes(Graphics g) {
-        final int componentHeight = super.getHeight();
-        int y = 0;
+        final int componentWidth = getWidth();
+        final int componentHeight = getHeight();
         int x = 0;
+        int y = 0;
         final int len = freditor.length();
         for (int i = freditor.homePositionOfRow(firstVisibleLine); i < len; ) {
             int k = freditor.endOfLexeme(i);
             int rgb = freditor.flexer.pickColorForLexeme(freditor.stateAt(i - 1), freditor.charAt(i), freditor.stateAt(k - 1));
             for (; i < k; ++i) {
                 char c = freditor.charAt(i);
-                if (c == '\n') {
-                    y += height;
-                    if (y >= componentHeight) return;
-                    x = 0;
-                } else {
+                if (c != '\n') {
                     Front.font.drawCharacter(g, x, y, c, rgb);
                     x += width;
+                    if (x < componentWidth) continue;
+                    i = freditor.endPositionOf(i);
                 }
+                y += height;
+                if (y >= componentHeight) return;
+                x = 0;
             }
         }
     }
