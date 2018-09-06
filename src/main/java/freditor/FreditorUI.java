@@ -305,8 +305,8 @@ public class FreditorUI extends JComponent {
         return freditor.lexemeAtCursor();
     }
 
-    public String lexemeNearCursor(int startState) {
-        return freditor.lexemeNearCursor(startState);
+    public String symbolNearCursor(int symbolFirst) {
+        return freditor.symbolNearCursor(symbolFirst);
     }
 
     @Override

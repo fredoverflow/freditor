@@ -396,8 +396,8 @@ public final class Freditor extends CharZipper {
         return subSequence(start, end);
     }
 
-    public String lexemeNearCursor(int startState) {
-        if (stateAt(cursor) == startState) {
+    public String symbolNearCursor(int symbolFirst) {
+        if (stateAt(cursor) <= symbolFirst) {
             return lexemeAt(cursor);
         } else if (cursor >= 1) {
             return lexemeAt(cursor - 1);
