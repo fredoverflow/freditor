@@ -12,8 +12,9 @@ public class FreditorUI extends JComponent {
     public static final Color SELECTION_COLOR = new Color(0xc8c8ff);
     public static final Color MATCHING_PARENS_BACKGROUND_COLOR = new Color(0xe0e0e0);
 
-    public static final int VISIBLE_LINES_ABOVE_CURSOR = 1;
-    public static final int VISIBLE_LINES_BELOW_CURSOR = 1;
+    public static final int ADDITIONAL_LINES = 1;
+    public static final int ADDITIONAL_COLUMNS = 8;
+
     public static final int fontWidth = Front.font.width;
     public static final int fontHeight = Front.font.height;
 
@@ -21,6 +22,7 @@ public class FreditorUI extends JComponent {
 
     private JComponent componentToRepaint = this;
     private int firstVisibleLine;
+    private int firstVisibleColumn;
 
     public void setComponentToRepaint(JComponent componentToRepaint) {
         this.componentToRepaint = componentToRepaint;
@@ -45,18 +47,39 @@ public class FreditorUI extends JComponent {
         return freditor.rows() - 1;
     }
 
+    private int visibleColumns() {
+        return getWidth() / fontWidth;
+    }
+
+    public int lastVisibleColumn() {
+        return firstVisibleColumn + visibleColumns() - 1;
+    }
+
     private void adjustView() {
         int cursorLine = freditor.row();
         if (cursorLine < firstVisibleLine) {
             firstVisibleLine = cursorLine - visibleLines() / 4;
-        } else if (cursorLine - VISIBLE_LINES_ABOVE_CURSOR < firstVisibleLine) {
-            firstVisibleLine = cursorLine - VISIBLE_LINES_ABOVE_CURSOR;
+        } else if (cursorLine - ADDITIONAL_LINES < firstVisibleLine) {
+            firstVisibleLine = cursorLine - ADDITIONAL_LINES;
         } else if (cursorLine > lastVisibleLine()) {
             firstVisibleLine = cursorLine - visibleLines() * 3 / 4;
-        } else if (cursorLine + VISIBLE_LINES_BELOW_CURSOR > lastVisibleLine()) {
-            firstVisibleLine = cursorLine + VISIBLE_LINES_BELOW_CURSOR - visibleLines() + 1;
+        } else if (cursorLine + ADDITIONAL_LINES > lastVisibleLine()) {
+            firstVisibleLine = cursorLine + ADDITIONAL_LINES - visibleLines() + 1;
         }
         firstVisibleLine = Math.max(0, firstVisibleLine);
+
+        final int additionalColumns = Math.min(visibleColumns() / 2, ADDITIONAL_COLUMNS);
+        int cursorColumn = freditor.column();
+        if (cursorColumn - additionalColumns < firstVisibleColumn) {
+            firstVisibleColumn = cursorColumn - additionalColumns;
+        } else {
+            int column = Math.min(freditor.lengthOfRow(freditor.row()), cursorColumn + additionalColumns);
+            if (column > lastVisibleColumn()) {
+                firstVisibleColumn = column - visibleColumns();
+            }
+        }
+        firstVisibleColumn = Math.max(0, firstVisibleColumn);
+
         componentToRepaint.repaint();
     }
 
@@ -260,7 +283,7 @@ public class FreditorUI extends JComponent {
                     case 1:
                         int row = event.getY() / fontHeight;
                         int column = event.getX() / fontWidth;
-                        freditor.setRowAndColumn(row + firstVisibleLine, column);
+                        freditor.setRowAndColumn(row + firstVisibleLine, column + firstVisibleColumn);
                         if (!event.isShiftDown()) freditor.adjustOrigin();
                         if (event.getButton() != MouseEvent.BUTTON1) {
                             onRightClick.accept(lexemeAtCursor());
@@ -279,7 +302,7 @@ public class FreditorUI extends JComponent {
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent event) {
-                int x = event.getX() / fontWidth;
+                int x = event.getX() / fontWidth + firstVisibleColumn;
                 int y = event.getY() / fontHeight + firstVisibleLine;
                 freditor.setRowAndColumn(y, x);
                 componentToRepaint.repaint();
@@ -319,7 +342,7 @@ public class FreditorUI extends JComponent {
     }
 
     private int x(int column) {
-        return column * fontWidth;
+        return (column - firstVisibleColumn) * fontWidth;
     }
 
     private int y(int row) {
@@ -358,7 +381,7 @@ public class FreditorUI extends JComponent {
     }
 
     private void paintLineSelection(Graphics g, int row, int startColumn, int endColumn) {
-        g.fillRect(x(startColumn), y(row), x(endColumn - startColumn), fontHeight);
+        g.fillRect(x(startColumn), y(row), (endColumn - startColumn) * fontWidth, fontHeight);
     }
 
     private void paintMultiLineSelection(Graphics g, int startRow, int startColumn, int endRow, int endColumn) {
@@ -390,7 +413,7 @@ public class FreditorUI extends JComponent {
     private void paintLexemes(Graphics g) {
         final int componentWidth = getWidth();
         final int componentHeight = getHeight();
-        int x = 0;
+        int x = -firstVisibleColumn * fontWidth;
         int y = 0;
         final int len = freditor.length();
         for (int i = freditor.homePositionOfRow(firstVisibleLine); i < len; ) {
@@ -406,7 +429,7 @@ public class FreditorUI extends JComponent {
                 }
                 y += fontHeight;
                 if (y >= componentHeight) return;
-                x = 0;
+                x = -firstVisibleColumn * fontWidth;
             }
         }
     }
