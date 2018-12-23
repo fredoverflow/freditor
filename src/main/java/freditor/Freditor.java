@@ -2,6 +2,7 @@ package freditor;
 
 import freditor.ephemeral.IntStack;
 import freditor.ephemeral.IntGapBuffer;
+import freditor.persistent.ByteVector;
 
 import java.io.*;
 import java.util.ArrayDeque;
@@ -74,11 +75,11 @@ public final class Freditor extends CharZipper {
         refreshLineBreaks(after(), lineBreaksAfter);
     }
 
-    private static void refreshLineBreaks(CharSequence text, IntStack lineBreaks) {
+    private static void refreshLineBreaks(ByteVector text, IntStack lineBreaks) {
         lineBreaks.clear();
-        final int len = text.length();
+        final int len = text.size();
         for (int i = 0; i < len; ++i) {
-            if (text.charAt(i) == '\n') {
+            if (text.byteAt(i) == '\n') {
                 lineBreaks.push(i);
             }
         }
@@ -113,7 +114,7 @@ public final class Freditor extends CharZipper {
     }
 
     public int rowOfPosition(int position) {
-        if (position < before().length()) {
+        if (position < before().size()) {
             return lineBreaksBefore.binarySearch(position);
         } else {
             return numberOfLineBreaks() - lineBreaksAfter.binarySearch(length() - position);
@@ -262,10 +263,10 @@ public final class Freditor extends CharZipper {
     @Override
     public void insertAt(int index, CharSequence s) {
         super.insertAt(index, s);
-        final CharSequence before = before();
-        final int end = before.length();
+        final ByteVector before = before();
+        final int end = before.size();
         for (int i = index; i < end; ++i) {
-            if (before.charAt(i) == '\n') {
+            if (before.byteAt(i) == '\n') {
                 lineBreaksBefore.push(i);
             }
             flexerStates.add(i, Integer.MIN_VALUE);
@@ -280,12 +281,12 @@ public final class Freditor extends CharZipper {
         }
         flexerStates.add(index, Integer.MIN_VALUE);
 
-        final int start = after().length();
+        final int start = after().size();
         insertAfterFocus(s);
-        final CharSequence after = after();
-        final int end = after.length();
+        final ByteVector after = after();
+        final int end = after.size();
         for (int i = start; i < end; ++i) {
-            if (after.charAt(i) == '\n') {
+            if (after.byteAt(i) == '\n') {
                 lineBreaksAfter.push(i);
             }
             flexerStates.add(index + 1, Integer.MIN_VALUE);
@@ -294,8 +295,8 @@ public final class Freditor extends CharZipper {
     }
 
     @Override
-    public char deleteLeftOf(int index) {
-        char deleted = super.deleteLeftOf(index);
+    public byte deleteLeftOf(int index) {
+        byte deleted = super.deleteLeftOf(index);
         if (deleted == '\n') {
             lineBreaksBefore.pop();
         }
@@ -305,8 +306,8 @@ public final class Freditor extends CharZipper {
     }
 
     @Override
-    public char deleteRightOf(int index) {
-        char deleted = super.deleteRightOf(index);
+    public byte deleteRightOf(int index) {
+        byte deleted = super.deleteRightOf(index);
         if (deleted == '\n') {
             lineBreaksAfter.pop();
         }
