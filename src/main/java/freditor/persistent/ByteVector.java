@@ -1,6 +1,6 @@
 package freditor.persistent;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public final class ByteVector {
@@ -245,8 +245,6 @@ public final class ByteVector {
 
     @Override
     public String toString() {
-        return new String(toArray(), LATIN_1);
+        return new String(toArray(), StandardCharsets.ISO_8859_1);
     }
-
-    public static final Charset LATIN_1 = Charset.forName("ISO-8859-1");
 }

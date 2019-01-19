@@ -2,6 +2,8 @@ package freditor;
 
 import freditor.persistent.ByteVector;
 
+import java.nio.charset.StandardCharsets;
+
 public class CharZipper implements CharSequence {
     private ByteVector before = ByteVector.EMPTY;
     private ByteVector after = ByteVector.EMPTY;
@@ -69,7 +71,7 @@ public class CharZipper implements CharSequence {
             }
         }
         before.copyIntoArray(temp, 0);
-        return new String(temp, ByteVector.LATIN_1);
+        return new String(temp, StandardCharsets.ISO_8859_1);
     }
 
     // TEXT MANIPULATION
