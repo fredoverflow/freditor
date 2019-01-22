@@ -494,13 +494,11 @@ public class FreditorUI extends JComponent {
 
     public void loadFromFile(String pathname) throws IOException {
         freditor.loadFromFile(pathname);
-        freditor.adjustOrigin();
         adjustView();
     }
 
     public void loadFromString(String program) {
         freditor.loadFromString(program);
-        freditor.adjustOrigin();
         adjustView();
     }
 

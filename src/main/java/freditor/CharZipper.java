@@ -50,8 +50,7 @@ public class CharZipper implements CharSequence {
         return new String(temp);
     }
 
-    @Override
-    public String toString() {
+    public byte[] toByteArray() {
         final int lenBefore = before.size();
         final int lenAfter = after.size();
         final int len = lenBefore + lenAfter;
@@ -71,7 +70,12 @@ public class CharZipper implements CharSequence {
             }
         }
         before.copyIntoArray(temp, 0);
-        return new String(temp, StandardCharsets.ISO_8859_1);
+        return temp;
+    }
+
+    @Override
+    public String toString() {
+        return new String(toByteArray(), StandardCharsets.ISO_8859_1);
     }
 
     // TEXT MANIPULATION
@@ -103,6 +107,19 @@ public class CharZipper implements CharSequence {
     public void insertAt(int index, CharSequence s) {
         focusOn(index);
         insertBeforeFocus(s);
+    }
+
+    protected void insertBeforeFocus(byte[] bytes) {
+        final int len = bytes.length;
+        for (int i = 0; i < len; ) {
+            byte b = bytes[i++];
+            if (b != '\r') {
+                before = before.push(b);
+            } else if (i == len || bytes[i] != '\n') {
+                // convert Mac OS Classic "\r" to Unix "\n"
+                before = before.push((byte) '\n');
+            }
+        }
     }
 
     protected void insertBeforeFocus(CharSequence s) {
