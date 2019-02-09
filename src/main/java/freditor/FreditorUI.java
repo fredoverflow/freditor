@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
+import static freditor.Maths.atLeastZero;
+
 public class FreditorUI extends JComponent {
     public static final Color CURRENT_LINE_COLOR = new Color(0xffffaa);
     public static final Color SELECTION_COLOR = new Color(0xc8c8ff);
@@ -66,7 +68,7 @@ public class FreditorUI extends JComponent {
         } else if (cursorLine + ADDITIONAL_LINES > lastVisibleLine()) {
             firstVisibleLine = cursorLine + ADDITIONAL_LINES - visibleLines() + 1;
         }
-        firstVisibleLine = Math.max(0, firstVisibleLine);
+        firstVisibleLine = atLeastZero(firstVisibleLine);
 
         final int additionalColumns = Math.min(visibleColumns() / 2, ADDITIONAL_COLUMNS);
         int cursorColumn = freditor.column();
@@ -78,7 +80,7 @@ public class FreditorUI extends JComponent {
                 firstVisibleColumn = column - visibleColumns();
             }
         }
-        firstVisibleColumn = Math.max(0, firstVisibleColumn);
+        firstVisibleColumn = atLeastZero(firstVisibleColumn);
 
         componentToRepaint.repaint();
     }
@@ -304,7 +306,7 @@ public class FreditorUI extends JComponent {
             public void mouseDragged(MouseEvent event) {
                 int row = event.getY() / fontHeight + firstVisibleLine;
                 int column = event.getX() / fontWidth + firstVisibleColumn;
-                freditor.setRowAndColumn(Math.max(0, row), Math.max(0, column));
+                freditor.setRowAndColumn(atLeastZero(row), atLeastZero(column));
                 componentToRepaint.repaint();
                 requestFocusInWindow();
             }

@@ -12,6 +12,8 @@ import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.function.IntConsumer;
 
+import static freditor.Maths.atLeastZero;
+
 public final class Freditor extends CharZipper {
     private IntStack lineBreaksBefore;
     private IntStack lineBreaksAfter;
@@ -624,7 +626,7 @@ public final class Freditor extends CharZipper {
     }
 
     public void moveCursorUp(int rows) {
-        int row = Math.max(0, row() - rows);
+        int row = atLeastZero(row() - rows);
         setRowAndColumn(row, rememberColumn());
     }
 

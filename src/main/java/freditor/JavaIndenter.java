@@ -1,5 +1,7 @@
 package freditor;
 
+import static freditor.Maths.atLeastZero;
+
 public class JavaIndenter extends Indenter {
     public static final JavaIndenter instance = new JavaIndenter();
 
@@ -20,11 +22,6 @@ public class JavaIndenter extends Indenter {
             indentation = atLeastZero(indentation + openersAndClosers(freditor, home, end));
         }
         return corrections;
-    }
-
-    private static int atLeastZero(int x) {
-        int sign = x >> 31;
-        return (x | sign) - sign;
     }
 
     private int leadingClosers(Freditor freditor, int home, int end) {

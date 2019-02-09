@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.Random;
 
+import static freditor.Maths.atLeastZero;
 import static org.junit.Assert.*;
 
 public class ByteVectorTest {
@@ -171,7 +172,7 @@ public class ByteVectorTest {
 
     private static void checkLast32(byte[] bytes, ByteVector v) {
         final int size = v.size();
-        for (int i = Math.max(0, size - 32); i < size; ++i) {
+        for (int i = atLeastZero(size - 32); i < size; ++i) {
             assertEquals(bytes[i], v.byteAt(i));
         }
     }
