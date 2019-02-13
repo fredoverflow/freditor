@@ -85,6 +85,12 @@ public class FreditorUI extends JComponent {
         componentToRepaint.repaint();
     }
 
+    private static final int CTRL_META_MASK = OperatingSystem.isMacintosh ? InputEvent.META_MASK : InputEvent.CTRL_MASK;
+
+    private static boolean isControlRespectivelyCommandDown(InputEvent event) {
+        return (event.getModifiers() & CTRL_META_MASK) != 0;
+    }
+
     public FreditorUI(Flexer flexer, Indenter indenter, int columns, int rows) {
         setPreferredSize(new Dimension(columns * fontWidth, rows * fontHeight));
 
@@ -100,7 +106,7 @@ public class FreditorUI extends JComponent {
                 char c = event.getKeyChar();
                 charTyped = c;
                 if (c >= 32 && c < 127 || c >= 160 && c < 256) {
-                    if (!event.isControlDown()) {
+                    if (!isControlRespectivelyCommandDown(event)) {
                         freditor.insertCharacter(c);
                     }
                 }
@@ -136,7 +142,7 @@ public class FreditorUI extends JComponent {
                         break;
 
                     case KeyEvent.VK_INSERT:
-                        if (event.isControlDown()) {
+                        if (isControlRespectivelyCommandDown(event)) {
                             freditor.copy();
                         } else if (event.isShiftDown()) {
                             freditor.paste();
@@ -148,7 +154,7 @@ public class FreditorUI extends JComponent {
                     case KeyEvent.VK_LEFT:
                         if (event.isAltDown()) {
                             freditor.moveCursorBeforePreviousOpeningParen(event.isShiftDown());
-                        } else if (event.isControlDown()) {
+                        } else if (isControlRespectivelyCommandDown(event)) {
                             freditor.moveCursorToPreviousLexeme();
                         } else {
                             freditor.moveCursorLeft();
@@ -159,7 +165,7 @@ public class FreditorUI extends JComponent {
                     case KeyEvent.VK_RIGHT:
                         if (event.isAltDown()) {
                             freditor.moveCursorAfterNextClosingParen(event.isShiftDown());
-                        } else if (event.isControlDown()) {
+                        } else if (isControlRespectivelyCommandDown(event)) {
                             freditor.moveCursorToNextLexeme();
                         } else {
                             freditor.moveCursorRight();
@@ -171,7 +177,7 @@ public class FreditorUI extends JComponent {
                         if (event.isAltDown()) {
                             freditor.moveSelectedLinesUp();
                             break;
-                        } else if (event.isControlDown()) {
+                        } else if (isControlRespectivelyCommandDown(event)) {
                             if (firstVisibleLine > 0) {
                                 --firstVisibleLine;
                                 componentToRepaint.repaint();
@@ -187,7 +193,7 @@ public class FreditorUI extends JComponent {
                         if (event.isAltDown()) {
                             freditor.moveSelectedLinesDown();
                             break;
-                        } else if (event.isControlDown()) {
+                        } else if (isControlRespectivelyCommandDown(event)) {
                             ++firstVisibleLine;
                             componentToRepaint.repaint();
                             return;
@@ -213,7 +219,7 @@ public class FreditorUI extends JComponent {
                         break;
 
                     case KeyEvent.VK_HOME:
-                        if (event.isControlDown()) {
+                        if (isControlRespectivelyCommandDown(event)) {
                             freditor.moveCursorTop();
                         } else {
                             freditor.moveCursorStart();
@@ -222,7 +228,7 @@ public class FreditorUI extends JComponent {
                         break;
 
                     case KeyEvent.VK_END:
-                        if (event.isControlDown()) {
+                        if (isControlRespectivelyCommandDown(event)) {
                             freditor.moveCursorBottom();
                         } else {
                             freditor.moveCursorEnd();
@@ -231,13 +237,13 @@ public class FreditorUI extends JComponent {
                         break;
 
                     case KeyEvent.VK_D:
-                        if (event.isControlDown() && !event.isShiftDown()) {
+                        if (isControlRespectivelyCommandDown(event) && !event.isShiftDown()) {
                             freditor.deleteCurrentLine();
                         }
                         break;
 
                     case KeyEvent.VK_A:
-                        if (event.isControlDown()) {
+                        if (isControlRespectivelyCommandDown(event)) {
                             freditor.moveCursorTop();
                             freditor.adjustOrigin();
                             freditor.moveCursorBottom();
@@ -245,31 +251,31 @@ public class FreditorUI extends JComponent {
                         break;
 
                     case KeyEvent.VK_C:
-                        if (event.isControlDown()) {
+                        if (isControlRespectivelyCommandDown(event)) {
                             freditor.copy();
                         }
                         break;
 
                     case KeyEvent.VK_X:
-                        if (event.isControlDown()) {
+                        if (isControlRespectivelyCommandDown(event)) {
                             freditor.cut();
                         }
                         break;
 
                     case KeyEvent.VK_V:
-                        if (event.isControlDown()) {
+                        if (isControlRespectivelyCommandDown(event)) {
                             freditor.paste();
                         }
                         break;
 
                     case KeyEvent.VK_Z:
-                        if (event.isControlDown()) {
+                        if (isControlRespectivelyCommandDown(event)) {
                             freditor.undo();
                         }
                         break;
 
                     case KeyEvent.VK_Y:
-                        if (event.isControlDown()) {
+                        if (isControlRespectivelyCommandDown(event)) {
                             freditor.redo();
                         }
                         break;
@@ -316,7 +322,7 @@ public class FreditorUI extends JComponent {
             @Override
             public void mouseWheelMoved(MouseWheelEvent event) {
                 int direction = event.getWheelRotation();
-                int amount = event.isControlDown() ? visibleLines() / 2 : 3;
+                int amount = isControlRespectivelyCommandDown(event) ? visibleLines() / 2 : 3;
                 firstVisibleLine += direction * amount;
                 if (firstVisibleLine < 0) {
                     firstVisibleLine = 0;
