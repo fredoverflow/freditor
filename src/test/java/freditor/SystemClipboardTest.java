@@ -1,12 +1,20 @@
 package freditor;
 
+import org.junit.Before;
 import org.junit.Test;
 
+import java.awt.*;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeFalse;
 
 public class SystemClipboardTest {
+    @Before
+    public void skipSystemClipboardTestsInHeadlessEnvironment() {
+        assumeFalse(GraphicsEnvironment.isHeadless());
+    }
+
     @Test
     public void fox() {
         SystemClipboard.set("the quick brown fox jumped over the lazy dog");
