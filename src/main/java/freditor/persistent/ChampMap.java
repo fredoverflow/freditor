@@ -70,18 +70,24 @@ public class ChampMap<K, V> {
         return bitCount(usedKeyValues) * 2 + bitCount(usedSubMaps & (bitmask - 1));
     }
 
-    public V get(K key) {
-        return get(key, key.hashCode(), 0);
+    @SuppressWarnings("unchecked")
+    public K getKey(K key) {
+        return (K) get(key, key.hashCode(), 0, 0);
     }
 
     @SuppressWarnings("unchecked")
-    private V get(K key, int hash, int shift) {
+    public V get(K key) {
+        return (V) get(key, key.hashCode(), 0, 1);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object get(K key, int hash, int shift, int keyValueSelector) {
         if (shift >= 32) {
             // hash exhausted, fall back to linear search
             final int n = array.length;
             for (int i = 0; i < n; i += 2) {
                 if (array[i].equals(key)) {
-                    return (V) array[i + 1];
+                    return array[i + keyValueSelector];
                 }
             }
             return null;
@@ -92,13 +98,13 @@ public class ChampMap<K, V> {
 
         if ((usedSubMaps & bitmask) != 0) {
             ChampMap<K, V> subMap = (ChampMap<K, V>) array[subMapIndex(bitmask)];
-            return subMap.get(key, hash, shift + 5);
+            return subMap.get(key, hash, shift + 5, keyValueSelector);
         }
 
         if ((usedKeyValues & bitmask) != 0) {
             int keyIndex = keyIndex(bitmask);
             if (array[keyIndex].equals(key)) {
-                return (V) array[keyIndex + 1];
+                return array[keyIndex + keyValueSelector];
             }
         }
 
