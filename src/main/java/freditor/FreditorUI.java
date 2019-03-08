@@ -448,7 +448,7 @@ public class FreditorUI extends JComponent {
         int cursorX = x(freditor.column());
         int cursorY = y(freditor.row());
         g.setColor(Color.BLACK);
-        g.drawLine(cursorX, cursorY, cursorX, cursorY + fontHeight - 1);
+        Front.font.drawCharacter(g, cursorX, cursorY, '\177', 0x000000);
     }
 
     public int cursor() {
