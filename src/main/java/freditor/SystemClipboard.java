@@ -54,7 +54,7 @@ public class SystemClipboard {
                 Transferable contents = clipboard.getContents(null);
                 if (contents != null) {
                     try {
-                        return internalText = (String) contents.getTransferData(DataFlavor.stringFlavor);
+                        return (String) contents.getTransferData(DataFlavor.stringFlavor);
                     } catch (UnsupportedFlavorException | IOException ex) {
                         ex.printStackTrace();
                     }
