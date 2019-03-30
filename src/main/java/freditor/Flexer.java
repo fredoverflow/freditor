@@ -1,52 +1,42 @@
 package freditor;
 
-/**
- * States are encoded by numbers (which are stored alongside the characters).
- * <p>
- * Negative numbers denote states that are entered by the first character of a lexeme;
- * This enables the syntax highlighter to detect the beginning of a new lexeme.
- * Hence, all other states MUST use positive numbers!
- * As a consequence, identifiers require at least two states:
- * a negative for the first character, and a positive for the following characters.
- * <p>
- * The number 0 denotes a special end state. If you encounter a character
- * that does not belong to the current lexeme, return 0.
- * The system will then start a new lexeme at the very same character.
- */
+import static freditor.FlexerState.EMPTY;
+import static freditor.FlexerState.THIS;
+
 public abstract class Flexer {
-    public static final int END = 0;
-    public static final int ERROR = -1;
+    public static final FlexerState END = EMPTY.head();
+    public static final FlexerState ERROR = EMPTY.head();
 
-    public static final int OPENING_PAREN = -2;
-    public static final int CLOSING_PAREN = -3;
-    public static final int OPENING_BRACKET = -4;
-    public static final int CLOSING_BRACKET = -5;
-    public static final int OPENING_BRACE = -6;
-    public static final int CLOSING_BRACE = -7;
+    public static final FlexerState OPENING_PAREN = EMPTY.head();
+    public static final FlexerState CLOSING_PAREN = EMPTY.head();
+    public static final FlexerState OPENING_BRACKET = EMPTY.head();
+    public static final FlexerState CLOSING_BRACKET = EMPTY.head();
+    public static final FlexerState OPENING_BRACE = EMPTY.head();
+    public static final FlexerState CLOSING_BRACE = EMPTY.head();
 
-    public static final int NEWLINE = -8;
-    public static final int FIRST_SPACE = -9;
-    public static final int NEXT_SPACE = 1;
+    public static final FlexerState NEWLINE = EMPTY.head();
+    public static final FlexerState SPACE_TAIL = new FlexerState(' ', THIS);
+    public static final FlexerState SPACE_HEAD = SPACE_TAIL.head();
 
-    public int pickColorForLexeme(int previousState, char firstCharacter, int endState) {
+    protected abstract FlexerState start();
+
+    public int pickColorForLexeme(FlexerState previousState, FlexerState endState) {
         return 0x000000;
     }
 
-    public boolean preventInsertion(int nextState) {
+    public boolean preventInsertion(FlexerState nextState) {
         return false;
     }
 
-    public String synthesizeOnInsert(int state, int nextState) {
+    public String synthesizeOnInsert(FlexerState state, FlexerState nextState) {
         return "";
     }
 
-    public int nextState(int currentState, char input) {
-        int nextState = nextStateOrEnd(currentState, input);
-        if (nextState == END) {
-            nextState = nextStateOrEnd(END, input);
+    public final FlexerState nextState(FlexerState currentState, char input) {
+        FlexerState nextState = currentState.next(input);
+        if (nextState == null) {
+            nextState = start().next(input);
         }
         return nextState;
     }
-
-    protected abstract int nextStateOrEnd(int currentState, char input);
 }

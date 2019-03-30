@@ -1,6 +1,7 @@
 package freditor.persistent;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 import static java.lang.Integer.bitCount;
 
@@ -174,6 +175,34 @@ public class ChampMap<K, V> {
                 .put(key, value, hash, shift + 5);
 
         return new ChampMap<>(a, usedKeyValues ^ bitmask, usedSubMaps | bitmask);
+    }
+
+    public ChampMap<K, V> put(K k1, K k2, V value) {
+        return put(k1, value).put(k2, value);
+    }
+
+    public ChampMap<K, V> put(K k1, K k2, K k3, V value) {
+        return put(k1, value).put(k2, value).put(k3, value);
+    }
+
+    public ChampMap<K, V> put(K k1, K k2, K k3, K k4, V value) {
+        return put(k1, value).put(k2, value).put(k3, value).put(k4, value);
+    }
+
+    public ChampMap<K, V> put(K k1, K k2, K k3, K k4, K k5, V value) {
+        return put(k1, value).put(k2, value).put(k3, value).put(k4, value).put(k5, value);
+    }
+
+    public ChampMap<K, V> put(K k1, K k2, K k3, K k4, K k5, K k6, V value) {
+        return put(k1, value).put(k2, value).put(k3, value).put(k4, value).put(k5, value).put(k6, value);
+    }
+
+    public <X> ChampMap<K, V> tup(V value, Function<X, K> f, X... xs) {
+        ChampMap<K, V> result = this;
+        for (X x : xs) {
+            result = result.put(f.apply(x), value);
+        }
+        return result;
     }
 
     @Override

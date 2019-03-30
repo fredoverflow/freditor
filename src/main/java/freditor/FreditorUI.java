@@ -336,8 +336,8 @@ public class FreditorUI extends JComponent {
         return freditor.lexemeAtCursor();
     }
 
-    public String symbolNearCursor(int symbolFirst) {
-        return freditor.symbolNearCursor(symbolFirst);
+    public String symbolNearCursor(FlexerState symbolTail) {
+        return freditor.symbolNearCursor(symbolTail);
     }
 
     @Override
@@ -426,7 +426,7 @@ public class FreditorUI extends JComponent {
         final int len = freditor.length();
         for (int i = freditor.homePositionOfRow(firstVisibleLine); i < len; ) {
             int k = freditor.endOfLexeme(i);
-            int rgb = freditor.flexer.pickColorForLexeme(freditor.stateAt(i - 1), freditor.charAt(i), freditor.stateAt(k - 1));
+            int rgb = freditor.flexer.pickColorForLexeme(freditor.stateAt(i - 1), freditor.stateAt(k - 1));
             for (; i < k; ++i) {
                 char c = freditor.charAt(i);
                 if (c != '\n') {

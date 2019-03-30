@@ -1,6 +1,6 @@
 package freditor;
 
-import freditor.ephemeral.IntGapBuffer;
+import freditor.ephemeral.GapBuffer;
 import freditor.ephemeral.IntStack;
 import freditor.persistent.ByteVector;
 
@@ -18,7 +18,7 @@ public final class Freditor extends CharZipper {
     private IntStack lineBreaksBefore;
     private IntStack lineBreaksAfter;
 
-    private IntGapBuffer flexerStates;
+    private GapBuffer<FlexerState> flexerStates;
 
     public final Flexer flexer;
     public final Indenter indenter;
@@ -27,7 +27,7 @@ public final class Freditor extends CharZipper {
         lineBreaksBefore = new IntStack();
         lineBreaksAfter = new IntStack();
 
-        flexerStates = new IntGapBuffer();
+        flexerStates = new GapBuffer<>();
 
         this.flexer = flexer;
         this.indenter = indenter;
@@ -141,13 +141,13 @@ public final class Freditor extends CharZipper {
 
     // FLEXER
 
-    public int stateAt(int index) {
+    public FlexerState stateAt(int index) {
         return (0 <= index) && (index < length()) ? flexerStates.get(index) : Flexer.END;
     }
 
     private void refreshFlexerStates() {
         flexerStates.clear();
-        int state = Flexer.END;
+        FlexerState state = flexer.start();
         final int len = length();
         for (int i = 0; i < len; ++i) {
             char x = charAt(i);
@@ -157,7 +157,7 @@ public final class Freditor extends CharZipper {
     }
 
     private void fixFlexerStatesFrom(int index) {
-        int state = stateAt(index - 1);
+        FlexerState state = stateAt(index - 1);
         final int len = length();
         for (int i = index; i < len; ++i) {
             char x = charAt(i);
@@ -167,7 +167,7 @@ public final class Freditor extends CharZipper {
     }
 
     public int startOfLexeme(int index) {
-        while (!lexemeStartsAt(index)) {
+        while (!stateAt(index).isHead()) {
             --index;
         }
         return index;
@@ -176,32 +176,22 @@ public final class Freditor extends CharZipper {
     public int endOfLexeme(int index) {
         do {
             ++index;
-        } while (!lexemeStartsAt(index));
+        } while (!stateAt(index).isHead());
         return index;
-    }
-
-    private boolean lexemeStartsAt(int index) {
-        return stateAt(index) <= 0;
     }
 
     public void findOpeningParen(int start, IntConsumer present, Runnable missing) {
         int nesting = 0;
         for (int i = cursor - 1; i >= start; --i) {
-            switch (stateAt(i)) {
-                case Flexer.CLOSING_PAREN:
-                case Flexer.CLOSING_BRACKET:
-                case Flexer.CLOSING_BRACE:
-                    --nesting;
-                    break;
-
-                case Flexer.OPENING_PAREN:
-                case Flexer.OPENING_BRACKET:
-                case Flexer.OPENING_BRACE:
-                    if (nesting == 0) {
-                        present.accept(i);
-                        return;
-                    }
-                    ++nesting;
+            FlexerState state = stateAt(i);
+            if (state == Flexer.CLOSING_PAREN || state == Flexer.CLOSING_BRACKET || state == Flexer.CLOSING_BRACE) {
+                --nesting;
+            } else if (state == Flexer.OPENING_PAREN || state == Flexer.OPENING_BRACKET || state == Flexer.OPENING_BRACE) {
+                if (nesting == 0) {
+                    present.accept(i);
+                    return;
+                }
+                ++nesting;
             }
         }
         missing.run();
@@ -210,21 +200,15 @@ public final class Freditor extends CharZipper {
     public void findClosingParen(int end, IntConsumer present, Runnable missing) {
         int nesting = 0;
         for (int i = cursor; i < end; ++i) {
-            switch (stateAt(i)) {
-                case Flexer.OPENING_PAREN:
-                case Flexer.OPENING_BRACKET:
-                case Flexer.OPENING_BRACE:
-                    ++nesting;
-                    break;
-
-                case Flexer.CLOSING_PAREN:
-                case Flexer.CLOSING_BRACKET:
-                case Flexer.CLOSING_BRACE:
-                    if (nesting == 0) {
-                        present.accept(i);
-                        return;
-                    }
-                    --nesting;
+            FlexerState state = stateAt(i);
+            if (state == Flexer.OPENING_PAREN || state == Flexer.OPENING_BRACKET || state == Flexer.OPENING_BRACE) {
+                ++nesting;
+            } else if (state == Flexer.CLOSING_PAREN || state == Flexer.CLOSING_BRACKET || state == Flexer.CLOSING_BRACE) {
+                if (nesting == 0) {
+                    present.accept(i);
+                    return;
+                }
+                --nesting;
             }
         }
         missing.run();
@@ -262,7 +246,7 @@ public final class Freditor extends CharZipper {
         if (x == '\n') {
             lineBreaksBefore.push(index);
         }
-        flexerStates.add(index, Integer.MIN_VALUE);
+        flexerStates.add(index, FlexerState.EMPTY);
         fixFlexerStatesFrom(index);
     }
 
@@ -275,7 +259,7 @@ public final class Freditor extends CharZipper {
             if (before.byteAt(i) == '\n') {
                 lineBreaksBefore.push(i);
             }
-            flexerStates.add(i, Integer.MIN_VALUE);
+            flexerStates.add(i, FlexerState.EMPTY);
         }
         fixFlexerStatesFrom(index);
     }
@@ -285,7 +269,7 @@ public final class Freditor extends CharZipper {
         if (x == '\n') {
             lineBreaksBefore.push(index);
         }
-        flexerStates.add(index, Integer.MIN_VALUE);
+        flexerStates.add(index, FlexerState.EMPTY);
 
         final int start = after().size();
         insertAfterFocus(s);
@@ -295,7 +279,7 @@ public final class Freditor extends CharZipper {
             if (after.byteAt(i) == '\n') {
                 lineBreaksAfter.push(i);
             }
-            flexerStates.add(index + 1, Integer.MIN_VALUE);
+            flexerStates.add(index + 1, FlexerState.EMPTY);
         }
         fixFlexerStatesFrom(index);
     }
@@ -403,8 +387,9 @@ public final class Freditor extends CharZipper {
         return subSequence(start, end);
     }
 
-    public String symbolNearCursor(int symbolFirst) {
-        if (stateAt(cursor) <= symbolFirst) {
+    public String symbolNearCursor(FlexerState symbolTail) {
+        // coerce literal prefixes to symbol
+        if (stateAt(cursor).next(':') == symbolTail) {
             return lexemeAt(cursor);
         } else if (cursor >= 1) {
             return lexemeAt(cursor - 1);
@@ -486,8 +471,8 @@ public final class Freditor extends CharZipper {
     }
 
     private void insertWithSynthAt(int index, char x) {
-        final int oldState = stateAt(index);
-        final int newState = flexer.nextState(stateAt(index - 1), x);
+        final FlexerState oldState = stateAt(index);
+        final FlexerState newState = flexer.nextState(stateAt(index - 1), x);
         if (newState == oldState && flexer.preventInsertion(newState)) return;
 
         String synth = flexer.synthesizeOnInsert(newState, oldState);
@@ -576,8 +561,8 @@ public final class Freditor extends CharZipper {
     public void moveCursorToPreviousLexeme() {
         while (cursor > 0) {
             cursor = startOfLexeme(cursor - 1);
-            int state = stateAt(cursor);
-            if (state == Flexer.NEWLINE || state == Flexer.FIRST_SPACE) continue;
+            FlexerState state = stateAt(cursor);
+            if (state == Flexer.NEWLINE || state == Flexer.SPACE_HEAD) continue;
 
             forgetDesiredColumn();
             break;
@@ -602,8 +587,8 @@ public final class Freditor extends CharZipper {
     public void moveCursorToNextLexeme() {
         while (cursor < length()) {
             cursor = endOfLexeme(cursor);
-            int state = stateAt(cursor);
-            if (state == Flexer.NEWLINE || state == Flexer.FIRST_SPACE) continue;
+            FlexerState state = stateAt(cursor);
+            if (state == Flexer.NEWLINE || state == Flexer.SPACE_HEAD) continue;
 
             forgetDesiredColumn();
             break;
@@ -735,9 +720,9 @@ public final class Freditor extends CharZipper {
     public int leadingSpaces(int index) {
         int start = index;
         final int len = length();
-        if (index < len && stateAt(index) == Flexer.FIRST_SPACE) {
+        if (index < len && stateAt(index) == Flexer.SPACE_HEAD) {
             ++index;
-            while (index < len && stateAt(index) == Flexer.NEXT_SPACE) {
+            while (index < len && stateAt(index) == Flexer.SPACE_TAIL) {
                 ++index;
             }
         }

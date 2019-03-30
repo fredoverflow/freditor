@@ -1,5 +1,7 @@
 package freditor;
 
+import freditor.persistent.ChampMap;
+
 import static freditor.Maths.atLeastZero;
 
 public class JavaIndenter extends Indenter {
@@ -26,16 +28,16 @@ public class JavaIndenter extends Indenter {
 
     private int leadingClosers(Freditor freditor, int home, int end) {
         int difference = 0;
-        int space = Flexer.FIRST_SPACE;
+        FlexerState space = Flexer.SPACE_HEAD;
         for (int i = home; i < end; ++i) {
-            int state = freditor.stateAt(i);
-            int delta = indentationDelta(state);
-            if (delta < 0) {
+            FlexerState state = freditor.stateAt(i);
+            Integer delta = indentationDelta.get(state);
+            if (delta != null && delta < 0) {
                 difference += delta;
             } else if (state != space) {
                 return difference;
             }
-            space = Flexer.NEXT_SPACE;
+            space = Flexer.SPACE_TAIL;
         }
         return difference;
     }
@@ -43,26 +45,16 @@ public class JavaIndenter extends Indenter {
     private int openersAndClosers(Freditor freditor, int home, int end) {
         int difference = 0;
         for (int i = home; i < end; ++i) {
-            int state = freditor.stateAt(i);
-            difference += indentationDelta(state);
+            FlexerState state = freditor.stateAt(i);
+            Integer delta = indentationDelta.get(state);
+            if (delta != null) {
+                difference += delta;
+            }
         }
         return difference;
     }
 
-    private int indentationDelta(int state) {
-        switch (state) {
-            case Flexer.OPENING_PAREN:
-            case Flexer.OPENING_BRACKET:
-            case Flexer.OPENING_BRACE:
-                return +4;
-
-            case Flexer.CLOSING_PAREN:
-            case Flexer.CLOSING_BRACKET:
-            case Flexer.CLOSING_BRACE:
-                return -4;
-
-            default:
-                return 0;
-        }
-    }
+    private static final ChampMap<FlexerState, Integer> indentationDelta = ChampMap.<FlexerState, Integer>empty()
+            .put(Flexer.OPENING_PAREN, Flexer.OPENING_BRACKET, Flexer.OPENING_BRACE, +4)
+            .put(Flexer.CLOSING_PAREN, Flexer.CLOSING_BRACKET, Flexer.CLOSING_BRACE, -4);
 }
