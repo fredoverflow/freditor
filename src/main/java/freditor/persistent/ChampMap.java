@@ -197,10 +197,10 @@ public class ChampMap<K, V> {
         return put(k1, value).put(k2, value).put(k3, value).put(k4, value).put(k5, value).put(k6, value);
     }
 
-    public <X> ChampMap<K, V> tup(V value, Function<X, K> f, X... xs) {
+    public ChampMap<K, V> put(K[] keys, V value) {
         ChampMap<K, V> result = this;
-        for (X x : xs) {
-            result = result.put(f.apply(x), value);
+        for (K key : keys) {
+            result = result.put(key, value);
         }
         return result;
     }

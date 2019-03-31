@@ -251,6 +251,10 @@ public class FlexerState {
         return state;
     }
 
+    public FlexerState[] read(String... words) {
+        return Arrays.stream(words).map(this::read).toArray(FlexerState[]::new);
+    }
+
     public boolean isHead() {
         return isHead;
     }
