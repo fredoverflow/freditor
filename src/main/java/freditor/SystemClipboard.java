@@ -9,13 +9,7 @@ public class SystemClipboard {
     private static final int NUM_ATTEMPTS = 3;
     private static final int SLEEP_MILLIS = 100;
 
-    private static final ClipboardOwner owner = new ClipboardOwner() {
-        @Override
-        public void lostOwnership(Clipboard clipboard, Transferable contents) {
-            // external clipboard modification
-            internalText = null;
-        }
-    };
+    private static final ClipboardOwner owner = (lostClipboard, oldContents) -> internalText = null;
 
     public static void set(String text) {
         internalText = text;

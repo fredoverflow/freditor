@@ -65,7 +65,8 @@ public class HamtSet<K extends Comparable<K>> {
         return HamtSet.<K>empty().put(k1).put(k2).put(k3).put(k4).put(k5).put(k6).put(k7).put(k8).put(k9).put(k10);
     }
 
-    public static <K extends Comparable<K>> HamtSet of(K... values) {
+    @SafeVarargs
+    public static <K extends Comparable<K>> HamtSet<K> of(K... values) {
         HamtSet<K> temp = empty();
         for (K value : values) {
             temp = temp.put(value);

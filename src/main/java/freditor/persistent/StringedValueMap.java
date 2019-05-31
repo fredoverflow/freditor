@@ -65,7 +65,8 @@ public class StringedValueMap<V> {
         return StringedValueMap.<V>empty().put(v1).put(v2).put(v3).put(v4).put(v5).put(v6).put(v7).put(v8).put(v9).put(v10);
     }
 
-    public static <V> StringedValueMap of(V... values) {
+    @SafeVarargs
+    public static <V> StringedValueMap<V> of(V... values) {
         StringedValueMap<V> temp = empty();
         for (V value : values) {
             temp = temp.put(value);

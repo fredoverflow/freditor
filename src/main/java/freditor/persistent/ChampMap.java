@@ -1,7 +1,6 @@
 package freditor.persistent;
 
 import java.util.Arrays;
-import java.util.function.Function;
 
 import static java.lang.Integer.bitCount;
 

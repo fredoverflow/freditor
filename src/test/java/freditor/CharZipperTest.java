@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import static org.junit.Assert.assertArrayEquals;
 
 public class CharZipperTest {
-    private CharZipper text = new CharZipper();
+    private final CharZipper text = new CharZipper();
 
     @Test
     public void insertUnixLineSeparators() {

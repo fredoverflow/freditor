@@ -17,7 +17,7 @@ public final class ByteVector {
         this.size = size;
     }
 
-    public static ByteVector EMPTY = new ByteVector(null, new byte[32], 0);
+    public static final ByteVector EMPTY = new ByteVector(null, new byte[32], 0);
 
     public static ByteVector of(byte... bytes) {
         return of(bytes, bytes.length);
@@ -186,6 +186,11 @@ public final class ByteVector {
         }
     }
 
+    private static boolean isPowerOf32(int x) {
+        return (x & (x - 1)) == 0 && (0b01000010000100001000010000100001 << Integer.numberOfLeadingZeros(x)) < 0;
+        //     zero or power of 2      32^6 32^5 32^4 32^3 32^2 32^1 32^0
+    }
+
     public ByteVector take(int n) {
         if (n <= 0) {
             return EMPTY;
@@ -198,11 +203,6 @@ public final class ByteVector {
             }
             return new ByteVector(root, tailOrLeafContaining(n - 1), n);
         }
-    }
-
-    private static boolean isPowerOf32(int x) {
-        return (x & (x - 1)) == 0 && (0b01000010000100001000010000100001 << Integer.numberOfLeadingZeros(x)) < 0;
-        //     zero or power of 2      32^6 32^5 32^4 32^3 32^2 32^1 32^0
     }
 
     @Override

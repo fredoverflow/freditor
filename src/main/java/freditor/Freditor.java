@@ -15,10 +15,10 @@ import java.util.function.IntConsumer;
 import static freditor.Maths.atLeastZero;
 
 public final class Freditor extends CharZipper {
-    private IntStack lineBreaksBefore;
-    private IntStack lineBreaksAfter;
+    private final IntStack lineBreaksBefore;
+    private final IntStack lineBreaksAfter;
 
-    private GapBuffer<FlexerState> flexerStates;
+    private final GapBuffer<FlexerState> flexerStates;
 
     public final Flexer flexer;
     public final Indenter indenter;
