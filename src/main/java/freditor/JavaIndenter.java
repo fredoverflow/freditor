@@ -28,16 +28,14 @@ public class JavaIndenter extends Indenter {
 
     private int leadingClosers(Freditor freditor, int home, int end) {
         int difference = 0;
-        FlexerState space = Flexer.SPACE_HEAD;
         for (int i = home; i < end; ++i) {
             FlexerState state = freditor.stateAt(i);
             Integer delta = indentationDelta.get(state);
             if (delta != null && delta < 0) {
                 difference += delta;
-            } else if (state != space) {
+            } else if (freditor.charAt(i) != ' ') {
                 return difference;
             }
-            space = Flexer.SPACE_TAIL;
         }
         return difference;
     }

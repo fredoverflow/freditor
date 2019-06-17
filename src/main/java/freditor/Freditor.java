@@ -720,11 +720,8 @@ public final class Freditor extends CharZipper {
     public int leadingSpaces(int index) {
         int start = index;
         final int len = length();
-        if (index < len && stateAt(index) == Flexer.SPACE_HEAD) {
+        while (index < len && charAt(index) == ' ') {
             ++index;
-            while (index < len && stateAt(index) == Flexer.SPACE_TAIL) {
-                ++index;
-            }
         }
         return index - start;
     }
