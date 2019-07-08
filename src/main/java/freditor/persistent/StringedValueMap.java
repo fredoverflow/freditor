@@ -1,6 +1,7 @@
 package freditor.persistent;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 import static java.lang.Integer.bitCount;
 
@@ -210,5 +211,16 @@ public class StringedValueMap<V> {
             hash += value.hashCode();
         }
         return hash;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void forEach(Consumer<V> consumer) {
+        for (Object object : array) {
+            if (object instanceof StringedValueMap) {
+                ((StringedValueMap<V>) object).forEach(consumer);
+            } else {
+                consumer.accept((V) object);
+            }
+        }
     }
 }
