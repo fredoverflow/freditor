@@ -484,6 +484,10 @@ public class FreditorUI extends JComponent {
         return freditor.getLineUntilCursor();
     }
 
+    public String getTextUntilCursor() {
+        return freditor.getTextUntilCursor();
+    }
+
     public void insertString(String s) {
         freditor.insert(s);
         componentToRepaint.repaint();

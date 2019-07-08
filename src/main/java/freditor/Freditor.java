@@ -74,6 +74,13 @@ public final class Freditor extends CharZipper {
         return subSequence(homePositionOf(cursor), cursor);
     }
 
+    public String getTextUntilCursor() {
+        if (before().size() < cursor) {
+            focusOn(cursor);
+        }
+        return before().take(cursor).toString();
+    }
+
     // LINE BREAKS
 
     private void refreshLineBreaks() {
