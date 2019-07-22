@@ -1,12 +1,11 @@
 package freditor;
 
-import java.awt.Graphics;
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-
-import javax.imageio.ImageIO;
 
 import static javax.swing.JOptionPane.QUESTION_MESSAGE;
 import static javax.swing.JOptionPane.showInputDialog;
@@ -19,7 +18,7 @@ public class Front {
         String title = "Almost there...";
         String prompt = "Please pick a font size:";
         String[] possibilities = {"medium", "large"};
-        String defaultChoice = "medium";
+        String defaultChoice = Toolkit.getDefaultToolkit().getScreenSize().height < 1000 ? "medium" : "large";
         Object choice = showInputDialog(null, prompt, title, QUESTION_MESSAGE, null, possibilities, defaultChoice);
         return String.valueOf(choice);
     }
