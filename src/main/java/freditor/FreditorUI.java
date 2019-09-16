@@ -85,10 +85,10 @@ public class FreditorUI extends JComponent {
         componentToRepaint.repaint();
     }
 
-    private static final int CTRL_META_MASK = OperatingSystem.isMacintosh ? InputEvent.META_MASK : InputEvent.CTRL_MASK;
+    private static final int CTRL_META_DOWN_MASK = OperatingSystem.isMacintosh ? InputEvent.META_DOWN_MASK : InputEvent.CTRL_DOWN_MASK;
 
     private static boolean isControlRespectivelyCommandDown(InputEvent event) {
-        return (event.getModifiers() & CTRL_META_MASK) != 0;
+        return (event.getModifiersEx() & CTRL_META_DOWN_MASK) != 0;
     }
 
     public FreditorUI(Flexer flexer, Indenter indenter, int columns, int rows) {
