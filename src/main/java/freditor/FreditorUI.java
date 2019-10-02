@@ -511,4 +511,8 @@ public class FreditorUI extends JComponent {
     public void saveToFile(String pathname) throws IOException {
         freditor.saveToFile(pathname);
     }
+
+    public Autosaver newAutosaver(String application) {
+        return new Autosaver(freditor, application);
+    }
 }
