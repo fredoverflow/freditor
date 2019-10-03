@@ -2,9 +2,9 @@ package freditor;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.regex.Pattern;
 
 public class Autosaver {
@@ -61,17 +61,12 @@ public class Autosaver {
 
     private String contentHashPathname() {
         try {
-            MessageDigest sha1 = MessageDigest.getInstance("SHA");
-            byte[] text = freditor.toString().getBytes(StandardCharsets.ISO_8859_1);
-            byte[] hash = sha1.digest(text);
-            StringBuilder builder = new StringBuilder(directory);
-            for (byte x : hash) {
-                builder.append("0123456789abcdef".charAt((x >>> 4) & 15));
-                builder.append("0123456789abcdef".charAt(x & 15));
-            }
-            return builder.append(EXTENSION).toString();
-        } catch (NoSuchAlgorithmException impossible) {
-            throw new RuntimeException(impossible);
+            byte[] text = freditor.toByteArray();
+            byte[] hash = MessageDigest.getInstance("SHA-1").digest(text);
+            String encoded = Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
+            return directory + encoded + EXTENSION;
+        } catch (NoSuchAlgorithmException sha1unsupported) {
+            throw new RuntimeException(sha1unsupported);
         }
     }
 }
