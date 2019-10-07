@@ -17,8 +17,8 @@ public class FreditorUI extends JComponent {
     public static final int ADDITIONAL_LINES = 1;
     public static final int ADDITIONAL_COLUMNS = 8;
 
-    public static final int fontWidth = Front.font.width;
-    public static final int fontHeight = Front.font.height;
+    public static final int frontWidth = Front.front.width;
+    public static final int frontHeight = Front.front.height;
 
     private final Freditor freditor;
 
@@ -34,7 +34,7 @@ public class FreditorUI extends JComponent {
     };
 
     public int visibleLines() {
-        return getHeight() / fontHeight;
+        return getHeight() / frontHeight;
     }
 
     public int firstVisibleLine() {
@@ -50,7 +50,7 @@ public class FreditorUI extends JComponent {
     }
 
     private int visibleColumns() {
-        return getWidth() / fontWidth;
+        return getWidth() / frontWidth;
     }
 
     public int lastVisibleColumn() {
@@ -92,7 +92,7 @@ public class FreditorUI extends JComponent {
     }
 
     public FreditorUI(Flexer flexer, Indenter indenter, int columns, int rows) {
-        setPreferredSize(new Dimension(columns * fontWidth, rows * fontHeight));
+        setPreferredSize(new Dimension(columns * frontWidth, rows * frontHeight));
 
         freditor = new Freditor(flexer, indenter);
         // We want to be able to listen to keys...
@@ -289,8 +289,8 @@ public class FreditorUI extends JComponent {
             public void mousePressed(MouseEvent event) {
                 switch (event.getClickCount()) {
                     case 1:
-                        int row = event.getY() / fontHeight + firstVisibleLine;
-                        int column = event.getX() / fontWidth + firstVisibleColumn;
+                        int row = event.getY() / frontHeight + firstVisibleLine;
+                        int column = event.getX() / frontWidth + firstVisibleColumn;
                         freditor.setRowAndColumn(row, column);
                         if (!event.isShiftDown()) freditor.adjustOrigin();
                         if (event.getButton() != MouseEvent.BUTTON1) {
@@ -310,8 +310,8 @@ public class FreditorUI extends JComponent {
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent event) {
-                int row = event.getY() / fontHeight + firstVisibleLine;
-                int column = event.getX() / fontWidth + firstVisibleColumn;
+                int row = event.getY() / frontHeight + firstVisibleLine;
+                int column = event.getX() / frontWidth + firstVisibleColumn;
                 freditor.setRowAndColumn(atLeastZero(row), atLeastZero(column));
                 componentToRepaint.repaint();
                 requestFocusInWindow();
@@ -344,11 +344,11 @@ public class FreditorUI extends JComponent {
     }
 
     private int x(int column) {
-        return (column - firstVisibleColumn) * fontWidth;
+        return (column - firstVisibleColumn) * frontWidth;
     }
 
     private int y(int row) {
-        return (row - firstVisibleLine) * fontHeight;
+        return (row - firstVisibleLine) * frontHeight;
     }
 
     private void paintBackground(Graphics g) {
@@ -369,7 +369,7 @@ public class FreditorUI extends JComponent {
 
     private void paintCurrentLine(Graphics g) {
         g.setColor(CURRENT_LINE_COLOR);
-        g.fillRect(0, y(freditor.row()), getWidth(), fontHeight);
+        g.fillRect(0, y(freditor.row()), getWidth(), frontHeight);
     }
 
     private void paintSelection(Graphics g, int startRow, int startColumn, int endRow,
@@ -383,7 +383,7 @@ public class FreditorUI extends JComponent {
     }
 
     private void paintLineSelection(Graphics g, int row, int startColumn, int endColumn) {
-        g.fillRect(x(startColumn), y(row), (endColumn - startColumn) * fontWidth, fontHeight);
+        g.fillRect(x(startColumn), y(row), (endColumn - startColumn) * frontWidth, frontHeight);
     }
 
     private void paintMultiLineSelection(Graphics g, int startRow, int startColumn, int endRow, int endColumn) {
@@ -406,7 +406,7 @@ public class FreditorUI extends JComponent {
 
     private void paintParensBackground(Graphics g, int position) {
         g.setColor(MATCHING_PARENS_BACKGROUND_COLOR);
-        g.fillRect(x(freditor.columnOfPosition(position)), y(freditor.rowOfPosition(position)), fontWidth, fontHeight);
+        g.fillRect(x(freditor.columnOfPosition(position)), y(freditor.rowOfPosition(position)), frontWidth, frontHeight);
     }
 
     private static final Runnable doNothing = () -> {
@@ -415,7 +415,7 @@ public class FreditorUI extends JComponent {
     private void paintLexemes(Graphics g) {
         final int componentWidth = getWidth();
         final int componentHeight = getHeight();
-        int x = -firstVisibleColumn * fontWidth;
+        int x = -firstVisibleColumn * frontWidth;
         int y = 0;
         final int len = freditor.length();
         for (int i = freditor.homePositionOfRow(firstVisibleLine); i < len; ) {
@@ -425,15 +425,15 @@ public class FreditorUI extends JComponent {
                 char c = freditor.charAt(i);
                 if (c != '\n') {
                     if (x >= 0) {
-                        Front.font.drawCharacter(g, x, y, c, rgb);
+                        Front.front.drawCharacter(g, x, y, c, rgb);
                     }
-                    x += fontWidth;
+                    x += frontWidth;
                     if (x < componentWidth) continue;
                     i = freditor.endPositionOf(i);
                 }
-                y += fontHeight;
+                y += frontHeight;
                 if (y >= componentHeight) return;
-                x = -firstVisibleColumn * fontWidth;
+                x = -firstVisibleColumn * frontWidth;
             }
         }
     }
@@ -442,7 +442,7 @@ public class FreditorUI extends JComponent {
         int cursorX = x(freditor.column());
         int cursorY = y(freditor.row());
         g.setColor(Color.BLACK);
-        Front.font.drawCharacter(g, cursorX, cursorY, '\177', 0x000000);
+        Front.front.drawCharacter(g, cursorX, cursorY, '\177', 0x000000);
     }
 
     public int cursor() {

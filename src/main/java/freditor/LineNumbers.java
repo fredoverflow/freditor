@@ -10,10 +10,10 @@ public class LineNumbers extends JComponent {
 
     public LineNumbers(FreditorUI editor) {
         this.editor = editor;
-        Dimension size = new Dimension(5 * FreditorUI.fontWidth, 1);
+        Dimension size = new Dimension(5 * FreditorUI.frontWidth, 1);
         setMinimumSize(size);
         setPreferredSize(size);
-        setMaximumSize(new Dimension(5 * FreditorUI.fontWidth, 65536));
+        setMaximumSize(new Dimension(5 * FreditorUI.frontWidth, 65536));
     }
 
     @Override
@@ -22,8 +22,8 @@ public class LineNumbers extends JComponent {
         int lastLineToPaint = Math.min(editor.lastVisibleLine(), editor.lastLine());
         for (int line = editor.firstVisibleLine(); line <= lastLineToPaint; ) {
             String s = String.format("%4d", ++line);
-            Front.font.drawString(g, 0, y, s, 0x000000);
-            y += FreditorUI.fontHeight;
+            Front.front.drawString(g, 0, y, s, 0x000000);
+            y += FreditorUI.frontHeight;
         }
     }
 }

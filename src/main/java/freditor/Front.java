@@ -12,9 +12,11 @@ import static javax.swing.JOptionPane.showInputDialog;
 
 public class Front {
     public static final String scale = pickFontScale();
-    public static final Front font = Front.read("/font.png").scaled(scale);
+    public static final Front front = Front.read("/font.png").scaled(scale);
 
-    private static final int COPY_BLUE_INTO_ALL_CHANNELS = 0x01010101;
+    public static final int point = scale2point(scale);
+    public static final Font monospaced = new Font(Font.MONOSPACED, Font.PLAIN, point);
+    public static final Font sansSerif = new Font(Font.SANS_SERIF, Font.PLAIN, point);
 
     private static String pickFontScale() {
         String title = "Almost there...";
@@ -25,6 +27,26 @@ public class Front {
         Object choice = showInputDialog(null, prompt, title, QUESTION_MESSAGE, null, possibilities, defaultChoice);
         return choice != null ? choice.toString() : defaultChoice;
     }
+
+    private static int scale2point(String scale) {
+        switch (scale) {
+            case "25%":
+                return 12;
+            case "33%":
+            default:
+                return 16;
+            case "50%":
+                return 24;
+            case "66%":
+                return 32;
+            case "75%":
+                return 36;
+            case "100%":
+                return 48;
+        }
+    }
+
+    private static final int COPY_BLUE_INTO_ALL_CHANNELS = 0x01010101;
 
     private final int[] argb;
     private final int imageWidth;
