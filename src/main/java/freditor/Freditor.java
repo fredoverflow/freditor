@@ -436,6 +436,10 @@ public final class Freditor extends CharZipper {
         lastAction = EditorAction.OTHER;
     }
 
+    public void uncommit() {
+        past.pop();
+    }
+
     private boolean deleteSelection() {
         if (selectionIsEmpty()) return false;
 

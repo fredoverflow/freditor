@@ -499,6 +499,10 @@ public class FreditorUI extends JComponent {
         componentToRepaint.repaint();
     }
 
+    public void uncommit() {
+        freditor.uncommit();
+    }
+
     public void indent() {
         freditor.indent();
         componentToRepaint.repaint();
