@@ -91,6 +91,14 @@ public class FreditorUI extends JComponent {
         return (event.getModifiersEx() & CTRL_META_DOWN_MASK) != 0;
     }
 
+    public void simulateEnter() {
+        char previousCharTyped = charTyped;
+        charTyped = 0;
+        freditor.onEnter(previousCharTyped);
+    }
+
+    private char charTyped;
+
     public FreditorUI(Flexer flexer, Indenter indenter, int columns, int rows) {
         setPreferredSize(new Dimension(columns * frontWidth, rows * frontHeight));
 
@@ -112,8 +120,6 @@ public class FreditorUI extends JComponent {
                 }
                 adjustView();
             }
-
-            private char charTyped;
 
             @Override
             public void keyPressed(KeyEvent event) {
