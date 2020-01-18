@@ -70,15 +70,17 @@ public final class Freditor extends CharZipper {
         return desiredColumn;
     }
 
-    public String getLineUntilCursor() {
-        return subSequence(homePositionOf(cursor), cursor);
+    public String getLineBeforeSelection() {
+        int selectionStart = selectionStart();
+        return subSequence(homePositionOf(selectionStart), selectionStart);
     }
 
-    public String getTextUntilCursor() {
-        if (before().size() < cursor) {
-            focusOn(cursor);
+    public String getTextBeforeSelection() {
+        int selectionStart = selectionStart();
+        if (before().size() < selectionStart) {
+            focusOn(selectionStart);
         }
-        return before().take(cursor).toString();
+        return before().take(selectionStart).toString();
     }
 
     // LINE BREAKS

@@ -480,12 +480,12 @@ public class FreditorUI extends JComponent {
         return freditor.toString();
     }
 
-    public String getLineUntilCursor() {
-        return freditor.getLineUntilCursor();
+    public String getLineBeforeSelection() {
+        return freditor.getLineBeforeSelection();
     }
 
-    public String getTextUntilCursor() {
-        return freditor.getTextUntilCursor();
+    public String getTextBeforeSelection() {
+        return freditor.getTextBeforeSelection();
     }
 
     public void insertString(String s) {
