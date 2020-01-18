@@ -11,6 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.function.IntConsumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static freditor.Maths.atLeastZero;
 
@@ -372,11 +374,11 @@ public final class Freditor extends CharZipper {
         adjustOrigin();
     }
 
-    public void setCursorTo(String prefix) {
-        // TODO optimize
-        int index = toString().indexOf(prefix);
-        if (index != -1) {
-            setCursorTo(index);
+    public void setCursorTo(String regex, int group) {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(toString());
+        if (matcher.find()) {
+            setCursorTo(matcher.start(group));
         }
     }
 

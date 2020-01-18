@@ -477,8 +477,8 @@ public class FreditorUI extends JComponent {
         adjustView();
     }
 
-    public void setCursorTo(String prefix) {
-        freditor.setCursorTo(prefix);
+    public void setCursorTo(String regex, int group) {
+        freditor.setCursorTo(regex, group);
         adjustView();
     }
 
