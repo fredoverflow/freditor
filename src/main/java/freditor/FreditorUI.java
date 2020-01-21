@@ -85,10 +85,11 @@ public class FreditorUI extends JComponent {
         componentToRepaint.repaint();
     }
 
-    private static final int CTRL_META_DOWN_MASK = OperatingSystem.isMacintosh ? InputEvent.META_DOWN_MASK : InputEvent.CTRL_DOWN_MASK;
+    private static final int CTRL_OR_META_OR_ALT = InputEvent.CTRL_DOWN_MASK | InputEvent.META_DOWN_MASK | InputEvent.ALT_DOWN_MASK;
+    private static final int CTRL_RESPECTIVELY_META = OperatingSystem.isMacintosh ? InputEvent.META_DOWN_MASK : InputEvent.CTRL_DOWN_MASK;
 
     private static boolean isControlRespectivelyCommandDown(InputEvent event) {
-        return (event.getModifiersEx() & CTRL_META_DOWN_MASK) != 0;
+        return (event.getModifiersEx() & CTRL_RESPECTIVELY_META) != 0;
     }
 
     public void simulateEnter() {
@@ -111,11 +112,11 @@ public class FreditorUI extends JComponent {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent event) {
-                char c = event.getKeyChar();
-                charTyped = c;
-                if (c >= 32 && c < 127 || c >= 160 && c < 256) {
-                    if (!isControlRespectivelyCommandDown(event)) {
-                        freditor.insertCharacter(c);
+                char ch = event.getKeyChar();
+                if (ch >= 32 && ch < 127 || ch >= 160 && ch < 256) {
+                    if ((event.getModifiersEx() & CTRL_OR_META_OR_ALT) == 0) {
+                        freditor.insertCharacter(ch);
+                        charTyped = ch;
                     }
                 }
                 adjustView();
@@ -501,6 +502,11 @@ public class FreditorUI extends JComponent {
 
     public void uncommit() {
         freditor.uncommit();
+    }
+
+    public void replace(String regex, String replacement) {
+        freditor.replace(regex, replacement);
+        componentToRepaint.repaint();
     }
 
     public void indent() {

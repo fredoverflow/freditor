@@ -399,10 +399,10 @@ public final class Freditor extends CharZipper {
     }
 
     public String symbolNearCursor(FlexerState symbolTail) {
-        // coerce literal prefixes to symbol
-        if (stateAt(cursor).next(':') == symbolTail) {
+        // coerce keyword/literal prefixes to symbol
+        if (stateAt(cursor).next('0') == symbolTail) {
             return lexemeAt(cursor);
-        } else if (cursor >= 1) {
+        } else if (cursor >= 1 && stateAt(cursor - 1).next('0') == symbolTail) {
             return lexemeAt(cursor - 1);
         } else {
             return "";
@@ -560,6 +560,21 @@ public final class Freditor extends CharZipper {
         int row = row();
         deleteRange(homePositionOfRow(row), homePositionOfRow(row + 1));
         setRowAndColumn(row, desiredColumn);
+        adjustOrigin();
+        lastAction = EditorAction.OTHER;
+    }
+
+    public void replace(String regex, String replacement) {
+        String text = toString();
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
+        String replaced = matcher.replaceAll(replacement);
+
+        commit();
+        int row = row();
+        int column = column();
+        loadFromString(replaced);
+        setRowAndColumn(row, column);
         adjustOrigin();
         lastAction = EditorAction.OTHER;
     }
