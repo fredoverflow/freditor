@@ -74,6 +74,10 @@ public class HamtSet<K extends Comparable<K>> {
         return temp;
     }
 
+    public boolean contains(K key) {
+        return get(key) != null;
+    }
+
     public K get(K key) {
         return get(key, key.hashCode(), 0);
     }

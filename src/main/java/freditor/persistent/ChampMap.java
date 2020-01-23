@@ -70,6 +70,10 @@ public class ChampMap<K, V> {
         return bitCount(usedKeyValues) * 2 + bitCount(usedSubMaps & (bitmask - 1));
     }
 
+    public boolean contains(K key) {
+        return getKey(key) != null;
+    }
+
     @SuppressWarnings("unchecked")
     public K getKey(K key) {
         return (K) get(key, key.hashCode(), 0, 0);

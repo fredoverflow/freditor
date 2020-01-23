@@ -75,6 +75,14 @@ public class StringedValueMap<V> {
         return temp;
     }
 
+    public boolean contains(Object key) {
+        return get(key) != null;
+    }
+
+    public boolean contains(String key) {
+        return get(key) != null;
+    }
+
     public V get(Object key) {
         return get(key.toString());
     }
