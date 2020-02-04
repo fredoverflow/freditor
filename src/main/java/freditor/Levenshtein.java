@@ -1,6 +1,29 @@
 package freditor;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class Levenshtein {
+    public static List<String> bestMatches(String wrong, Iterable<String> vocabulary) {
+        ArrayList<String> candidates = new ArrayList<>();
+        int minDistance = Integer.MAX_VALUE;
+        for (String word : vocabulary) {
+            // length difference is lower bound for distance
+            if (Math.abs(word.length() - wrong.length()) > minDistance) continue;
+
+            int distance = distance(word, wrong);
+            if (distance < minDistance) {
+                candidates.clear();
+                candidates.add(word);
+                minDistance = distance;
+            } else if (distance == minDistance) {
+                candidates.add(word);
+            }
+        }
+        return candidates.stream().sorted().distinct().collect(Collectors.toList());
+    }
+
     public static int distance(String a, String b) {
         return a.length() < b.length() ? distance_(b, a) : distance_(a, b);
     }

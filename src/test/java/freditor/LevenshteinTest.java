@@ -2,6 +2,9 @@ package freditor;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 
 public class LevenshteinTest {
@@ -53,5 +56,21 @@ public class LevenshteinTest {
     @Test
     public void keyboardLayouts() {
         assertEquals(3, Levenshtein.distance("qwertz", "azerty"));
+    }
+
+    @Test
+    public void lastMatch() {
+        List<String> vocabulary = Arrays.asList("apple", "apples", "apply", "applies");
+        List<String> actual = Levenshtein.bestMatches("supplies", vocabulary);
+        List<String> expected = Arrays.asList("applies");
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void multipleMatches() {
+        List<String> vocabulary = Arrays.asList("quine", "quid", "quit", "juice", "guide");
+        List<String> actual = Levenshtein.bestMatches("gui", vocabulary);
+        List<String> expected = Arrays.asList("guide", "quid", "quit");
+        assertEquals(expected, actual);
     }
 }
