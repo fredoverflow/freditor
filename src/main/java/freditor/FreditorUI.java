@@ -331,6 +331,18 @@ public class FreditorUI extends JComponent {
             firstVisibleLine = atLeastZero(firstVisibleLine + direction * amount);
             componentToRepaint.repaint();
         });
+
+        addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent event) {
+                repaint();
+            }
+
+            @Override
+            public void focusLost(FocusEvent event) {
+                repaint();
+            }
+        });
     }
 
     public String lexemeAtCursor() {
@@ -347,7 +359,9 @@ public class FreditorUI extends JComponent {
         paintCurrentLineOrSelection(g);
         paintMatchingParensBackground(g);
         paintLexemes(g);
-        paintCursor(g);
+        if (hasFocus()) {
+            paintCursor(g);
+        }
     }
 
     private int x(int column) {
