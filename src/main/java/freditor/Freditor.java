@@ -400,9 +400,9 @@ public final class Freditor extends CharZipper {
 
     public String symbolNearCursor(FlexerState symbolTail) {
         // coerce keyword/literal prefixes to symbol
-        if (stateAt(cursor).next('0') == symbolTail) {
+        if (stateAt(cursor).next('_') == symbolTail) {
             return lexemeAt(cursor);
-        } else if (cursor >= 1 && stateAt(cursor - 1).next('0') == symbolTail) {
+        } else if (cursor >= 1 && stateAt(cursor - 1).next('_') == symbolTail) {
             return lexemeAt(cursor - 1);
         } else {
             return "";
