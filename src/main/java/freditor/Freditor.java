@@ -191,7 +191,7 @@ public final class Freditor extends CharZipper {
         return index;
     }
 
-    public void findOpeningParen(int start, IntConsumer present, Runnable missing) {
+    public void findOpeningParen(int start, IntConsumer onPresent, Runnable onMissing) {
         int nesting = 0;
         for (int i = cursor - 1; i >= start; --i) {
             FlexerState state = stateAt(i);
@@ -199,16 +199,16 @@ public final class Freditor extends CharZipper {
                 --nesting;
             } else if (state == Flexer.OPENING_PAREN || state == Flexer.OPENING_BRACKET || state == Flexer.OPENING_BRACE) {
                 if (nesting == 0) {
-                    present.accept(i);
+                    onPresent.accept(i);
                     return;
                 }
                 ++nesting;
             }
         }
-        missing.run();
+        onMissing.run();
     }
 
-    public void findClosingParen(int end, IntConsumer present, Runnable missing) {
+    public void findClosingParen(int end, IntConsumer onPresent, Runnable onMissing) {
         int nesting = 0;
         for (int i = cursor; i < end; ++i) {
             FlexerState state = stateAt(i);
@@ -216,13 +216,13 @@ public final class Freditor extends CharZipper {
                 ++nesting;
             } else if (state == Flexer.CLOSING_PAREN || state == Flexer.CLOSING_BRACKET || state == Flexer.CLOSING_BRACE) {
                 if (nesting == 0) {
-                    present.accept(i);
+                    onPresent.accept(i);
                     return;
                 }
                 --nesting;
             }
         }
-        missing.run();
+        onMissing.run();
     }
 
     // CHARZIPPER OVERRIDES
