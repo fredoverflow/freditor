@@ -340,6 +340,12 @@ public class FreditorUI extends JComponent {
 
             @Override
             public void focusLost(FocusEvent event) {
+                if (event.getOppositeComponent() instanceof JButton) {
+                    // Error dialogs steal the focus from the editor,
+                    // but the cursor should remain visible because
+                    // it marks the position associated with the error.
+                    return;
+                }
                 repaint();
             }
         });
