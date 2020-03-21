@@ -350,11 +350,11 @@ public final class Freditor extends CharZipper {
     }
 
     public int selectionStart() {
-        return origin < cursor ? origin : cursor;
+        return Math.min(origin, cursor);
     }
 
     public int selectionEnd() {
-        return origin > cursor ? origin : cursor;
+        return Math.max(origin, cursor);
     }
 
     public void setRowAndColumn(int row, int column) {
