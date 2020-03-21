@@ -20,7 +20,7 @@ public class ChampMap<K, V> {
         return (ChampMap<K, V>) EMPTY;
     }
 
-    private static final ChampMap<?, ?> EMPTY = new ChampMap(new Object[0], 0, 0);
+    private static final ChampMap<?, ?> EMPTY = new ChampMap<>(new Object[0], 0, 0);
 
     public static <K, V> ChampMap<K, V> of(K key, V value) {
         return ChampMap.<K, V>empty().put(key, value);

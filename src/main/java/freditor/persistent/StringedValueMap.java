@@ -24,7 +24,7 @@ public class StringedValueMap<V> {
         return (StringedValueMap<V>) EMPTY;
     }
 
-    private static final StringedValueMap<?> EMPTY = new StringedValueMap(new Object[0], 0);
+    private static final StringedValueMap<?> EMPTY = new StringedValueMap<>(new Object[0], 0);
 
     public static <V> StringedValueMap<V> of(V value) {
         return StringedValueMap.<V>empty().put(value);

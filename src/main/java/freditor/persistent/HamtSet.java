@@ -23,7 +23,7 @@ public class HamtSet<K extends Comparable<K>> {
         return (HamtSet<K>) EMPTY;
     }
 
-    private static final HamtSet<?> EMPTY = new HamtSet(new Object[0], 0, 0);
+    private static final HamtSet<?> EMPTY = new HamtSet<>(new Object[0], 0, 0);
 
     public static <K extends Comparable<K>> HamtSet<K> of(K value) {
         return HamtSet.<K>empty().put(value);
