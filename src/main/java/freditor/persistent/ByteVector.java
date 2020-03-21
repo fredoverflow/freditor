@@ -10,14 +10,14 @@ public final class ByteVector {
 
     private ByteVector(Object root, byte[] tail, int size) {
         assert size <= 32 || root != null;
-        assert tail != null;
+        assert tail.length == 32;
 
         this.root = root;
         this.tail = tail;
         this.size = size;
     }
 
-    public static final ByteVector EMPTY = new ByteVector(null, new byte[32], 0);
+    public static final ByteVector EMPTY = new ByteVector(null, "                                ".getBytes(), 0);
 
     public static ByteVector of(byte... bytes) {
         return of(bytes, bytes.length);
