@@ -515,7 +515,7 @@ public class FreditorUI extends JComponent {
         return freditor.getTextBeforeSelection();
     }
 
-    public void insertString(String s) {
+    public void insert(CharSequence s) {
         freditor.insert(s);
         componentToRepaint.repaint();
     }
