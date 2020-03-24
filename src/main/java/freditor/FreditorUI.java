@@ -520,6 +520,11 @@ public class FreditorUI extends JComponent {
         componentToRepaint.repaint();
     }
 
+    public void append(CharSequence s) {
+        freditor.insertAt(freditor.length(), s);
+        componentToRepaint.repaint();
+    }
+
     public void uncommit() {
         freditor.uncommit();
     }
