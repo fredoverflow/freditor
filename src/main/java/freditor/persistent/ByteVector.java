@@ -95,7 +95,7 @@ public final class ByteVector {
         return tailOrLeafContaining(index)[index & 31];
     }
 
-    public byte[] tailOrLeafContaining(int index) {
+    private byte[] tailOrLeafContaining(int index) {
         if ((index >>> 5) >= (size - 1) >>> 5) {
             return tail;
         } else {
