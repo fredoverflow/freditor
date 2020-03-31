@@ -472,15 +472,52 @@ public final class Freditor extends CharZipper {
         insert(SystemClipboard.getVisibleLatin1());
     }
 
-    public void insertCharacter(char c) {
-        deleteSelection();
-        if (lastAction != EditorAction.SINGLE_INSERT || cursor != lastCursor || c == ' ') {
-            commit();
-            lastAction = EditorAction.SINGLE_INSERT;
-        }
+    private static char partner(char c) {
+        switch (c) {
+            case '(':
+                return ')';
+            case ')':
+                return '(';
 
-        insertWithSynthAt(cursor++, c);
-        lastCursor = cursor;
+            case '[':
+                return ']';
+            case ']':
+                return '[';
+
+            case '{':
+                return '}';
+            case '}':
+                return '{';
+
+            default:
+                return 0;
+        }
+    }
+
+    public void insertCharacter(char c) {
+        char partner;
+        if (!selectionIsEmpty() && (partner = partner(c)) != 0) {
+            commit();
+            lastAction = EditorAction.OTHER;
+
+            if (c < partner) {
+                insertAt(selectionEnd(), partner);
+                cursor = selectionStart();
+            } else {
+                insertAt(selectionStart(), partner);
+                cursor = selectionEnd() + 1;
+            }
+            insertAt(cursor++, c);
+        } else {
+            deleteSelection();
+            if (lastAction != EditorAction.SINGLE_INSERT || cursor != lastCursor || c == ' ') {
+                commit();
+                lastAction = EditorAction.SINGLE_INSERT;
+            }
+
+            insertWithSynthAt(cursor++, c);
+            lastCursor = cursor;
+        }
         forgetDesiredColumn();
         adjustOrigin();
     }
