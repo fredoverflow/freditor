@@ -18,7 +18,7 @@ public class FlexerState {
 
     public static final FlexerState EMPTY = new FlexerState();
 
-    public static final FlexerState THIS = EMPTY;
+    public static final FlexerState THIS = new FlexerState();
 
     private FlexerState resolveThis(FlexerState state) {
         return state == THIS ? this : state;
