@@ -25,7 +25,7 @@ public class Autosaver {
         this.freditor = freditor;
 
         directory = System.getProperty("user.home") + File.separator + application + File.separator;
-        filename = "!" + application + EXTENSION;
+        filename = application + EXTENSION;
         pathname = directory + filename;
     }
 
