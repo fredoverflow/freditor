@@ -64,7 +64,11 @@ public class Autosaver {
             byte[] text = freditor.toByteArray();
             byte[] hash = MessageDigest.getInstance("SHA-1").digest(text);
             String encoded = Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
-            return directory + encoded + EXTENSION;
+            // File names starting with a minus sign require special care.
+            // A base64url-encoded SHA-1 hash never ends with a minus sign,
+            // so reversing the encoded string is an easy fix.
+            String reversed = new StringBuilder(encoded).reverse().toString();
+            return directory + reversed + EXTENSION;
         } catch (NoSuchAlgorithmException sha1unsupported) {
             throw new RuntimeException(sha1unsupported);
         }
