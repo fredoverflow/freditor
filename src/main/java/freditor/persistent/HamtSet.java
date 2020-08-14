@@ -1,13 +1,16 @@
 package freditor.persistent;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.function.Consumer;
 
 import static java.lang.Integer.bitCount;
 
 /**
  * HamtSets CANNOT BE NESTED due to instanceof checks!
  */
-public class HamtSet<K extends Comparable<K>> {
+public class HamtSet<K extends Comparable<K>> implements Iterable<K> {
     private final Object[] array;
     private final int used;
     private final int hashCode;
@@ -146,13 +149,14 @@ public class HamtSet<K extends Comparable<K>> {
             if (index >= 0) {
                 // replace existing value
                 a = array.clone();
+                hash -= a[index].hashCode();
                 a[index] = key;
-                hash -= array[index].hashCode();
             } else {
                 // insert new value
                 index = ~index;
                 a = new Object[array.length + 1];
                 System.arraycopy(array, 0, a, 0, index);
+                a[index] = key;
                 System.arraycopy(array, index, a, index + 1, array.length - index);
             }
             return new HamtSet<>(a, 0, hashCode + hash);
@@ -165,8 +169,8 @@ public class HamtSet<K extends Comparable<K>> {
             // insert new value
             Object[] a = new Object[array.length + 1];
             System.arraycopy(array, 0, a, 0, index);
-            System.arraycopy(array, index, a, index + 1, array.length - index);
             a[index] = key;
+            System.arraycopy(array, index, a, index + 1, array.length - index);
             return new HamtSet<>(a, used | bitmask, hashCode + hash);
         }
 
@@ -178,8 +182,8 @@ public class HamtSet<K extends Comparable<K>> {
             a[index] = ((HamtSet<K>) oldValue).put(key, hash, shift + 5);
         } else if (oldValue.equals(key)) {
             // replace existing value
+            hash -= a[index].hashCode();
             a[index] = key;
-            hash -= array[index].hashCode();
         } else {
             // create new submap
             a[index] = HamtSet.<K>empty()
@@ -220,6 +224,74 @@ public class HamtSet<K extends Comparable<K>> {
             return ((HamtSet<K>) value).first();
         } else {
             return (K) value;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void forEach(Consumer<? super K> consumer) {
+        for (Object object : array) {
+            if (object instanceof HamtSet) {
+                ((HamtSet<K>) object).forEach(consumer);
+            } else {
+                consumer.accept((K) object);
+            }
+        }
+    }
+
+    @Override
+    public Iterator<K> iterator() {
+        return array.length == 0 ? Collections.emptyIterator() : new HamtSetIterator<>(this);
+    }
+
+    private static class HamtSetIterator<K extends Comparable<K>> implements Iterator<K> {
+        private Object[][] stack;
+        private int top;
+
+        private long index;
+        private int shift;
+
+        @SuppressWarnings("unchecked")
+        public HamtSetIterator(HamtSet<K> set) {
+            stack = new Object[8][];
+            stack[0] = set.array;
+            Object obj = set.array[0];
+            // descend
+            while (obj instanceof HamtSet) {
+                set = (HamtSet<K>) obj;
+                stack[++top] = set.array;
+                obj = set.array[0];
+            }
+            shift = top * 5;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return top >= 0;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public K next() {
+            int i = (int) (index >>> shift);
+            Object result = stack[top][i];
+            // ascend
+            while (++i == stack[top].length) {
+                if (--top < 0) return (K) result;
+
+                index &= (1L << shift) - 1;
+                shift -= 5;
+                i = (int) (index >>> shift);
+            }
+            index += 1L << shift;
+            // descend
+            while (stack[top][i] instanceof HamtSet) {
+                HamtSet<K> set = (HamtSet<K>) stack[top][i];
+                stack[++top] = set.array;
+                shift += 5;
+                i = 0;
+            }
+            return (K) result;
         }
     }
 }
