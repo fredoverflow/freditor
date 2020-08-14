@@ -4,6 +4,9 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -41,6 +44,20 @@ public class StringedValueMapTest {
     }
 
     @Test
+    public void putSameHash() {
+        String a = "aa";
+        String b = "bB";
+        assertEquals(a.hashCode(), b.hashCode());
+
+        StringedValueMap<String> map = StringedValueMap.of(a, b);
+
+        assertEquals(a, map.get(a));
+        assertEquals(b, map.get(b));
+
+        assertEquals("[[[[[[[[aa, bB]]]]]]]]", map.toString());
+    }
+
+    @Test
     public void level7() {
         StringedValueMap<String> map = StringedValueMap.of("hnwsmcx", "tqygjbc", "xfjfxtf", "zsjpxah");
 
@@ -68,6 +85,13 @@ public class StringedValueMapTest {
 
         assertEquals(0, integerZero.get(0));
         assertEquals("0", stringZero.get("0"));
+    }
+
+    @Test
+    public void iterator() {
+        StringedValueMap<Integer> numbers = StringedValueMap.of(Stream.generate(new Random(2020_08_14)::nextInt).limit(32769).toArray(Integer[]::new));
+        Iterator<Integer> it = numbers.iterator();
+        numbers.forEach(number -> assertEquals(number, it.next()));
     }
 }
 

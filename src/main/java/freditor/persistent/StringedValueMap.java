@@ -1,6 +1,8 @@
 package freditor.persistent;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.function.Consumer;
 
 import static java.lang.Integer.bitCount;
@@ -10,7 +12,7 @@ import static java.lang.Integer.bitCount;
  * but computed by calling toString on the corresponding value.
  * StringedValueMaps CANNOT BE NESTED due to instanceof checks!
  */
-public class StringedValueMap<V> {
+public class StringedValueMap<V> implements Iterable<V> {
     private final Object[] array;
     private final int used;
 
@@ -155,14 +157,15 @@ public class StringedValueMap<V> {
             if (index >= 0) {
                 // replace existing value
                 a = array.clone();
+                a[index] = value;
             } else {
                 // insert new value
                 index = ~index;
                 a = new Object[array.length + 1];
                 System.arraycopy(array, 0, a, 0, index);
+                a[index] = value;
                 System.arraycopy(array, index, a, index + 1, array.length - index);
             }
-            a[index] = value;
             return new StringedValueMap<>(a, 0);
         }
 
@@ -173,8 +176,8 @@ public class StringedValueMap<V> {
             // insert new value
             Object[] a = new Object[array.length + 1];
             System.arraycopy(array, 0, a, 0, index);
-            System.arraycopy(array, index, a, index + 1, array.length - index);
             a[index] = value;
+            System.arraycopy(array, index, a, index + 1, array.length - index);
             return new StringedValueMap<>(a, used | bitmask);
         }
 
@@ -222,13 +225,69 @@ public class StringedValueMap<V> {
     }
 
     @SuppressWarnings("unchecked")
-    public void forEach(Consumer<V> consumer) {
+    public void forEach(Consumer<? super V> consumer) {
         for (Object object : array) {
             if (object instanceof StringedValueMap) {
                 ((StringedValueMap<V>) object).forEach(consumer);
             } else {
                 consumer.accept((V) object);
             }
+        }
+    }
+
+    @Override
+    public Iterator<V> iterator() {
+        return array.length == 0 ? Collections.emptyIterator() : new StringedValueMapIterator<>(this);
+    }
+
+    private static class StringedValueMapIterator<V> implements Iterator<V> {
+        private Object[][] stack;
+        private int top;
+
+        private long index;
+        private int shift;
+
+        @SuppressWarnings("unchecked")
+        public StringedValueMapIterator(StringedValueMap<V> map) {
+            stack = new Object[8][];
+            stack[0] = map.array;
+            Object obj = map.array[0];
+            // descend
+            while (obj instanceof StringedValueMap) {
+                map = (StringedValueMap<V>) obj;
+                stack[++top] = map.array;
+                obj = map.array[0];
+            }
+            shift = top * 5;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return top >= 0;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public V next() {
+            int i = (int) (index >>> shift);
+            Object result = stack[top][i];
+            // ascend
+            while (++i == stack[top].length) {
+                if (--top < 0) return (V) result;
+
+                index &= (1L << shift) - 1;
+                shift -= 5;
+                i = (int) (index >>> shift);
+            }
+            index += 1L << shift;
+            // descend
+            while (stack[top][i] instanceof StringedValueMap) {
+                StringedValueMap<V> map = (StringedValueMap<V>) stack[top][i];
+                stack[++top] = map.array;
+                shift += 5;
+                i = 0;
+            }
+            return (V) result;
         }
     }
 }
