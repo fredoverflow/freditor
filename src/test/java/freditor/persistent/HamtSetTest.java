@@ -68,8 +68,8 @@ public class HamtSetTest {
 
     @Test
     public void iterator() {
-        HamtSet<Integer> numbers = HamtSet.of(Stream.generate(new Random(2020_08_13)::nextInt).limit(32769).toArray(Integer[]::new));
-        Iterator<Integer> it = numbers.iterator();
+        HamtSet<Long> numbers = HamtSet.of(Stream.generate(new Random(2020_08_13)::nextLong).limit(1_000_000).toArray(Long[]::new));
+        Iterator<Long> it = numbers.iterator();
         numbers.forEach(number -> assertEquals(number, it.next()));
     }
 }

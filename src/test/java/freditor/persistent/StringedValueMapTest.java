@@ -89,8 +89,8 @@ public class StringedValueMapTest {
 
     @Test
     public void iterator() {
-        StringedValueMap<Integer> numbers = StringedValueMap.of(Stream.generate(new Random(2020_08_14)::nextInt).limit(32769).toArray(Integer[]::new));
-        Iterator<Integer> it = numbers.iterator();
+        StringedValueMap<Long> numbers = StringedValueMap.of(Stream.generate(new Random(2020_08_14)::nextLong).limit(1_000_000).toArray(Long[]::new));
+        Iterator<Long> it = numbers.iterator();
         numbers.forEach(number -> assertEquals(number, it.next()));
     }
 }
