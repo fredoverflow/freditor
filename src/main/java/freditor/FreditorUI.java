@@ -88,7 +88,7 @@ public class FreditorUI extends JComponent {
     private static final int CTRL_OR_META_OR_ALT = InputEvent.CTRL_DOWN_MASK | InputEvent.META_DOWN_MASK | InputEvent.ALT_DOWN_MASK;
     private static final int CTRL_RESPECTIVELY_META = OperatingSystem.isMacintosh ? InputEvent.META_DOWN_MASK : InputEvent.CTRL_DOWN_MASK;
 
-    private static boolean isControlRespectivelyCommandDown(InputEvent event) {
+    public static boolean isControlRespectivelyCommandDown(InputEvent event) {
         return (event.getModifiersEx() & CTRL_RESPECTIVELY_META) != 0;
     }
 
