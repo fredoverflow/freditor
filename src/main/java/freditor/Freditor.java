@@ -362,6 +362,11 @@ public final class Freditor extends CharZipper {
         desiredColumn = column;
     }
 
+    public void clickRowAndColumn(int row, int column) {
+        cursor = Math.min(homePositionOfRow(row) + column, endPositionOfRow(row));
+        forgetDesiredColumn();
+    }
+
     public void setCursorTo(int position) {
         cursor = position;
         forgetDesiredColumn();
