@@ -17,8 +17,8 @@ public class SystemClipboardTest {
 
     @Test
     public void fox() {
-        SystemClipboard.set("the quick brown fox jumped over the lazy dog");
-        assertEquals("the quick brown fox jumped over the lazy dog", SystemClipboard.getVisibleLatin1());
+        SystemClipboard.set("the quick brown fox jumps over the lazy dog");
+        assertEquals("the quick brown fox jumps over the lazy dog", SystemClipboard.getVisibleLatin1());
     }
 
     private static String codePoints(int startInclusive, int endExclusive) {
