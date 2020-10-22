@@ -300,7 +300,7 @@ public class FreditorUI extends JComponent {
                         int column = event.getX() / frontWidth + firstVisibleColumn;
                         freditor.clickRowAndColumn(row, column);
                         if (!event.isShiftDown()) freditor.adjustOrigin();
-                        if (event.getButton() != MouseEvent.BUTTON1) {
+                        if (event.getButton() == MouseEvent.BUTTON3) {
                             onRightClick.accept(lexemeAtCursor());
                         }
                         break;
