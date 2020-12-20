@@ -32,6 +32,10 @@ public abstract class Flexer {
         return "";
     }
 
+    public boolean arePartners(FlexerState opening, FlexerState closing) {
+        return false;
+    }
+
     public final FlexerState nextState(FlexerState currentState, char input) {
         FlexerState nextState = currentState.next(input);
         if (nextState == null) {

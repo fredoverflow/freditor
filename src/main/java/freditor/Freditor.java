@@ -574,7 +574,12 @@ public final class Freditor extends CharZipper {
                 commit();
                 lastAction = EditorAction.SINGLE_DELETE;
             }
+            FlexerState before = stateAt(cursor - 1);
+            FlexerState after = stateAt(cursor);
             deleteLeftOf(cursor--);
+            if (flexer.arePartners(before, after)) {
+                deleteRightOf(cursor);
+            }
             lastCursor = cursor;
             forgetDesiredColumn();
             adjustOrigin();
