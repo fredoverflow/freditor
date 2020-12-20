@@ -22,7 +22,7 @@ public class LineNumbers extends JComponent {
         int lastLineToPaint = Math.min(editor.lastVisibleLine(), editor.lastLine());
         for (int line = editor.firstVisibleLine(); line <= lastLineToPaint; ) {
             String s = String.format("%4d", ++line);
-            Front.front.drawString(g, 0, y, s, 0x000000);
+            Front.front.drawString(g, 0, y, s, 0xA2A1A0);
             y += FreditorUI.frontHeight;
         }
     }

@@ -379,7 +379,7 @@ public class FreditorUI extends JComponent {
     }
 
     private void paintBackground(Graphics g) {
-        g.setColor(Color.WHITE);
+        g.setColor(new Color(0x2B2B2B));
         g.fillRect(0, 0, getWidth(), getHeight());
     }
 
@@ -468,8 +468,8 @@ public class FreditorUI extends JComponent {
     private void paintCursor(Graphics g) {
         int cursorX = x(freditor.column());
         int cursorY = y(freditor.row());
-        g.setColor(Color.BLACK);
-        Front.front.drawCharacter(g, cursorX, cursorY, '\177', 0x000000);
+        g.setColor(Color.WHITE);
+        Front.front.drawCharacter(g, cursorX, cursorY, '\177', 0xBBBBBB);
     }
 
     public int cursor() {
