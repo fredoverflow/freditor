@@ -10,9 +10,9 @@ import java.util.function.IntConsumer;
 import static freditor.Maths.atLeastZero;
 
 public class FreditorUI extends JComponent {
-    public static final Color CURRENT_LINE_COLOR = new Color(0xffffaa);
-    public static final Color SELECTION_COLOR = new Color(0xc8c8ff);
-    public static final Color MATCHING_PARENS_BACKGROUND_COLOR = new Color(0xe0e0e0);
+    public static final Color CURRENT_LINE_COLOR = new Color(0x323232);
+    public static final Color SELECTION_COLOR = new Color(0x214283);
+    public static final Color MATCHING_PARENS_BACKGROUND_COLOR = new Color(0x344134);
 
     public static final int ADDITIONAL_LINES = 1;
     public static final int ADDITIONAL_COLUMNS = 8;
