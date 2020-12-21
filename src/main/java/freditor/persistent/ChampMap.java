@@ -79,6 +79,11 @@ public class ChampMap<K, V> {
         return (K) get(key, key.hashCode(), 0, 0);
     }
 
+    public V getOrDefault(K key, V defaultValue) {
+        V result = get(key);
+        return result != null ? result : defaultValue;
+    }
+
     @SuppressWarnings("unchecked")
     public V get(K key) {
         return (V) get(key, key.hashCode(), 0, 1);

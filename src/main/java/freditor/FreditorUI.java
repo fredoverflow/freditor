@@ -425,19 +425,16 @@ public class FreditorUI extends JComponent {
         IntConsumer paint = position -> paintParensBackground(g, position);
 
         int start = freditor.homePositionOfRow(firstVisibleLine());
-        freditor.findOpeningParen(start, paint, doNothing);
+        freditor.findOpeningParen(start, paint, Freditor.doNothing);
 
         int end = freditor.homePositionOfRow(lastVisibleLine() + 2);
-        freditor.findClosingParen(end, paint, doNothing);
+        freditor.findClosingParen(end, paint, Freditor.doNothing);
     }
 
     private void paintParensBackground(Graphics g, int position) {
         g.setColor(MATCHING_PARENS_BACKGROUND_COLOR);
         g.fillRect(x(freditor.columnOfPosition(position)), y(freditor.rowOfPosition(position)), frontWidth, frontHeight);
     }
-
-    private static final Runnable doNothing = () -> {
-    };
 
     private void paintLexemes(Graphics g) {
         final int componentWidth = getWidth();
