@@ -604,6 +604,51 @@ public final class Freditor extends CharZipper {
         lastAction = EditorAction.OTHER;
     }
 
+    public void slurpForward() {
+        findClosingParen(length(), closing -> {
+            commit();
+            int backup = cursor;
+            cursor = closing;
+            moveCursorToNextForm();
+            if (cursor < length()) {
+                moveCursorAfterCurrentForm();
+                String form = deleteRange(origin, cursor);
+                insertAt(closing, form);
+                cursor = backup;
+                if (cursor == closing) {
+                    cursor += form.length();
+                }
+                adjustOrigin();
+                forgetDesiredColumn();
+                lastAction = EditorAction.OTHER;
+            } else {
+                past.pop().restore();
+            }
+        }, doNothing);
+    }
+
+    private void moveCursorToNextForm() {
+        final int len = length();
+        while (cursor < len) {
+            FlexerState state = stateAt(cursor);
+            if (Flexer.nestingDelta.getOrDefault(state, 0) == -1) {
+                origin = cursor + 1;
+            } else if (state != Flexer.NEWLINE && state != Flexer.SPACE_HEAD) {
+                return;
+            }
+            cursor = endOfLexeme(cursor);
+        }
+    }
+
+    private void moveCursorAfterCurrentForm() {
+        final int len = length();
+        int nesting = 0;
+        do {
+            nesting += Flexer.nestingDelta.getOrDefault(stateAt(cursor), 0);
+            cursor = endOfLexeme(cursor);
+        } while (nesting > 0 && cursor < len);
+    }
+
     public void replace(String regex, String replacement) {
         String text = toString();
         Pattern pattern = Pattern.compile(regex);

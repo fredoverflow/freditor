@@ -286,6 +286,15 @@ public class FreditorUI extends JComponent {
                             freditor.redo();
                         }
                         break;
+
+                    default:
+                        switch (event.getKeyChar()) {
+                            case ')':
+                                if (isControlRespectivelyCommandDown(event)) {
+                                    freditor.slurpForward();
+                                }
+                                break;
+                        }
                 }
                 adjustView();
             }
