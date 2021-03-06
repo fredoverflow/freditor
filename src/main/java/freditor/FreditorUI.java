@@ -490,6 +490,18 @@ public class FreditorUI extends JComponent {
         return freditor.column();
     }
 
+    public boolean selectionIsEmpty() {
+        return freditor.selectionIsEmpty();
+    }
+
+    public int selectionStart() {
+        return freditor.selectionStart();
+    }
+
+    public int selectionEnd() {
+        return freditor.selectionEnd();
+    }
+
     public int lineOfPosition(int position) {
         return freditor.rowOfPosition(position);
     }
