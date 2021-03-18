@@ -29,21 +29,8 @@ public class Front {
     }
 
     private static int height2point(String height) {
-        switch (height) {
-            case "18px":
-                return 12;
-            case "24px":
-            default:
-                return 16;
-            case "36px":
-                return 24;
-            case "48px":
-                return 32;
-            case "54px":
-                return 36;
-            case "72px":
-                return 48;
-        }
+        String dropPx = height.substring(0, height.length() - 2);
+        return Integer.parseInt(dropPx) * 2 / 3;
     }
 
     private static final int COPY_BLUE_INTO_ALL_CHANNELS = 0x01010101;
