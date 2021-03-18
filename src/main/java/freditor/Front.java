@@ -11,37 +11,37 @@ import static javax.swing.JOptionPane.QUESTION_MESSAGE;
 import static javax.swing.JOptionPane.showInputDialog;
 
 public class Front {
-    public static final String scale = pickFontScale();
-    public static final Front front = Front.read("/font.png").scaled(scale);
+    public static final String fontHeight = pickFontHeight();
+    public static final Front front = Front.read("/font.png").scaled(fontHeight);
 
-    public static final int point = scale2point(scale);
+    public static final int point = height2point(fontHeight);
     public static final Font monospaced = new Font(Font.MONOSPACED, Font.PLAIN, point);
     public static final Font sansSerif = new Font(Font.SANS_SERIF, Font.PLAIN, point);
 
-    private static String pickFontScale() {
+    private static String pickFontHeight() {
         String title = "Almost there...";
-        String prompt = "Please pick a font scale:";
-        String[] possibilities = {"25%", "33%", "50%", "66%", "75%", "100%"};
+        String prompt = "Please pick font height:";
+        String[] possibilities = {"18px", "24px", "36px", "48px", "54px", "72px"};
         int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-        String defaultChoice = screenHeight < 1000 ? "33%" : screenHeight < 1500 ? "50%" : "75%";
+        String defaultChoice = screenHeight < 1000 ? "24px" : screenHeight < 1500 ? "36px" : "54px";
         Object choice = showInputDialog(null, prompt, title, QUESTION_MESSAGE, null, possibilities, defaultChoice);
         return choice != null ? choice.toString() : defaultChoice;
     }
 
-    private static int scale2point(String scale) {
-        switch (scale) {
-            case "25%":
+    private static int height2point(String height) {
+        switch (height) {
+            case "18px":
                 return 12;
-            case "33%":
+            case "24px":
             default:
                 return 16;
-            case "50%":
+            case "36px":
                 return 24;
-            case "66%":
+            case "48px":
                 return 32;
-            case "75%":
+            case "54px":
                 return 36;
-            case "100%":
+            case "72px":
                 return 48;
         }
     }
@@ -85,28 +85,28 @@ public class Front {
         }
     }
 
-    public Front scaled(String scale) {
-        switch (scale) {
-            case "25%":
+    public Front scaled(String height) {
+        switch (height) {
+            case "18px": // 3/12 = 1/4
                 return halfScaled().halfScaled();
 
-            case "33%":
+            case "24px": // 4/12 = 1/3
                 return thirdScaled();
 
-            case "50%":
+            case "36px": // 6/12 = 1/2
                 return halfScaled();
 
-            case "66%":
+            case "48px": // 8/12 = 2/3
                 return doubleScaled().thirdScaled();
 
-            case "75%":
+            case "54px": // 9/12 = 3/4
                 return tripleScaled().halfScaled().halfScaled();
 
-            case "100%":
+            case "72px": // 12/12 = 1
                 return this;
 
             default:
-                throw new IllegalArgumentException(scale);
+                throw new IllegalArgumentException(height);
         }
     }
 
