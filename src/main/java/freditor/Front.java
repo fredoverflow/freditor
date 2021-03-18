@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import static javax.swing.JOptionPane.QUESTION_MESSAGE;
@@ -21,7 +22,7 @@ public class Front {
     private static String pickFontHeight() {
         String title = "Almost there...";
         String prompt = "Please pick font height:";
-        String[] possibilities = {"18px", "24px", "36px", "48px", "54px", "72px"};
+        String[] possibilities = {"12px", "18px", "24px", "30px", "36px", "42px", "48px", "54px", "60px", "66px", "72px"};
         int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
         String defaultChoice = screenHeight < 1000 ? "24px" : screenHeight < 1500 ? "36px" : "54px";
         Object choice = showInputDialog(null, prompt, title, QUESTION_MESSAGE, null, possibilities, defaultChoice);
@@ -74,20 +75,35 @@ public class Front {
 
     public Front scaled(String height) {
         switch (height) {
+            case "12px": // 2/12 = 1/6
+                return halfScaled().thirdScaled();
+
             case "18px": // 3/12 = 1/4
                 return halfScaled().halfScaled();
 
             case "24px": // 4/12 = 1/3
                 return thirdScaled();
 
+            case "30px": // 5/12
+                return scaled(5).halfScaled().halfScaled().thirdScaled();
+
             case "36px": // 6/12 = 1/2
                 return halfScaled();
+
+            case "42px": // 7/12
+                return scaled(7).halfScaled().halfScaled().thirdScaled();
 
             case "48px": // 8/12 = 2/3
                 return doubleScaled().thirdScaled();
 
             case "54px": // 9/12 = 3/4
                 return tripleScaled().halfScaled().halfScaled();
+
+            case "60px": // 10/12 = 5/6
+                return scaled(5).halfScaled().thirdScaled();
+
+            case "66px": // 11/12
+                return scaled(11).halfScaled().halfScaled().thirdScaled();
 
             case "72px": // 12/12 = 1
                 return this;
@@ -183,6 +199,23 @@ public class Front {
             }
         }
         return new Front(scaled, imageWidth3, imageHeight * 3);
+    }
+
+    private Front scaled(int scale) {
+        int[] scaled = new int[argb.length * scale * scale];
+        int scaledWidth = imageWidth * scale;
+        int src = 0;
+        for (int dst = 0; dst < scaled.length; dst += scaledWidth * (scale - 1)) {
+            for (int x = 0; x < imageWidth; ++x, dst += scale) {
+                int nearest = argb[src++];
+                int dest = dst;
+                for (int i = 0; i < scale; ++i) {
+                    Arrays.fill(scaled, dest, dest + scale, nearest);
+                    dest += scaledWidth;
+                }
+            }
+        }
+        return new Front(scaled, scaledWidth, imageHeight * scale);
     }
 
     private void copyBlueIntoAllChannels() {
