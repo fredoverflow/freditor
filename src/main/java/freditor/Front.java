@@ -24,7 +24,7 @@ public class Front {
         String prompt = "Please pick font height:";
         String[] possibilities = {"12px", "18px", "24px", "30px", "36px", "42px", "48px", "54px", "60px", "66px", "72px"};
         int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-        String defaultChoice = screenHeight < 1000 ? "24px" : screenHeight < 1500 ? "36px" : "54px";
+        String defaultChoice = Math.min(screenHeight / 216 * 6, 72) + "px";
         Object choice = showInputDialog(null, prompt, title, QUESTION_MESSAGE, null, possibilities, defaultChoice);
         return choice != null ? choice.toString() : defaultChoice;
     }
