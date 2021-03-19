@@ -5,7 +5,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import static javax.swing.JOptionPane.QUESTION_MESSAGE;
@@ -203,19 +202,25 @@ public class Front {
 
     private Front scaled(int scale) {
         int[] scaled = new int[argb.length * scale * scale];
-        int scaledWidth = imageWidth * scale;
+        final int width = imageWidth * scale;
+        final int stride = width * (scale - 1);
         int src = 0;
-        for (int dst = 0; dst < scaled.length; dst += scaledWidth * (scale - 1)) {
-            for (int x = 0; x < imageWidth; ++x, dst += scale) {
-                int nearest = argb[src++];
-                int dest = dst;
-                for (int i = 0; i < scale; ++i) {
-                    Arrays.fill(scaled, dest, dest + scale, nearest);
-                    dest += scaledWidth;
-                }
+        for (int dst = 0; dst < scaled.length; dst += stride) {
+            for (int x = 0; x < imageWidth; ++x) {
+                fillSquare(scaled, width, dst, scale, argb[src++]);
+                dst += scale;
             }
         }
-        return new Front(scaled, scaledWidth, imageHeight * scale);
+        return new Front(scaled, width, imageHeight * scale);
+    }
+
+    private void fillSquare(int[] array, int width, int offset, int size, int value) {
+        for (int y = 0; y < size; ++y) {
+            for (int x = 0; x < size; ++x) {
+                array[offset + x] = value;
+            }
+            offset += width;
+        }
     }
 
     private void copyBlueIntoAllChannels() {
