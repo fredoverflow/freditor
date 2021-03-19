@@ -93,10 +93,10 @@ public class Front {
                 return scaled(7).halfScaled().halfScaled().thirdScaled();
 
             case "48px": // 8/12 = 2/3
-                return doubleScaled().thirdScaled();
+                return scaled(2).thirdScaled();
 
             case "54px": // 9/12 = 3/4
-                return tripleScaled().halfScaled().halfScaled();
+                return scaled(3).halfScaled().halfScaled();
 
             case "60px": // 10/12 = 5/6
                 return scaled(5).halfScaled().thirdScaled();
@@ -153,51 +153,6 @@ public class Front {
             }
         }
         return new Front(scaled, imageWidth / 3, imageHeight / 3);
-    }
-
-    private Front doubleScaled() {
-        int[] scaled = new int[argb.length * 4];
-        final int size = scaled.length;
-        final int imageWidth2 = imageWidth * 2;
-        int src = 0;
-        for (int dst = 0; dst < size; dst += imageWidth2) {
-            for (int x = 0; x < imageWidth; ++x, dst += 2) {
-                int nearest = argb[src++];
-
-                scaled[dst] = nearest;
-                scaled[dst + 1] = nearest;
-
-                scaled[dst + imageWidth2] = nearest;
-                scaled[dst + imageWidth2 + 1] = nearest;
-            }
-        }
-        return new Front(scaled, imageWidth2, imageHeight * 2);
-    }
-
-    private Front tripleScaled() {
-        int[] scaled = new int[argb.length * 9];
-        final int size = scaled.length;
-        final int imageWidth3 = imageWidth * 3;
-        final int imageWidth6 = imageWidth * 6;
-        int src = 0;
-        for (int dst = 0; dst < size; dst += imageWidth6) {
-            for (int x = 0; x < imageWidth; ++x, dst += 3) {
-                int nearest = argb[src++];
-
-                scaled[dst] = nearest;
-                scaled[dst + 1] = nearest;
-                scaled[dst + 2] = nearest;
-
-                scaled[dst + imageWidth3] = nearest;
-                scaled[dst + imageWidth3 + 1] = nearest;
-                scaled[dst + imageWidth3 + 2] = nearest;
-
-                scaled[dst + imageWidth6] = nearest;
-                scaled[dst + imageWidth6 + 1] = nearest;
-                scaled[dst + imageWidth6 + 2] = nearest;
-            }
-        }
-        return new Front(scaled, imageWidth3, imageHeight * 3);
     }
 
     private Front scaled(int scale) {
