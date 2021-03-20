@@ -5,50 +5,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 
-import static javax.swing.JOptionPane.QUESTION_MESSAGE;
-import static javax.swing.JOptionPane.showInputDialog;
-
 public class Front {
-    private static final Front[] fronts;
-    private static final int EMPTY_SLOTS;
-
-    static {
-        fronts = new Front[13];
-        EMPTY_SLOTS = 2; // index * 6 == font size
-        fronts[12] = Front.read("/font.png");
-        fronts[11] = fronts[12].thirdScaled(11).halfScaled().halfScaled();
-        fronts[10] = fronts[12].thirdScaled(5).halfScaled();
-        fronts[9] = fronts[12].scaled(3).halfScaled().halfScaled();
-        fronts[8] = fronts[12].thirdScaled(2);
-        fronts[7] = fronts[12].thirdScaled(7).halfScaled().halfScaled();
-        fronts[6] = fronts[12].halfScaled();
-        fronts[5] = fronts[10].halfScaled();
-        fronts[4] = fronts[8].halfScaled();
-        fronts[3] = fronts[6].halfScaled();
-        fronts[2] = fronts[4].halfScaled();
-    }
-
-    public static final Front front = pickFrontIcon().front;
-
-    public static final int point = front.height * 2 / 3;
-    public static final Font monospaced = new Font(Font.MONOSPACED, Font.PLAIN, point);
-    public static final Font sansSerif = new Font(Font.SANS_SERIF, Font.PLAIN, point);
-
-    private static FrontIcon pickFrontIcon() {
-        String title = "Almost there...";
-        String prompt = "Please pick font height:";
-        Object[] possibilities = Arrays.stream(fronts).skip(EMPTY_SLOTS).map(FrontIcon::new).toArray();
-        int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-        Object defaultChoice = possibilities[Math.min(screenHeight / 216, fronts.length - 1) - EMPTY_SLOTS];
-        Object choice = showInputDialog(null, prompt, title, QUESTION_MESSAGE, null, possibilities, defaultChoice);
-        return (FrontIcon) (choice != null ? choice : defaultChoice);
-    }
-
-    private static final int COPY_BLUE_INTO_ALL_CHANNELS = 0x01010101;
-
     private final int[] argb;
     private final int imageWidth;
     private final int imageHeight;
@@ -71,7 +30,13 @@ public class Front {
         copyBlueIntoAllChannels();
     }
 
-    public static Front read(String pathname) {
+    private void copyBlueIntoAllChannels() {
+        for (int i = 0; i < argb.length; ++i) {
+            argb[i] = (argb[i] & 255) * 0x01010101;
+        }
+    }
+
+    static Front read(String pathname) {
         try {
             InputStream resource = Front.class.getResourceAsStream(pathname);
             BufferedImage image = ImageIO.read(resource);
@@ -86,7 +51,7 @@ public class Front {
         }
     }
 
-    private Front halfScaled() {
+    Front halfScaled() {
         final int size = argb.length;
         int[] scaled = new int[size / 4];
         int dst = 0;
@@ -98,13 +63,13 @@ public class Front {
                 int c = argb[src + imageWidth] & 255;
                 int d = argb[src + imageWidth + 1] & 255;
 
-                scaled[dst++] = ((a + b + c + d + 2) / 4) * COPY_BLUE_INTO_ALL_CHANNELS;
+                scaled[dst++] = ((a + b + c + d + 2) / 4) * 0x01010101;
             }
         }
         return new Front(scaled, imageWidth / 2, imageHeight / 2);
     }
 
-    private Front thirdScaled(int virtualScale) {
+    Front thirdScaled(int virtualScale) {
         final int size = argb.length * virtualScale * virtualScale;
         int[] scaled = new int[size / 9];
         final int width = this.imageWidth * virtualScale;
@@ -137,13 +102,13 @@ public class Front {
                 int h = argb[y2 + x1] & 255;
                 int i = argb[y2 + x2] & 255;
 
-                scaled[dst++] = ((a + b + c + d + e + f + g + h + i + 4) / 9) * COPY_BLUE_INTO_ALL_CHANNELS;
+                scaled[dst++] = ((a + b + c + d + e + f + g + h + i + 4) / 9) * 0x01010101;
             }
         }
         return new Front(scaled, width / 3, height / 3);
     }
 
-    private Front scaled(int scale) {
+    Front scaled(int scale) {
         int[] scaled = new int[argb.length * scale * scale];
         final int width = imageWidth * scale;
         final int stride = width * (scale - 1);
@@ -166,20 +131,6 @@ public class Front {
         }
     }
 
-    private void copyBlueIntoAllChannels() {
-        final int size = argb.length;
-        for (int i = 0; i < size; ++i) {
-            argb[i] = (argb[i] & 255) * COPY_BLUE_INTO_ALL_CHANNELS;
-        }
-    }
-
-    private void fillWithColor(int rgb) {
-        final int size = argb.length;
-        for (int i = 0; i < size; ++i) {
-            argb[i] = argb[i] & 0xff000000 | rgb;
-        }
-    }
-
     private final HashMap<Integer, BufferedImage> colored = new HashMap<>();
 
     private synchronized BufferedImage coloredFont(int rgb) {
@@ -192,6 +143,12 @@ public class Front {
             colored.put(rgb, result);
         }
         return result;
+    }
+
+    private void fillWithColor(int rgb) {
+        for (int i = 0; i < argb.length; ++i) {
+            argb[i] = argb[i] & 0xff000000 | rgb;
+        }
     }
 
     public void drawCharacter(Graphics g, int x, int y, char c, int rgb) {

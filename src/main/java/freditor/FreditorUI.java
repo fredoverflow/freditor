@@ -17,8 +17,8 @@ public class FreditorUI extends JComponent {
     public static final int ADDITIONAL_LINES = 1;
     public static final int ADDITIONAL_COLUMNS = 8;
 
-    public static final int frontWidth = Front.front.width;
-    public static final int frontHeight = Front.front.height;
+    public static final int frontWidth = Fronts.front.width;
+    public static final int frontHeight = Fronts.front.height;
 
     private final Freditor freditor;
 
@@ -458,7 +458,7 @@ public class FreditorUI extends JComponent {
                 char c = freditor.charAt(i);
                 if (c != '\n') {
                     if (x >= 0) {
-                        Front.front.drawCharacter(g, x, y, c, rgb);
+                        Fronts.front.drawCharacter(g, x, y, c, rgb);
                     }
                     x += frontWidth;
                     if (x < componentWidth) continue;
@@ -475,7 +475,7 @@ public class FreditorUI extends JComponent {
         int cursorX = x(freditor.column());
         int cursorY = y(freditor.row());
         g.setColor(Color.BLACK);
-        Front.front.drawCharacter(g, cursorX, cursorY, '\177', 0x000000);
+        Fronts.front.drawCharacter(g, cursorX, cursorY, '\177', 0x000000);
     }
 
     public int cursor() {
