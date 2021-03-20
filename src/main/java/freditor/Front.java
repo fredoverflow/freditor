@@ -5,32 +5,46 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import static javax.swing.JOptionPane.QUESTION_MESSAGE;
 import static javax.swing.JOptionPane.showInputDialog;
 
 public class Front {
-    public static final String fontHeight = pickFontHeight();
-    public static final Front front = Front.read("/font.png").scaled(fontHeight);
+    private static final Front[] fronts;
+    private static final int EMPTY_SLOTS;
 
-    public static final int point = height2point(fontHeight);
+    static {
+        fronts = new Front[13];
+        EMPTY_SLOTS = 2; // index * 6 == font size
+        fronts[12] = Front.read("/font.png");
+        fronts[11] = fronts[12].scaled(11).halfScaled().halfScaled().thirdScaled();
+        fronts[10] = fronts[12].scaled(5).halfScaled().thirdScaled();
+        fronts[9] = fronts[12].scaled(3).halfScaled().halfScaled();
+        fronts[8] = fronts[12].scaled(2).thirdScaled();
+        fronts[7] = fronts[12].scaled(7).halfScaled().halfScaled().thirdScaled();
+        fronts[6] = fronts[12].halfScaled();
+        fronts[5] = fronts[10].halfScaled();
+        fronts[4] = fronts[8].halfScaled();
+        fronts[3] = fronts[6].halfScaled();
+        fronts[2] = fronts[4].halfScaled();
+    }
+
+    public static final Front front = pickFrontIcon().front;
+
+    public static final int point = front.height * 2 / 3;
     public static final Font monospaced = new Font(Font.MONOSPACED, Font.PLAIN, point);
     public static final Font sansSerif = new Font(Font.SANS_SERIF, Font.PLAIN, point);
 
-    private static String pickFontHeight() {
+    private static FrontIcon pickFrontIcon() {
         String title = "Almost there...";
         String prompt = "Please pick font height:";
-        String[] possibilities = {"12px", "18px", "24px", "30px", "36px", "42px", "48px", "54px", "60px", "66px", "72px"};
+        Object[] possibilities = Arrays.stream(fronts).skip(EMPTY_SLOTS).map(FrontIcon::new).toArray();
         int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-        String defaultChoice = Math.min(screenHeight / 216 * 6, 72) + "px";
+        Object defaultChoice = possibilities[Math.min(screenHeight / 216, fronts.length - 1) - EMPTY_SLOTS];
         Object choice = showInputDialog(null, prompt, title, QUESTION_MESSAGE, null, possibilities, defaultChoice);
-        return choice != null ? choice.toString() : defaultChoice;
-    }
-
-    private static int height2point(String height) {
-        String dropPx = height.substring(0, height.length() - 2);
-        return Integer.parseInt(dropPx) * 2 / 3;
+        return (FrontIcon) (choice != null ? choice : defaultChoice);
     }
 
     private static final int COPY_BLUE_INTO_ALL_CHANNELS = 0x01010101;
@@ -69,46 +83,6 @@ public class Front {
         } catch (IOException ex) {
             // There is no sensible way to recover from required but absent resources
             throw new RuntimeException(ex);
-        }
-    }
-
-    public Front scaled(String height) {
-        switch (height) {
-            case "12px": // 2/12 = 1/6
-                return halfScaled().thirdScaled();
-
-            case "18px": // 3/12 = 1/4
-                return halfScaled().halfScaled();
-
-            case "24px": // 4/12 = 1/3
-                return thirdScaled();
-
-            case "30px": // 5/12
-                return scaled(5).halfScaled().halfScaled().thirdScaled();
-
-            case "36px": // 6/12 = 1/2
-                return halfScaled();
-
-            case "42px": // 7/12
-                return scaled(7).halfScaled().halfScaled().thirdScaled();
-
-            case "48px": // 8/12 = 2/3
-                return scaled(2).thirdScaled();
-
-            case "54px": // 9/12 = 3/4
-                return scaled(3).halfScaled().halfScaled();
-
-            case "60px": // 10/12 = 5/6
-                return scaled(5).halfScaled().thirdScaled();
-
-            case "66px": // 11/12
-                return scaled(11).halfScaled().halfScaled().thirdScaled();
-
-            case "72px": // 12/12 = 1
-                return this;
-
-            default:
-                throw new IllegalArgumentException(height);
         }
     }
 
