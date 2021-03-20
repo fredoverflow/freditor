@@ -19,11 +19,11 @@ public class Front {
         fronts = new Front[13];
         EMPTY_SLOTS = 2; // index * 6 == font size
         fronts[12] = Front.read("/font.png");
-        fronts[11] = fronts[12].scaled(11).halfScaled().halfScaled().thirdScaled();
-        fronts[10] = fronts[12].scaled(5).halfScaled().thirdScaled();
+        fronts[11] = fronts[12].thirdScaled(11).halfScaled().halfScaled();
+        fronts[10] = fronts[12].thirdScaled(5).halfScaled();
         fronts[9] = fronts[12].scaled(3).halfScaled().halfScaled();
-        fronts[8] = fronts[12].scaled(2).thirdScaled();
-        fronts[7] = fronts[12].scaled(7).halfScaled().halfScaled().thirdScaled();
+        fronts[8] = fronts[12].thirdScaled(2);
+        fronts[7] = fronts[12].thirdScaled(7).halfScaled().halfScaled();
         fronts[6] = fronts[12].halfScaled();
         fronts[5] = fronts[10].halfScaled();
         fronts[4] = fronts[8].halfScaled();
@@ -104,29 +104,43 @@ public class Front {
         return new Front(scaled, imageWidth / 2, imageHeight / 2);
     }
 
-    private Front thirdScaled() {
-        final int size = argb.length;
+    private Front thirdScaled(int virtualScale) {
+        final int size = argb.length * virtualScale * virtualScale;
         int[] scaled = new int[size / 9];
-        final int imageWidth2 = imageWidth * 2;
+        final int width = this.imageWidth * virtualScale;
+        final int height = this.imageHeight * virtualScale;
         int dst = 0;
-        for (int src = 0; src < size; src += imageWidth2) {
-            for (int x = 0; x < imageWidth; x += 3, src += 3) {
-                int a = argb[src] & 255;
-                int b = argb[src + 1] & 255;
-                int c = argb[src + 2] & 255;
 
-                int d = argb[src + imageWidth] & 255;
-                int e = argb[src + imageWidth + 1] & 255;
-                int f = argb[src + imageWidth + 2] & 255;
+        final long reciprocal = 0x100000000L / virtualScale + 1;
+        final long WIDTH = width * reciprocal;
+        final long HEIGHT = height * reciprocal;
 
-                int g = argb[src + imageWidth2] & 255;
-                int h = argb[src + imageWidth2 + 1] & 255;
-                int i = argb[src + imageWidth2 + 2] & 255;
+        for (long Y = 0; Y < HEIGHT; Y += 3 * reciprocal) {
+            int y0 = (int) (Y >>> 32) * this.imageWidth;
+            int y1 = (int) ((Y + reciprocal) >>> 32) * this.imageWidth;
+            int y2 = (int) ((Y + 2 * reciprocal) >>> 32) * this.imageWidth;
+
+            for (long X = 0; X < WIDTH; X += 3 * reciprocal) {
+                int x0 = (int) (X >>> 32);
+                int x1 = (int) ((X + reciprocal) >>> 32);
+                int x2 = (int) ((X + 2 * reciprocal) >>> 32);
+
+                int a = argb[y0 + x0] & 255;
+                int b = argb[y0 + x1] & 255;
+                int c = argb[y0 + x2] & 255;
+
+                int d = argb[y1 + x0] & 255;
+                int e = argb[y1 + x1] & 255;
+                int f = argb[y1 + x2] & 255;
+
+                int g = argb[y2 + x0] & 255;
+                int h = argb[y2 + x1] & 255;
+                int i = argb[y2 + x2] & 255;
 
                 scaled[dst++] = ((a + b + c + d + e + f + g + h + i + 4) / 9) * COPY_BLUE_INTO_ALL_CHANNELS;
             }
         }
-        return new Front(scaled, imageWidth / 3, imageHeight / 3);
+        return new Front(scaled, width / 3, height / 3);
     }
 
     private Front scaled(int scale) {
