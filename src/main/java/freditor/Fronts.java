@@ -16,7 +16,17 @@ public class Fronts {
     private static FrontIcon chooseFrontIcon() {
         Front[] fronts = new Front[13];
         fronts[12] = Front.read("/font.png");
-        fronts[11] = fronts[12].thirdScaled(11).halfScaled().halfScaled();
+        // Replacing anonymous inner class with lambda causes DEADLOCK,
+        // see https://stackoverflow.com/questions/45246122
+        // noinspection Convert2Lambda
+        Thread eleven = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // 11 is the most expensive by a long shot
+                fronts[11] = fronts[12].thirdScaled(11).halfScaled().halfScaled();
+            }
+        });
+        eleven.start();
         fronts[10] = fronts[12].thirdScaled(5).halfScaled();
         fronts[9] = fronts[12].scaled(3).halfScaled().halfScaled();
         fronts[8] = fronts[12].thirdScaled(2);
@@ -27,6 +37,12 @@ public class Fronts {
         fronts[3] = fronts[6].halfScaled();
         fronts[2] = fronts[4].halfScaled();
         final int EMPTY_SLOTS = 2;
+        try {
+            eleven.join();
+        } catch (InterruptedException ex) {
+            fronts[11] = fronts[12];
+            ex.printStackTrace();
+        }
 
         String title = "Almost there...";
         String prompt = "Please choose font height:";
