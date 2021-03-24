@@ -188,7 +188,7 @@ public final class Freditor extends CharZipper {
         do {
             ++index;
         } while (!stateAt(index).isHead());
-        return index;
+        return Math.min(length(), index);
     }
 
     public void findOpeningParen(int start, IntConsumer onPresent, Runnable onMissing) {
@@ -382,7 +382,7 @@ public final class Freditor extends CharZipper {
 
     public void selectLexemeAtCursor() {
         origin = startOfLexeme(cursor);
-        cursor = Math.min(length(), endOfLexeme(cursor));
+        cursor = endOfLexeme(cursor);
         forgetDesiredColumn();
     }
 
@@ -392,7 +392,7 @@ public final class Freditor extends CharZipper {
 
     private String lexemeAt(int index) {
         int start = startOfLexeme(index);
-        int end = Math.min(length(), endOfLexeme(index));
+        int end = endOfLexeme(index);
         return subSequence(start, end);
     }
 
