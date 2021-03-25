@@ -78,6 +78,19 @@ public class CharZipper implements CharSequence {
         return new String(toByteArray(), StandardCharsets.ISO_8859_1);
     }
 
+    public boolean isBlank() {
+        for (byte b : toByteArray()) {
+            switch (b & 255) {
+                case '\n':
+                case ' ':
+                    continue;
+                default:
+                    return false;
+            }
+        }
+        return true;
+    }
+
     // TEXT MANIPULATION
 
     public void clear() {

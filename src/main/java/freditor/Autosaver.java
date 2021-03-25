@@ -32,6 +32,9 @@ public class Autosaver {
     public void loadOrDefault(String program) {
         try {
             freditor.loadFromFile(pathname);
+            if (freditor.isBlank()) {
+                freditor.loadFromString(program);
+            }
         } catch (IOException ignored) {
             freditor.loadFromString(program);
         }
