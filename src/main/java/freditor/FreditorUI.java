@@ -13,6 +13,7 @@ public class FreditorUI extends JComponent {
     public static final Color CURRENT_LINE_COLOR = new Color(0xffffaa);
     public static final Color SELECTION_COLOR = new Color(0xc8c8ff);
     public static final Color MATCHING_PARENS_BACKGROUND_COLOR = new Color(0xe0e0e0);
+    public static final Color DIAGNOSTIC_BACKGROUND_COLOR = new Color(0xfff0f0);
 
     public static final int ADDITIONAL_LINES = 1;
     public static final int ADDITIONAL_COLUMNS = 8;
@@ -127,6 +128,7 @@ public class FreditorUI extends JComponent {
                 event.consume();
                 char previousCharTyped = charTyped;
                 charTyped = 0;
+                diagnostic = null;
                 switch (event.getKeyCode()) {
                     case KeyEvent.VK_ENTER:
                         freditor.onEnter(previousCharTyped);
@@ -372,6 +374,27 @@ public class FreditorUI extends JComponent {
         return freditor.symbolNearCursor(symbolTail);
     }
 
+    private Diagnostic diagnostic;
+
+    public void showDiagnostic(String message) {
+        showDiagnostic(message, cursor());
+    }
+
+    public void showDiagnostic(String message, int position) {
+        int row = freditor.rowOfPosition(position);
+        int column = freditor.columnOfPosition(position);
+        this.diagnostic = new Diagnostic(message, row + 1, column);
+        repaint();
+    }
+
+    private void paintDiagnostic(Graphics g) {
+        int x = x(diagnostic.column);
+        int y = y(diagnostic.row);
+        g.setColor(DIAGNOSTIC_BACKGROUND_COLOR);
+        g.fillRect(x, y, diagnostic.message.length() * frontWidth, frontHeight);
+        Fronts.front.drawString(g, x, y, diagnostic.message, 0xff0000);
+    }
+
     @Override
     public void paint(Graphics g) {
         paintBackground(g);
@@ -380,6 +403,9 @@ public class FreditorUI extends JComponent {
         paintLexemes(g);
         if (hasFocus()) {
             paintCursor(g);
+        }
+        if (diagnostic != null) {
+            paintDiagnostic(g);
         }
     }
 
@@ -492,6 +518,10 @@ public class FreditorUI extends JComponent {
 
     public int column() {
         return freditor.column();
+    }
+
+    public int length() {
+        return freditor.length();
     }
 
     public boolean selectionIsEmpty() {
