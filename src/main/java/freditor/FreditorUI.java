@@ -50,7 +50,7 @@ public class FreditorUI extends JComponent {
         return freditor.rows() - 1;
     }
 
-    private int visibleColumns() {
+    public int visibleColumns() {
         return getWidth() / frontWidth;
     }
 
