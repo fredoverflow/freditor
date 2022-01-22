@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
@@ -128,7 +129,7 @@ public class FreditorUI extends JComponent {
                 event.consume();
                 char previousCharTyped = charTyped;
                 charTyped = 0;
-                diagnostic = null;
+                diagnostics.clear();
                 switch (event.getKeyCode()) {
                     case KeyEvent.VK_ENTER:
                         freditor.onEnter(previousCharTyped);
@@ -374,7 +375,12 @@ public class FreditorUI extends JComponent {
         return freditor.symbolNearCursor(symbolTail);
     }
 
-    private Diagnostic diagnostic;
+    private ArrayList<Diagnostic> diagnostics = new ArrayList<>();
+
+    public void clearDiagnostics() {
+        diagnostics.clear();
+        repaint();
+    }
 
     public void showDiagnostic(String message) {
         showDiagnostic(message, cursor());
@@ -383,19 +389,21 @@ public class FreditorUI extends JComponent {
     public void showDiagnostic(String message, int position) {
         int row = freditor.rowOfPosition(position);
         int column = freditor.columnOfPosition(position);
-        this.diagnostic = new Diagnostic(message, row + 1, column);
+        diagnostics.add(new Diagnostic(message, row + 1, column));
         repaint();
     }
 
-    private void paintDiagnostic(Graphics g) {
-        int x = x(diagnostic.column);
-        int y = y(diagnostic.row);
-        g.setColor(DIAGNOSTIC_BACKGROUND_COLOR);
-        g.fillRect(x, y, diagnostic.width * frontWidth, diagnostic.lines.length * frontHeight);
-        for (String line : diagnostic.lines) {
-            Fronts.front.drawString(g, x, y, line, 0xff0000);
-            y += frontHeight;
-       }
+    private void paintDiagnostics(Graphics g) {
+        for (Diagnostic diagnostic : diagnostics) {
+            int x = x(diagnostic.column);
+            int y = y(diagnostic.row);
+            g.setColor(DIAGNOSTIC_BACKGROUND_COLOR);
+            g.fillRect(x, y, diagnostic.width * frontWidth, diagnostic.lines.length * frontHeight);
+            for (String line : diagnostic.lines) {
+                Fronts.front.drawString(g, x, y, line, 0xff0000);
+                y += frontHeight;
+            }
+        }
     }
 
     @Override
@@ -407,9 +415,7 @@ public class FreditorUI extends JComponent {
         if (hasFocus()) {
             paintCursor(g);
         }
-        if (diagnostic != null) {
-            paintDiagnostic(g);
-        }
+        paintDiagnostics(g);
     }
 
     private int x(int column) {
