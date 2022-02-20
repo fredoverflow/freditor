@@ -11,10 +11,9 @@ import java.util.function.IntConsumer;
 import static freditor.Maths.atLeastZero;
 
 public class FreditorUI extends JComponent {
-    public static final Color CURRENT_LINE_COLOR = new Color(0xffffaa);
-    public static final Color SELECTION_COLOR = new Color(0xc8c8ff);
-    public static final Color MATCHING_PARENS_BACKGROUND_COLOR = new Color(0xe0e0e0);
-    public static final Color DIAGNOSTIC_BACKGROUND_COLOR = new Color(0xfff0f0);
+    public static final Color CURRENT_LINE_COLOR = new Color(0x323232);
+    public static final Color SELECTION_COLOR = new Color(0x214283);
+    public static final Color MATCHING_PARENS_BACKGROUND_COLOR = new Color(0x344134);
 
     public static final int ADDITIONAL_LINES = 1;
     public static final int ADDITIONAL_COLUMNS = 8;
@@ -427,7 +426,7 @@ public class FreditorUI extends JComponent {
     }
 
     private void paintBackground(Graphics g) {
-        g.setColor(Color.WHITE);
+        g.setColor(new Color(0x2B2B2B));
         g.fillRect(0, 0, getWidth(), getHeight());
     }
 
@@ -513,8 +512,8 @@ public class FreditorUI extends JComponent {
     private void paintCursor(Graphics g) {
         int cursorX = x(freditor.column());
         int cursorY = y(freditor.row());
-        g.setColor(Color.BLACK);
-        Fronts.front.drawCharacter(g, cursorX, cursorY, '\177', 0x000000);
+        g.setColor(Color.WHITE);
+        Fronts.front.drawCharacter(g, cursorX, cursorY, '\177', 0xBBBBBB);
     }
 
     public int cursor() {
