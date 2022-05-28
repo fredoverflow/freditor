@@ -387,8 +387,13 @@ public class FreditorUI extends JComponent {
     }
 
     public void showDiagnostic(String message, int position) {
+        showDiagnostic(message, position, 0);
+    }
+
+    public void showDiagnostic(String message, int position, int columnDelta) {
         int row = freditor.rowOfPosition(position);
         int column = freditor.columnOfPosition(position);
+        column = Maths.atLeastZero(column + columnDelta);
         diagnostics.add(new Diagnostic(message, row + 1, column));
         repaint();
     }
