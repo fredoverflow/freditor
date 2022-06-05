@@ -308,15 +308,21 @@ public class FreditorUI extends JComponent {
             public void mousePressed(MouseEvent event) {
                 switch (event.getClickCount()) {
                     case 1:
-                        freditor.clickRowAndColumn(mouseRow(event), mouseColumn(event));
-                        if (!event.isShiftDown()) freditor.adjustOrigin();
-                        if (event.getButton() == MouseEvent.BUTTON3) {
+                        if (SwingUtilities.isLeftMouseButton(event)) {
+                            freditor.clickRowAndColumn(mouseRow(event), roundedMouseColumn(event));
+                            if (!event.isShiftDown()) freditor.adjustOrigin();
+                        } else if (SwingUtilities.isRightMouseButton(event)) {
+                            freditor.clickRowAndColumn(mouseRow(event), truncatedMouseColumn(event));
+                            freditor.adjustOrigin();
                             onRightClick.accept(lexemeAtCursor());
                         }
                         break;
 
                     case 2:
-                        freditor.selectLexemeAtCursor();
+                        if (SwingUtilities.isLeftMouseButton(event)) {
+                            freditor.clickRowAndColumn(mouseRow(event), truncatedMouseColumn(event));
+                            freditor.selectLexemeAtCursor();
+                        }
                         break;
                 }
                 componentToRepaint.repaint();
@@ -327,9 +333,12 @@ public class FreditorUI extends JComponent {
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent event) {
-                freditor.setRowAndColumn(mouseRow(event), mouseColumn(event));
-                componentToRepaint.repaint();
-                requestFocusInWindow();
+                // see https://stackoverflow.com/questions/17441013
+                if (SwingUtilities.isLeftMouseButton(event)) {
+                    freditor.setRowAndColumn(mouseRow(event), roundedMouseColumn(event));
+                    componentToRepaint.repaint();
+                    requestFocusInWindow();
+                }
             }
         });
 
@@ -363,7 +372,11 @@ public class FreditorUI extends JComponent {
         return atLeastZero(event.getY()) / frontHeight + firstVisibleLine;
     }
 
-    private int mouseColumn(MouseEvent event) {
+    private int truncatedMouseColumn(MouseEvent event) {
+        return atLeastZero(event.getX()) / frontWidth + firstVisibleColumn;
+    }
+
+    private int roundedMouseColumn(MouseEvent event) {
         return (atLeastZero(event.getX()) + frontWidth / 2) / frontWidth + firstVisibleColumn;
     }
 
