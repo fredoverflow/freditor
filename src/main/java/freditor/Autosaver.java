@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Autosaver {
@@ -24,9 +25,38 @@ public class Autosaver {
 
         this.freditor = freditor;
 
-        directory = System.getProperty("user.home") + File.separator + application + File.separator;
+        directory = directory(application) + File.separator + application + File.separator;
         filename = application + EXTENSION;
         pathname = directory + filename;
+    }
+
+    private static String directory(String application) {
+        String classPath = System.getProperty("java.class.path");
+        Pattern pattern = Pattern.compile(application + "[ ]++((?:[^%]|%[0-9a-f]{2})+?)(?:%2f|%5c)?+[.]jar", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(classPath);
+        if (matcher.matches()) {
+            String directory = decodeUrl(matcher.group(1));
+            if (new File(directory).isDirectory()) {
+                return directory;
+            } else {
+                System.out.println("invalid directory " + directory);
+            }
+        }
+        return System.getProperty("user.home");
+    }
+
+    private static String decodeUrl(String encoded) {
+        StringBuilder decoded = new StringBuilder();
+        for (int i = 0; i < encoded.length(); ++i) {
+            char ch = encoded.charAt(i);
+            if (ch == '%') {
+                int hi = Character.digit(encoded.charAt(++i), 16);
+                int lo = Character.digit(encoded.charAt(++i), 16);
+                ch = (char) (hi << 4 | lo);
+            }
+            decoded.append(ch);
+        }
+        return decoded.toString();
     }
 
     public void loadOrDefault(String program) {
