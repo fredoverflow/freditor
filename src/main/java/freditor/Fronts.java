@@ -50,6 +50,7 @@ public class Fronts {
         int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
         Object defaultChoice = frontIcons[Math.min(screenHeight / 216, fronts.length - 1) - EMPTY_SLOTS];
         Object choice = showInputDialog(null, prompt, title, QUESTION_MESSAGE, null, frontIcons, defaultChoice);
-        return (FrontIcon) (choice != null ? choice : defaultChoice);
+        if (choice == null) System.exit(0);
+        return (FrontIcon) choice;
     }
 }
