@@ -163,4 +163,18 @@ public class Front {
             x += width;
         }
     }
+
+    public void drawMultilineString(Graphics g, int x0, int y, CharSequence s, int rgb) {
+        int x = x0;
+        for (int i = 0; i < s.length(); ++i) {
+            char ch = s.charAt(i);
+            if (ch == '\n') {
+                x = x0;
+                y += height;
+            } else {
+                drawCharacter(g, x, y, ch, rgb);
+                x += width;
+            }
+        }
+    }
 }
