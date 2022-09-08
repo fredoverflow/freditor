@@ -563,6 +563,10 @@ public class FreditorUI extends JComponent {
         return freditor.selectionEnd();
     }
 
+    public void selectContainingForm() {
+        freditor.moveCursorAfterNextClosingParen(true);
+    }
+
     public int lineOfPosition(int position) {
         return freditor.rowOfPosition(position);
     }
