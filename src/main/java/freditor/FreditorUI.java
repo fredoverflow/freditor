@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
@@ -32,7 +33,10 @@ public class FreditorUI extends JComponent {
         this.componentToRepaint = componentToRepaint;
     }
 
-    public Consumer<String> onRightClick = ignored -> {
+    public Consumer<String> onRightClick = lexeme -> {
+    };
+
+    public BiConsumer<String, MouseEvent> onRightClick2 = (lexeme, event) -> {
     };
 
     public int visibleLines() {
@@ -306,25 +310,26 @@ public class FreditorUI extends JComponent {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent event) {
-                switch (event.getClickCount()) {
-                    case 1:
-                        if (SwingUtilities.isLeftMouseButton(event)) {
+                if (SwingUtilities.isLeftMouseButton(event)) {
+                    switch (event.getClickCount()) {
+                        case 1:
                             freditor.clickRowAndColumn(mouseRow(event), roundedMouseColumn(event));
                             if (!event.isShiftDown()) freditor.adjustOrigin();
-                        } else if (SwingUtilities.isRightMouseButton(event)) {
-                            freditor.clickRowAndColumn(mouseRow(event), truncatedMouseColumn(event));
-                            freditor.adjustOrigin();
-                            onRightClick.accept(lexemeAtCursor());
-                        }
-                        break;
+                            break;
 
-                    case 2:
-                        if (SwingUtilities.isLeftMouseButton(event)) {
+                        case 2:
                             freditor.clickRowAndColumn(mouseRow(event), truncatedMouseColumn(event));
                             freditor.selectLexemeAtCursor();
-                        }
-                        break;
+                            break;
+                    }
+                } else if (SwingUtilities.isRightMouseButton(event)) {
+                    freditor.clickRowAndColumn(mouseRow(event), truncatedMouseColumn(event));
+                    freditor.adjustOrigin();
+                    String lexeme = lexemeAtCursor();
+                    onRightClick.accept(lexeme);
+                    onRightClick2.accept(lexeme, event);
                 }
+
                 componentToRepaint.repaint();
                 requestFocusInWindow();
             }
