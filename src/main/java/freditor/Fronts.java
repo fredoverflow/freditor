@@ -47,8 +47,8 @@ public class Fronts {
         String title = "Almost there...";
         String prompt = "Please choose font height:";
         Object[] frontIcons = Arrays.stream(fronts).skip(EMPTY_SLOTS).map(FrontIcon::new).toArray();
-        int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-        Object defaultChoice = frontIcons[Math.min(screenHeight / 216, fronts.length - 1) - EMPTY_SLOTS];
+        int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
+        Object defaultChoice = frontIcons[Math.min(screenWidth / 480, fronts.length - 1) - EMPTY_SLOTS];
         Object choice = showInputDialog(null, prompt, title, QUESTION_MESSAGE, null, frontIcons, defaultChoice);
         if (choice == null) System.exit(0);
         return (FrontIcon) choice;
