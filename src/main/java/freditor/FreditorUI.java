@@ -63,6 +63,14 @@ public class FreditorUI extends JComponent {
         return firstVisibleColumn + visibleColumns() - 1;
     }
 
+    public void scrollTop() {
+        firstVisibleLine = 0;
+    }
+
+    public void scrollBottom(int paddingLines) {
+        firstVisibleLine = atLeastZero(freditor.rows() - visibleLines() + paddingLines);
+    }
+
     private void adjustView() {
         int cursorLine = freditor.row();
         if (cursorLine < firstVisibleLine) {
