@@ -8,15 +8,18 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.IntConsumer;
 
 import static freditor.Maths.atLeastZero;
 
 public class FreditorUI extends JComponent {
-    public static final Color CURRENT_LINE_COLOR = new Color(0xffffaa);
-    public static final Color SELECTION_COLOR = new Color(0xc8c8ff);
-    public static final Color MATCHING_PARENS_BACKGROUND_COLOR = new Color(0xe0e0e0);
+    public static final Color BACKGROUND_COLOR = new Color(0x1e1e1e);
+    public static final int CURSOR_COLOR = 0xaeafad;
+    public static final Color CURRENT_LINE_COLOR = new Color(0x282828);
+    public static final Color SELECTION_COLOR = new Color(0x1c4f75);
+    public static final int MATCHING_PARENS_COLOR = 0xffd843;
+
     public static final Color DIAGNOSTIC_BACKGROUND_COLOR = new Color(0xfff0f0);
+    public static final int DIAGNOSTIC_COLOR = 0xff0000;
 
     public static final int ADDITIONAL_LINES = 1;
     public static final int ADDITIONAL_COLUMNS = 8;
@@ -441,7 +444,7 @@ public class FreditorUI extends JComponent {
             for (String line : diagnostic.lines) {
                 int width = line.equals("|") ? 1 : diagnostic.width;
                 g.fillRect(x, y, width * frontWidth, frontHeight);
-                Fronts.front.drawString(g, x, y, line, 0xff0000);
+                Fronts.front.drawString(g, x, y, line, DIAGNOSTIC_COLOR);
                 y += frontHeight;
             }
         }
@@ -451,8 +454,8 @@ public class FreditorUI extends JComponent {
     public void paint(Graphics g) {
         paintBackground(g);
         paintCurrentLineOrSelection(g);
-        paintMatchingParensBackground(g);
-        paintLexemes(g);
+        int[] matchingParens = findMatchingParens();
+        paintLexemes(g, matchingParens[0], matchingParens[1]);
         if (hasFocus()) {
             paintCursor(g);
         }
@@ -468,7 +471,7 @@ public class FreditorUI extends JComponent {
     }
 
     private void paintBackground(Graphics g) {
-        g.setColor(Color.WHITE);
+        g.setColor(BACKGROUND_COLOR);
         g.fillRect(0, 0, getWidth(), getHeight());
     }
 
@@ -510,22 +513,19 @@ public class FreditorUI extends JComponent {
         paintLineSelection(g, endRow, 0, endColumn);
     }
 
-    private void paintMatchingParensBackground(Graphics g) {
-        IntConsumer paint = position -> paintParensBackground(g, position);
+    private int[] findMatchingParens() {
+        int[] matchingParens = {-1, -1};
 
         int start = freditor.homePositionOfRow(firstVisibleLine());
-        freditor.findOpeningParen(start, paint, Freditor.doNothing);
+        freditor.findOpeningParen(start, position -> matchingParens[0] = position, Freditor.doNothing);
 
         int end = freditor.homePositionOfRow(lastVisibleLine() + 2);
-        freditor.findClosingParen(end, paint, Freditor.doNothing);
+        freditor.findClosingParen(end, position -> matchingParens[1] = position, Freditor.doNothing);
+
+        return matchingParens;
     }
 
-    private void paintParensBackground(Graphics g, int position) {
-        g.setColor(MATCHING_PARENS_BACKGROUND_COLOR);
-        g.fillRect(x(freditor.columnOfPosition(position)), y(freditor.rowOfPosition(position)), frontWidth, frontHeight);
-    }
-
-    private void paintLexemes(Graphics g) {
+    private void paintLexemes(Graphics g, int openingParen, int closingParen) {
         final int componentWidth = getWidth();
         final int componentHeight = getHeight();
         int x = -firstVisibleColumn * frontWidth;
@@ -538,7 +538,7 @@ public class FreditorUI extends JComponent {
                 char c = freditor.charAt(i);
                 if (c != '\n') {
                     if (x >= 0) {
-                        Fronts.front.drawCharacter(g, x, y, c, rgb);
+                        Fronts.front.drawCharacter(g, x, y, c, i == openingParen || i == closingParen ? MATCHING_PARENS_COLOR : rgb);
                     }
                     x += frontWidth;
                     if (x < componentWidth) continue;
@@ -554,8 +554,7 @@ public class FreditorUI extends JComponent {
     private void paintCursor(Graphics g) {
         int cursorX = x(freditor.column());
         int cursorY = y(freditor.row());
-        g.setColor(Color.BLACK);
-        Fronts.front.drawCharacter(g, cursorX, cursorY, '\177', 0x000000);
+        Fronts.front.drawCharacter(g, cursorX, cursorY, '\177', CURSOR_COLOR);
     }
 
     public int cursor() {

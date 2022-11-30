@@ -4,6 +4,8 @@ import static freditor.FlexerState.EMPTY;
 import static freditor.FlexerState.THIS;
 
 public abstract class Flexer {
+    public static final int DEFAULT_LEXEME_COLOR = 0xd4d4d4;
+
     public static final FlexerState END = EMPTY.head();
     public static final FlexerState ERROR = EMPTY.head();
 
@@ -21,7 +23,7 @@ public abstract class Flexer {
     protected abstract FlexerState start();
 
     public int pickColorForLexeme(FlexerState previousState, FlexerState endState) {
-        return 0x000000;
+        return DEFAULT_LEXEME_COLOR;
     }
 
     public boolean preventInsertion(FlexerState nextState) {
