@@ -9,7 +9,7 @@ public class SwingConfig {
     public static final Font SANS_SERIF_PLAIN_16 = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
 
     public static void metalWithDefaultFont(Font defaultFont) {
-        SwingUtilities.invokeLater(() -> {
+        EventQueue.invokeLater(() -> {
             try {
                 UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             } catch (Exception ex) {
@@ -28,7 +28,7 @@ public class SwingConfig {
     }
 
     public static void nimbusWithDefaultFont(Font defaultFont) {
-        SwingUtilities.invokeLater(() -> {
+        EventQueue.invokeLater(() -> {
             try {
                 for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                     if (info.getName().equals("Nimbus")) {
