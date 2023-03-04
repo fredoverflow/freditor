@@ -6,6 +6,10 @@ import java.awt.*;
 import java.util.Enumeration;
 
 public class SwingConfig {
+    static {
+        System.setProperty("sun.java2d.uiScale.enabled", "false");
+    }
+
     public static final Font SANS_SERIF_PLAIN_16 = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
 
     public static void metalWithDefaultFont(Font defaultFont) {
