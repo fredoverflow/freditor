@@ -183,4 +183,23 @@ public class CharZipper implements CharSequence {
     private static char charAt(ByteVector vector, int index) {
         return (char) (vector.byteAt(index) & 255);
     }
+
+    public final class Focus {
+        private final ByteVector.Focus before = CharZipper.this.before.new Focus();
+        private final ByteVector.Focus after = CharZipper.this.after.new Focus();
+        private final int beforeSize = CharZipper.this.before.size();
+        private final int lastIndex = CharZipper.this.length() - 1;
+
+        public char charAt(int index) {
+            if (index < beforeSize) {
+                return charAt(before, index);
+            } else {
+                return charAt(after, lastIndex - index);
+            }
+        }
+
+        private char charAt(ByteVector.Focus focus, int index) {
+            return (char) (focus.byteAt(index) & 255);
+        }
+    }
 }

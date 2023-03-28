@@ -2,7 +2,12 @@ package freditor.persistent;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static freditor.Maths.atLeastZero;
 import static org.junit.Assert.*;
@@ -297,5 +302,18 @@ public class ByteVectorTest {
 
         hashing(32799);
         hashing(32800);
+    }
+
+    @Test
+    public void focusReturnsSameBytesAsVector() {
+        ByteVector vector = ByteVector.of(arrayOfSize(1056));
+        ByteVector.Focus focus = vector.new Focus();
+        List<Integer> indexes = IntStream.range(0, vector.size())
+                .boxed()
+                .collect(Collectors.toCollection(ArrayList::new));
+        Collections.shuffle(indexes);
+        for (int index : indexes) {
+            assertEquals(vector.byteAt(index), focus.byteAt(index));
+        }
     }
 }

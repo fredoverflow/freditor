@@ -247,4 +247,38 @@ public final class ByteVector {
     public String toString() {
         return new String(toArray(), StandardCharsets.ISO_8859_1);
     }
+
+    public final class Focus {
+        private final Object root = ByteVector.this.root;
+        private final byte[] tail = ByteVector.this.tail;
+        private final int shift = shift(size);
+        private final int tailIndex = (size - 1) >>> 5;
+        private int focussedLeafIndex = tailIndex;
+        private byte[] focussedLeaf = tail;
+
+        public byte byteAt(int index) {
+            return tailOrLeafContaining(index)[index & 31];
+        }
+
+        private byte[] tailOrLeafContaining(int index) {
+            int leafIndex = index >>> 5;
+            if (leafIndex == focussedLeafIndex) {
+                return focussedLeaf;
+            }
+            focussedLeafIndex = leafIndex;
+            if (leafIndex >= tailIndex) {
+                return focussedLeaf = tail;
+            } else {
+                return focussedLeaf = leafContaining(index);
+            }
+        }
+
+        private byte[] leafContaining(int index) {
+            Object root = this.root;
+            for (int shift = this.shift; shift > 0; shift -= 5) {
+                root = ((Object[]) root)[(index >>> shift) & 31];
+            }
+            return (byte[]) root;
+        }
+    }
 }

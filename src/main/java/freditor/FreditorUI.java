@@ -516,6 +516,7 @@ public class FreditorUI extends JComponent {
     }
 
     private void paintLexemes(Graphics g) {
+        CharZipper.Focus focus = freditor.new Focus();
         final int componentWidth = getWidth();
         final int componentHeight = getHeight();
         int x = -firstVisibleColumn * frontWidth;
@@ -525,7 +526,7 @@ public class FreditorUI extends JComponent {
             int k = freditor.endOfLexeme(i);
             int rgb = freditor.flexer.pickColorForLexeme(freditor.stateAt(i - 1), freditor.stateAt(k - 1));
             for (; i < k; ++i) {
-                char c = freditor.charAt(i);
+                char c = focus.charAt(i);
                 if (c != '\n') {
                     if (x >= 0) {
                         Fronts.front.drawCharacter(g, x, y, c, rgb);
