@@ -35,9 +35,11 @@ public class CharZipper implements CharSequence {
 
     @Override
     public char charAt(int index) {
-        if (index < before.size()) return charAt(before, index);
-        index -= before.size();
-        return charAt(after, after.size() - 1 - index);
+        if (index < before.size()) {
+            return charAt(before, index);
+        } else {
+            return charAt(after, length() - 1 - index);
+        }
     }
 
     @Override
@@ -178,7 +180,7 @@ public class CharZipper implements CharSequence {
         return new String(temp);
     }
 
-    private static char charAt(ByteVector v, int index) {
-        return (char) (v.byteAt(index) & 255);
+    private static char charAt(ByteVector vector, int index) {
+        return (char) (vector.byteAt(index) & 255);
     }
 }
