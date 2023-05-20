@@ -630,6 +630,11 @@ public class FreditorUI extends JComponent {
         componentToRepaint.repaint();
     }
 
+    public void replace(String newText) {
+        freditor.replace(newText);
+        componentToRepaint.repaint();
+    }
+
     public void indent() {
         freditor.indent();
         componentToRepaint.repaint();

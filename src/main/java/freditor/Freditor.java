@@ -653,12 +653,15 @@ public final class Freditor extends CharZipper {
         String text = toString();
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(text);
-        String replaced = matcher.replaceAll(replacement);
+        String newText = matcher.replaceAll(replacement);
+        replace(newText);
+    }
 
+    public void replace(String newText) {
         commit();
         int row = row();
         int column = column();
-        loadFromString(replaced);
+        loadFromString(newText);
         setRowAndColumn(row, column);
         adjustOrigin();
         lastAction = EditorAction.OTHER;
