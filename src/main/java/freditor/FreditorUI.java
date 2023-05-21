@@ -635,6 +635,11 @@ public class FreditorUI extends JComponent {
         componentToRepaint.repaint();
     }
 
+    public void rename(String oldName, String newName, int[] positions) {
+        freditor.rename(oldName, newName, positions);
+        componentToRepaint.repaint();
+    }
+
     public void indent() {
         freditor.indent();
         componentToRepaint.repaint();

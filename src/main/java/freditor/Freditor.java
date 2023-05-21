@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.function.IntConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -662,6 +663,30 @@ public final class Freditor extends CharZipper {
         int row = row();
         int column = column();
         loadFromString(newText);
+        setRowAndColumn(row, column);
+        adjustOrigin();
+        lastAction = EditorAction.OTHER;
+    }
+
+    public void rename(String oldName, String newName, int... positions) {
+        if (oldName.equals(newName)) return;
+
+        Arrays.sort(positions);
+
+        commit();
+        int row = row();
+        int column = column();
+
+        final int oldLength = oldName.length();
+        final int lengthDelta = newName.length() - oldLength;
+        int offset = 0;
+        for (int position : positions) {
+            position += offset;
+            deleteRange(position, position + oldLength);
+            insertAt(position, newName);
+            offset += lengthDelta;
+        }
+
         setRowAndColumn(row, column);
         adjustOrigin();
         lastAction = EditorAction.OTHER;
