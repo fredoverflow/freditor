@@ -8,56 +8,44 @@ public final class IntGapBuffer {
     private static final int SHIFT_ADDITIONAL_CAPACITY = 2;
 
     private int[] buffer;
-    private int gap;
-    private int suffix;
+    private int gapStart;
+    private int gapLength;
 
     public IntGapBuffer() {
         buffer = new int[INITIAL_CAPACITY];
-        gap = 0;
-        suffix = INITIAL_CAPACITY;
+        gapStart = 0;
+        gapLength = INITIAL_CAPACITY;
     }
 
     public IntGapBuffer(int... values) {
         int initialCapacity = Math.max(INITIAL_CAPACITY, values.length);
         buffer = Arrays.copyOf(values, initialCapacity);
-        gap = values.length;
-        suffix = initialCapacity;
-    }
-
-    private int prefixSize() {
-        return gap;
-    }
-
-    private int gapSize() {
-        return suffix - gap;
-    }
-
-    private int suffixSize() {
-        return buffer.length - suffix;
+        gapStart = values.length;
+        gapLength = initialCapacity - values.length;
     }
 
     public int size() {
-        return prefixSize() + suffixSize();
+        return buffer.length - gapLength;
     }
 
     public boolean isEmpty() {
-        return gapSize() == buffer.length;
+        return gapLength == buffer.length;
     }
 
     public boolean isFull() {
-        return gap == suffix;
+        return gapLength == 0;
     }
 
     public int get(int index) {
-        if (index >= gap) {
-            index += gapSize();
+        if (index >= gapStart) {
+            index += gapLength;
         }
         return buffer[index];
     }
 
     public int set(int index, int value) {
-        if (index >= gap) {
-            index += gapSize();
+        if (index >= gapStart) {
+            index += gapLength;
         }
         int previousValue = buffer[index];
         buffer[index] = value;
@@ -74,52 +62,54 @@ public final class IntGapBuffer {
         } else {
             moveGapTo(index);
         }
-        buffer[gap++] = value;
+        buffer[gapStart] = value;
+        ++gapStart;
+        --gapLength;
     }
 
     private void increaseCapacity(int index) {
-        int additionalCapacity = buffer.length >>> SHIFT_ADDITIONAL_CAPACITY;
         int[] old = buffer;
-        buffer = new int[old.length + additionalCapacity];
-        gap = index;
-        suffix = index + additionalCapacity;
-        System.arraycopy(old, 0, buffer, 0, prefixSize());
-        System.arraycopy(old, index, buffer, suffix, suffixSize());
+        gapLength = old.length >>> SHIFT_ADDITIONAL_CAPACITY;
+        buffer = new int[old.length + gapLength];
+        gapStart = index;
+        System.arraycopy(old, 0, buffer, 0, index);
+        System.arraycopy(old, index, buffer, gapStart + gapLength, old.length - index);
     }
 
     private void moveGapTo(int index) {
-        int delta = index - gap;
-        if (delta < 0) {
-            gap = index;
-            suffix += delta;
-            System.arraycopy(buffer, index, buffer, suffix, -delta);
-        } else if (delta > 0) {
-            System.arraycopy(buffer, suffix, buffer, gap, delta);
-            gap = index;
-            suffix += delta;
+        if (index < gapStart) {
+            System.arraycopy(buffer, index, buffer, index + gapLength, gapStart - index);
+            gapStart = index;
+        } else if (index > gapStart) {
+            System.arraycopy(buffer, gapStart + gapLength, buffer, gapStart, index - gapStart);
+            gapStart = index;
         }
     }
 
-    public int remove(int index) {
+    public void remove(int index) {
         moveGapTo(index + 1);
-        return buffer[--gap];
+        --gapStart;
+        ++gapLength;
     }
 
     public void remove(int start, int end) {
-        assert start <= end;
-        moveGapTo(end);
-        gap -= end - start;
+        int count = end - start;
+        if (count > 0) {
+            moveGapTo(end);
+            gapStart -= count;
+            gapLength += count;
+        }
     }
 
     public void clear() {
-        gap = 0;
-        suffix = buffer.length;
+        gapStart = 0;
+        gapLength = buffer.length;
     }
 
     public int[] toArray() {
-        int[] temp = new int[size()];
-        System.arraycopy(buffer, 0, temp, 0, prefixSize());
-        System.arraycopy(buffer, suffix, temp, prefixSize(), suffixSize());
-        return temp;
+        int[] result = new int[size()];
+        System.arraycopy(buffer, 0, result, 0, gapStart);
+        System.arraycopy(buffer, gapStart + gapLength, result, gapStart, result.length - gapStart);
+        return result;
     }
 }
