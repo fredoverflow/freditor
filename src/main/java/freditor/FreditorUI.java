@@ -4,10 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
+import java.util.regex.Pattern;
 
 import static freditor.Maths.atLeastZero;
 
@@ -115,9 +117,13 @@ public class FreditorUI extends JComponent {
     private char charTyped;
 
     public FreditorUI(Flexer flexer, Indenter indenter, int columns, int rows) {
+        this(new Freditor(flexer, indenter, null), columns, rows);
+    }
+
+    public FreditorUI(Freditor freditor, int columns, int rows) {
         setPreferredSize(new Dimension(columns * frontWidth, rows * frontHeight));
 
-        freditor = new Freditor(flexer, indenter);
+        this.freditor = freditor;
         // We want to be able to listen to keys...
         setFocusable(true);
         // ...including the TAB key :)
@@ -594,9 +600,10 @@ public class FreditorUI extends JComponent {
         adjustView();
     }
 
-    public void setCursorTo(String regex, int group) {
-        freditor.setCursorTo(regex, group);
+    public boolean setCursorTo(Pattern pattern, int group) {
+        boolean found = freditor.setCursorTo(pattern, group);
         adjustView();
+        return found;
     }
 
     public String getText() {
@@ -645,21 +652,25 @@ public class FreditorUI extends JComponent {
         componentToRepaint.repaint();
     }
 
-    public void loadFromFile(String pathname) throws IOException {
-        freditor.loadFromFile(pathname);
+    public Path getFile() {
+        return freditor.file;
+    }
+
+    public void load() throws IOException {
+        freditor.load();
         adjustView();
     }
 
-    public void loadFromString(String program) {
-        freditor.loadFromString(program);
+    public void load(String program) {
+        freditor.load(program);
         adjustView();
     }
 
-    public void saveToFile(String pathname) throws IOException {
-        freditor.saveToFile(pathname);
+    public void save() {
+        freditor.save();
     }
 
-    public Autosaver newAutosaver(String application) {
-        return new Autosaver(freditor, application);
+    public void saveWithBackup() {
+        freditor.saveWithBackup();
     }
 }

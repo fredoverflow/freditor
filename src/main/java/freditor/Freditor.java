@@ -4,13 +4,15 @@ import freditor.ephemeral.GapBuffer;
 import freditor.ephemeral.IntStack;
 import freditor.persistent.ByteVector;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.function.IntConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,8 +27,9 @@ public final class Freditor extends CharZipper {
 
     public final Flexer flexer;
     public final Indenter indenter;
+    public final Path file;
 
-    public Freditor(Flexer flexer, Indenter indenter) {
+    public Freditor(Flexer flexer, Indenter indenter, Path file) {
         lineBreaksBefore = new IntStack();
         lineBreaksAfter = new IntStack();
 
@@ -34,6 +37,7 @@ public final class Freditor extends CharZipper {
 
         this.flexer = flexer;
         this.indenter = indenter;
+        this.file = file;
     }
 
     private int origin;
@@ -373,12 +377,13 @@ public final class Freditor extends CharZipper {
         adjustOrigin();
     }
 
-    public void setCursorTo(String regex, int group) {
-        Pattern pattern = Pattern.compile(regex);
+    public boolean setCursorTo(Pattern pattern, int group) {
         Matcher matcher = pattern.matcher(toString());
-        if (matcher.find()) {
+        boolean found = matcher.find();
+        if (found) {
             setCursorTo(matcher.start(group));
         }
+        return found;
     }
 
     public void selectLexemeAtCursor() {
@@ -662,7 +667,7 @@ public final class Freditor extends CharZipper {
         commit();
         int row = row();
         int column = column();
-        loadFromString(newText);
+        load(newText);
         setRowAndColumn(row, column);
         adjustOrigin();
         lastAction = EditorAction.OTHER;
@@ -871,15 +876,15 @@ public final class Freditor extends CharZipper {
 
     // PERSISTENCE
 
-    public void loadFromFile(String pathname) throws IOException {
-        loadFromBytes(Files.readAllBytes(Paths.get(pathname)));
+    public void load() throws IOException {
+        load(Files.readAllBytes(file));
     }
 
-    public void loadFromString(String program) {
-        loadFromBytes(program.getBytes(StandardCharsets.ISO_8859_1));
+    public void load(String program) {
+        load(program.getBytes(StandardCharsets.ISO_8859_1));
     }
 
-    private void loadFromBytes(byte[] bytes) {
+    private void load(byte[] bytes) {
         super.clear();
         insertBeforeFocus(bytes);
         refreshBookkeeping();
@@ -890,28 +895,40 @@ public final class Freditor extends CharZipper {
         forgetDesiredColumn();
     }
 
-    public void saveToFile(String pathname) throws IOException {
-        try (FileOutputStream out = new FileOutputStream(pathname)) {
-            if ("\n".equals(System.lineSeparator())) {
-                out.write(toByteArray());
-            } else {
-                saveWithNativeLineSeparators(out);
-            }
+    public void save() {
+        save(file, toByteArray());
+    }
+
+    private void save(Path file, byte[] bytes) {
+        try {
+            Files.createDirectories(file.getParent());
+            Files.write(file, bytes);
+        } catch (IOException savingFailed) {
+            // If saving to user.home fails, there is no sensible way to recover
+            savingFailed.printStackTrace();
         }
     }
 
-    private void saveWithNativeLineSeparators(FileOutputStream out) throws IOException {
+    public void saveWithBackup() {
         byte[] bytes = toByteArray();
-        int end = endPositionOfRow(0);
-        out.write(bytes, 0, end);
+        save(file, bytes);
+        save(backupFile(bytes), bytes);
+    }
 
-        byte[] lineSeparator = System.lineSeparator().getBytes(StandardCharsets.ISO_8859_1);
-        for (int i = 1, rows = rows(); i < rows; ++i) {
-            out.write(lineSeparator);
-
-            int start = end + 1;
-            end = endPositionOfRow(i);
-            out.write(bytes, start, end - start);
+    private Path backupFile(byte[] bytes) {
+        String filename;
+        try {
+            byte[] hash = MessageDigest.getInstance("SHA-256").digest(bytes);
+            String encoded = Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
+            // File names starting with a minus sign require special care.
+            // A base64url-encoded SHA-256 hash never ends with a minus sign,
+            // so reversing the encoded string is an easy fix.
+            filename = new StringBuilder(encoded).reverse().append(".txt").toString();
+        } catch (NoSuchAlgorithmException sha256unsupported) {
+            // Every implementation of the Java platform is REQUIRED to support SHA-1 and SHA-256
+            sha256unsupported.printStackTrace();
+            filename = String.format("%08x.txt", Arrays.hashCode(bytes));
         }
+        return file.getParent().resolve("backup").resolve(filename);
     }
 }

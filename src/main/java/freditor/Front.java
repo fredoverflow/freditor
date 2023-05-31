@@ -45,9 +45,9 @@ public class Front {
             int[] argb = new int[imageWidth * imageHeight];
             image.getData().getSamples(0, 0, imageWidth, imageHeight, 0, argb);
             return new Front(argb, imageWidth, imageHeight);
-        } catch (IOException ex) {
+        } catch (IOException requiredResourceAbsent) {
             // There is no sensible way to recover from required but absent resources
-            throw new RuntimeException(ex);
+            throw new RuntimeException(requiredResourceAbsent);
         }
     }
 
