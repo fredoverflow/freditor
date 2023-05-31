@@ -23,7 +23,7 @@ public final class ByteVector {
         return of(bytes, bytes.length);
     }
 
-    static ByteVector of(byte[] bytes, int size) {
+    public static ByteVector of(byte[] bytes, int size) {
         if (size <= 32) {
             return new ByteVector(null, Arrays.copyOf(bytes, 32), size);
         } else {

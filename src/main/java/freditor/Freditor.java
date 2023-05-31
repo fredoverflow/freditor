@@ -877,16 +877,16 @@ public final class Freditor extends CharZipper {
     // PERSISTENCE
 
     public void load() throws IOException {
-        load(Files.readAllBytes(file));
+        super.loadStrict(Files.readAllBytes(file));
+        bytesLoaded();
     }
 
     public void load(String program) {
-        load(program.getBytes(StandardCharsets.ISO_8859_1));
+        super.loadLenient(program.getBytes(StandardCharsets.ISO_8859_1));
+        bytesLoaded();
     }
 
-    private void load(byte[] bytes) {
-        super.clear();
-        insertBeforeFocus(bytes);
+    private void bytesLoaded() {
         refreshBookkeeping();
         if (cursor >= length()) {
             cursor = length();

@@ -2,6 +2,7 @@ package freditor;
 
 import freditor.persistent.ByteVector;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 public class CharZipper implements CharSequence {
@@ -85,6 +86,36 @@ public class CharZipper implements CharSequence {
         after = ByteVector.EMPTY;
     }
 
+    protected void loadStrict(byte[] bytes) throws UnsupportedEncodingException {
+        int n = 0;
+        for (int i = 0; i < bytes.length; ++i) {
+            byte x = bytes[i];
+            if (x >= 32 && x < 127 || x == '\n' || x >= -96 && x <= -1) {
+                bytes[n++] = x;
+            } else if (x == '\t') {
+                bytes[n++] = ' ';
+            } else if (x != '\r') {
+                String prefix = new String(bytes, 0, n, StandardCharsets.ISO_8859_1);
+                throw new UnsupportedEncodingException("illegal byte " + (x & 255) + " at index " + i + " after:\n" + prefix);
+            }
+        }
+        before = ByteVector.of(bytes, n);
+        after = ByteVector.EMPTY;
+    }
+
+    protected void loadLenient(byte[] bytes) {
+        int n = 0;
+        for (byte x : bytes) {
+            if (x >= 32 && x < 127 || x == '\n' || x >= -96 && x <= -1) {
+                bytes[n++] = x;
+            } else if (x == '\t') {
+                bytes[n++] = ' ';
+            }
+        }
+        before = ByteVector.of(bytes, n);
+        after = ByteVector.EMPTY;
+    }
+
     protected void focusOn(int index) {
         int delta = index - before.size();
         for (; delta < 0; ++delta) {
@@ -107,19 +138,6 @@ public class CharZipper implements CharSequence {
     public void insertAt(int index, CharSequence s) {
         focusOn(index);
         insertBeforeFocus(s);
-    }
-
-    protected void insertBeforeFocus(byte[] bytes) {
-        final int len = bytes.length;
-        for (int i = 0; i < len; ) {
-            byte b = bytes[i++];
-            if (b != '\r') {
-                before = before.push(b);
-            } else if (i == len || bytes[i] != '\n') {
-                // convert Mac OS Classic "\r" to Unix "\n"
-                before = before.push((byte) '\n');
-            }
-        }
     }
 
     protected void insertBeforeFocus(CharSequence s) {

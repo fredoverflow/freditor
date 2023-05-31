@@ -19,15 +19,10 @@ public class CharZipperTest {
         insertBytesSeparatedBy("\r\n");
     }
 
-    @Test
-    public void insertMacOsClassicLineSeparators() {
-        insertBytesSeparatedBy("\r");
-    }
-
     private void insertBytesSeparatedBy(String lineSeparator) {
         String input = lineSeparator + "one" + lineSeparator + "two" + lineSeparator + "three" + lineSeparator;
         byte[] bytes = input.getBytes(StandardCharsets.ISO_8859_1);
-        text.insertBeforeFocus(bytes);
+        text.loadLenient(bytes);
 
         byte[] output = text.toByteArray();
         byte[] expected = "\none\ntwo\nthree\n".getBytes(StandardCharsets.ISO_8859_1);
