@@ -177,4 +177,22 @@ public class Front {
             }
         }
     }
+
+    public void drawIntRight(Graphics g, int x, int y, int number, int rgb) {
+        do {
+            x -= width;
+            int digit = number % 10;
+            number = number / 10;
+            drawCharacter(g, x, y, (char) ('0' + digit), rgb);
+        } while (number != 0);
+    }
+
+    public void drawHexRight(Graphics g, int x, int y, int number, int rgb) {
+        do {
+            x -= width;
+            int digit = number & 15;
+            number = number >>> 4;
+            drawCharacter(g, x, y, "0123456789abcdef".charAt(digit), rgb);
+        } while (number != 0);
+    }
 }
