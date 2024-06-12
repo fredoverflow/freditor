@@ -857,7 +857,57 @@ public final class Freditor extends CharZipper {
         }
     }
 
-    // INDENTATION
+    // FORMATTING
+
+    public void isolateBraces() {
+        for (int i = 0; i < length(); ++i) {
+            FlexerState state = flexerStates.get(i);
+            if (state == Flexer.OPENING_BRACE) {
+                i = ensureSpaceBeforeBrace(i);
+                i = ensureNewlineAfterBrace(i);
+            } else if (state == Flexer.CLOSING_BRACE) {
+                i = ensureNewlineBeforeBrace(i);
+                i = ensureNewlineAfterBrace(i);
+            }
+        }
+    }
+
+    private int ensureSpaceBeforeBrace(int i) {
+        while (stateAt(i - 1) == Flexer.SPACE_TAIL) {
+            deleteLeftOf(i--);
+        }
+        FlexerState state = stateAt(i - 1);
+        if (state != Flexer.SPACE_HEAD && state != Flexer.NEWLINE) {
+            insertAt(i++, ' ');
+        }
+        return i;
+    }
+
+    private int ensureNewlineAfterBrace(int i) {
+        ++i;
+        while (stateAt(i) == Flexer.SPACE_HEAD) {
+            deleteRightOf(i);
+        }
+        if (stateAt(i) != Flexer.NEWLINE) {
+            insertAt(i, '\n');
+        }
+        return i;
+    }
+
+    private int ensureNewlineBeforeBrace(int i) {
+        int j = skipSpacesBefore(i);
+        if (stateAt(j) != Flexer.NEWLINE) {
+            insertAt(j + 1, '\n');
+            ++i;
+        }
+        return i;
+    }
+
+    private int skipSpacesBefore(int j) {
+        do --j; while (stateAt(j) == Flexer.SPACE_TAIL);
+        if (stateAt(j) == Flexer.SPACE_HEAD) --j;
+        return j;
+    }
 
     public void indent() {
         final int oldRow = row();

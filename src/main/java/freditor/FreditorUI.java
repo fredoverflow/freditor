@@ -651,6 +651,10 @@ public class FreditorUI extends JComponent {
         componentToRepaint.repaint();
     }
 
+    public void isolateBraces() {
+        freditor.isolateBraces();
+    }
+
     public void indent() {
         freditor.indent();
         componentToRepaint.repaint();
