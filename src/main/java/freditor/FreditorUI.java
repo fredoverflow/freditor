@@ -610,6 +610,10 @@ public class FreditorUI extends JComponent {
         return freditor.toString();
     }
 
+    public boolean lineIsBlankBefore(int index) {
+        return freditor.lineIsBlankBefore(index);
+    }
+
     public String getLineBeforeSelection() {
         return freditor.getLineBeforeSelection();
     }

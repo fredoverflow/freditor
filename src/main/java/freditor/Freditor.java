@@ -77,6 +77,20 @@ public final class Freditor extends CharZipper {
         return desiredColumn;
     }
 
+    public boolean lineIsBlankBefore(int index) {
+        for (int i = index - 1; i >= 0; --i) {
+            switch (charAt(i)) {
+                case '\n':
+                    return true;
+                case ' ':
+                    continue;
+                default:
+                    return false;
+            }
+        }
+        return true;
+    }
+
     public String getLineBeforeSelection() {
         int selectionStart = selectionStart();
         return subSequence(homePositionOf(selectionStart), selectionStart);
