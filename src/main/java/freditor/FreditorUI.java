@@ -435,8 +435,9 @@ public class FreditorUI extends JComponent {
             int x = x(diagnostic.column);
             int y = y(diagnostic.row);
             g.setColor(DIAGNOSTIC_BACKGROUND_COLOR);
-            g.fillRect(x, y, diagnostic.width * frontWidth, diagnostic.lines.length * frontHeight);
             for (String line : diagnostic.lines) {
+                int width = line.equals("|") ? 1 : diagnostic.width;
+                g.fillRect(x, y, width * frontWidth, frontHeight);
                 Fronts.front.drawString(g, x, y, line, 0xff0000);
                 y += frontHeight;
             }
