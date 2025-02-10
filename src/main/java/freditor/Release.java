@@ -8,6 +8,10 @@ import java.util.Collections;
 
 public class Release {
     public static String compilationDate(Class<?> clazz) {
+        if (OperatingSystem.isBrowser) {
+            // prevent java.nio.file.ProviderNotFoundException: Provider "jar" not found
+            return "browser";
+        }
         try {
             String name = clazz.getName().replace('.', '/').concat(".class");
             URL url = clazz.getClassLoader().getResource(name);

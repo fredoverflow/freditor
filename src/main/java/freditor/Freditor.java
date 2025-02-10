@@ -976,6 +976,11 @@ public final class Freditor extends CharZipper {
     public void saveWithBackup() {
         byte[] bytes = toByteArray();
         save(file, bytes);
+        if (OperatingSystem.isBrowser) {
+            // Saved browser backups are not accessible (yet?),
+            // thus creating them would just accumulate waste.
+            return;
+        }
         save(backupFile(bytes), bytes);
     }
 

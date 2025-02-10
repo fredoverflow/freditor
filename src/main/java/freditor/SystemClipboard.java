@@ -5,19 +5,15 @@ import java.awt.datatransfer.*;
 import java.io.IOException;
 
 public class SystemClipboard {
-    private static String internalText = null;
-    private static final int NUM_ATTEMPTS = 3;
+    private static final int NUM_ATTEMPTS = 5;
     private static final int SLEEP_MILLIS = 100;
 
-    private static final ClipboardOwner owner = (lostClipboard, oldContents) -> internalText = null;
-
     public static void set(String text) {
-        internalText = text;
         for (int attempt = 1; attempt <= NUM_ATTEMPTS; ++attempt) {
             try {
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                 Transferable contents = new StringSelection(text);
-                clipboard.setContents(contents, owner);
+                clipboard.setContents(contents, null);
                 return;
             } catch (IllegalStateException clipboardCurrentlyUnavailable) {
                 handle(clipboardCurrentlyUnavailable, attempt);
@@ -38,10 +34,6 @@ public class SystemClipboard {
     }
 
     public static String getUnicode() {
-        return internalText != null ? internalText : getExternalText();
-    }
-
-    private static String getExternalText() {
         for (int attempt = 1; attempt <= NUM_ATTEMPTS; ++attempt) {
             try {
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
