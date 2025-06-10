@@ -179,12 +179,23 @@ public class Front {
     }
 
     public void drawIntRight(Graphics g, int x, int y, int number, int rgb) {
-        do {
+        if (number >= 0) {
+            do {
+                x -= width;
+                int digit = number % 10;
+                number = number / 10;
+                drawCharacter(g, x, y, (char) ('0' + digit), rgb);
+            } while (number != 0);
+        } else {
+            do {
+                x -= width;
+                int digit = number % 10;
+                number = number / 10;
+                drawCharacter(g, x, y, (char) ('0' - digit), rgb);
+            } while (number != 0);
             x -= width;
-            int digit = number % 10;
-            number = number / 10;
-            drawCharacter(g, x, y, (char) ('0' + digit), rgb);
-        } while (number != 0);
+            drawCharacter(g, x, y, '-', rgb);
+        }
     }
 
     public void drawHexRight(Graphics g, int x, int y, int number, int rgb) {
