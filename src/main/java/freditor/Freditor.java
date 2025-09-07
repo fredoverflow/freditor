@@ -104,6 +104,65 @@ public final class Freditor extends CharZipper {
         return before().take(selectionStart).toString();
     }
 
+    public void balanceSelection() {
+        if (selectionIsEmpty()) return;
+        final int len = length();
+
+        int start = selectionStart();
+        int end = selectionEnd();
+
+        while (start > 0 && flexerStates.get(start - 1) != Flexer.NEWLINE) {
+            --start;
+        }
+        while (end < len && flexerStates.get(end) != Flexer.NEWLINE) {
+            ++end;
+        }
+
+        origin = start;
+        cursor = end;
+
+        int nesting = 0;
+        for (int i = start; i < end; ++i) {
+            nesting += Flexer.nestingDelta.getOrDefault(stateAt(i), 0);
+            if (nesting < 0) {
+                while (stateAt(i - 1) == Flexer.SPACE_TAIL) --i;
+                if (stateAt(i - 1) == Flexer.SPACE_HEAD) --i;
+                if (stateAt(i - 1) == Flexer.NEWLINE) --i;
+                cursor = i;
+                return;
+            }
+        }
+        if (nesting == 0) return;
+
+        for (int i = end; i < len; ++i) {
+            nesting += Flexer.nestingDelta.getOrDefault(flexerStates.get(i), 0);
+            if (nesting == 0) {
+                cursor = i + 1;
+                return;
+            }
+        }
+    }
+
+    public int findTopLevelFrom(int start) {
+        int nesting = 0;
+
+        int lastCloser = -1;
+        for (int i = 0; i < start; ++i) {
+            nesting += Flexer.nestingDelta.getOrDefault(flexerStates.get(i), 0);
+            if (nesting == 0) {
+                lastCloser = i;
+            }
+        }
+        if (nesting == 0) return lastCloser + 1;
+
+        final int len = length();
+        for (int i = start; i < len; ++i) {
+            nesting += Flexer.nestingDelta.getOrDefault(flexerStates.get(i), 0);
+            if (nesting == 0) return i + 1;
+        }
+        return len;
+    }
+
     // LINE BREAKS
 
     private void refreshLineBreaks() {
@@ -391,15 +450,6 @@ public final class Freditor extends CharZipper {
         adjustOrigin();
     }
 
-    public boolean setCursorTo(Pattern pattern, int group) {
-        Matcher matcher = pattern.matcher(toString());
-        boolean found = matcher.find();
-        if (found) {
-            setCursorTo(matcher.start(group));
-        }
-        return found;
-    }
-
     public void selectLexemeAtCursor() {
         origin = startOfLexeme(cursor);
         cursor = endOfLexeme(cursor);
@@ -460,14 +510,14 @@ public final class Freditor extends CharZipper {
         past.pop();
     }
 
-    private boolean deleteSelection() {
-        if (selectionIsEmpty()) return false;
+    public String deleteSelection() {
+        if (selectionIsEmpty()) return null;
 
         commit();
-        deleteRange(selectionStart(), selectionEnd());
+        String result = deleteRange(selectionStart(), selectionEnd());
         cursor = origin = selectionStart();
         lastAction = EditorAction.OTHER;
-        return true;
+        return result;
     }
 
     public void copy() {
@@ -564,6 +614,21 @@ public final class Freditor extends CharZipper {
         lastAction = EditorAction.OTHER;
     }
 
+    public void insert(CharSequence beforeCursor, CharSequence beforeSelection, CharSequence afterSelection) {
+        commit();
+
+        int start = selectionStart();
+        int end = selectionEnd();
+        insertAt(end, afterSelection);
+        insertAt(start, beforeSelection);
+        insertAt(start, beforeCursor);
+
+        cursor = start + beforeCursor.length();
+        forgetDesiredColumn();
+        adjustOrigin();
+        lastAction = EditorAction.OTHER;
+    }
+
     public void onEnter(char previousCharTyped) {
         deleteSelection();
         commit();
@@ -580,7 +645,7 @@ public final class Freditor extends CharZipper {
     }
 
     public void deleteLeft() {
-        if (deleteSelection()) return;
+        if (deleteSelection() != null) return;
 
         if (cursor > 0) {
             if (lastAction != EditorAction.SINGLE_DELETE || cursor != lastCursor) {
@@ -600,7 +665,7 @@ public final class Freditor extends CharZipper {
     }
 
     public void deleteRight() {
-        if (deleteSelection()) return;
+        if (deleteSelection() != null) return;
 
         if (cursor < length()) {
             if (lastAction != EditorAction.SINGLE_DELETE || cursor != lastCursor) {
@@ -915,7 +980,13 @@ public final class Freditor extends CharZipper {
         for (int row = corrections.length - 1; row >= 0; --row) {
             correct(row, corrections[row]);
         }
-        setRowAndColumn(oldRow, leadingSpaces(homePositionOfRow(oldRow)));
+
+        int end = endPositionOfRow(oldRow);
+        if (lineIsBlankBefore(end)) {
+            cursor = end;
+        } else {
+            cursor += Arrays.stream(corrections).limit(oldRow + 1).sum();
+        }
         adjustOrigin();
         forgetDesiredColumn();
     }

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
-import java.util.regex.Pattern;
 
 import static freditor.Maths.atLeastZero;
 
@@ -399,6 +398,10 @@ public class FreditorUI extends JComponent {
         return (atLeastZero(event.getX()) + frontWidth / 2) / frontWidth + firstVisibleColumn;
     }
 
+    public FlexerState stateAt(int index) {
+        return freditor.stateAt(index);
+    }
+
     public String lexemeAtCursor() {
         return freditor.lexemeAtCursor();
     }
@@ -601,12 +604,6 @@ public class FreditorUI extends JComponent {
         adjustView();
     }
 
-    public boolean setCursorTo(Pattern pattern, int group) {
-        boolean found = freditor.setCursorTo(pattern, group);
-        adjustView();
-        return found;
-    }
-
     public String getText() {
         return freditor.toString();
     }
@@ -623,8 +620,22 @@ public class FreditorUI extends JComponent {
         return freditor.getTextBeforeSelection();
     }
 
+    public void balanceSelection() {
+        freditor.balanceSelection();
+        componentToRepaint.repaint();
+    }
+
+    public int findTopLevelFrom(int start) {
+        return freditor.findTopLevelFrom(start);
+    }
+
     public void insert(CharSequence s) {
         freditor.insert(s);
+        componentToRepaint.repaint();
+    }
+
+    public void insert(CharSequence beforeCursor, CharSequence beforeSelection, CharSequence afterSelection) {
+        freditor.insert(beforeCursor, beforeSelection, afterSelection);
         componentToRepaint.repaint();
     }
 
@@ -633,8 +644,22 @@ public class FreditorUI extends JComponent {
         componentToRepaint.repaint();
     }
 
+    public void undo() {
+        freditor.undo();
+        componentToRepaint.repaint();
+    }
+
+    public void redo() {
+        freditor.redo();
+        componentToRepaint.repaint();
+    }
+
     public void uncommit() {
         freditor.uncommit();
+    }
+
+    public String deleteSelection() {
+        return freditor.deleteSelection();
     }
 
     public void replace(String regex, String replacement) {
