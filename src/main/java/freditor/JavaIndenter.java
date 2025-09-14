@@ -1,10 +1,9 @@
 package freditor;
 
-import freditor.persistent.ChampMap;
-
 import static freditor.Maths.atLeastZero;
 
 public class JavaIndenter extends Indenter {
+    public static final int SPACES = 4;
     public static final JavaIndenter instance = new JavaIndenter();
 
     @Override
@@ -29,10 +28,8 @@ public class JavaIndenter extends Indenter {
     private int leadingClosers(Freditor freditor, int home, int end) {
         int difference = 0;
         for (int i = home; i < end; ++i) {
-            FlexerState state = freditor.stateAt(i);
-            Integer delta = indentationDelta.get(state);
-            if (delta != null && delta < 0) {
-                difference += delta;
+            if (freditor.stateAt(i).nesting < 0) {
+                difference -= SPACES;
             } else if (freditor.charAt(i) != ' ') {
                 return difference;
             }
@@ -43,16 +40,8 @@ public class JavaIndenter extends Indenter {
     private int openersAndClosers(Freditor freditor, int home, int end) {
         int difference = 0;
         for (int i = home; i < end; ++i) {
-            FlexerState state = freditor.stateAt(i);
-            Integer delta = indentationDelta.get(state);
-            if (delta != null) {
-                difference += delta;
-            }
+            difference += freditor.stateAt(i).nesting * SPACES;
         }
         return difference;
     }
-
-    private static final ChampMap<FlexerState, Integer> indentationDelta = ChampMap.<FlexerState, Integer>empty()
-            .put(Flexer.OPENING_PAREN, Flexer.OPENING_BRACKET, Flexer.OPENING_BRACE, +4)
-            .put(Flexer.CLOSING_PAREN, Flexer.CLOSING_BRACKET, Flexer.CLOSING_BRACE, -4);
 }

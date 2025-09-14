@@ -46,6 +46,14 @@ public final class GapBuffer<E> {
     }
 
     @SuppressWarnings("unchecked")
+    public E getOrDefault(int index, E defaultValue) {
+        if (index >= gapStart) {
+            index += gapLength;
+        }
+        return (0 <= index) && (index < buffer.length) ? (E) buffer[index] : defaultValue;
+    }
+
+    @SuppressWarnings("unchecked")
     public E set(int index, E value) {
         if (index >= gapStart) {
             index += gapLength;
