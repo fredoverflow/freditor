@@ -7,13 +7,15 @@ public class FlexerState {
     private FlexerState defaultValue;
     private final FlexerState[] next;
     private final long lo, hi;
-    private final boolean isHead;
+    public final boolean isHead;
+    public final byte nesting; // 0 or +1 or -1
 
     private FlexerState() {
         next = new FlexerState[0];
         lo = 0;
         hi = 0;
         isHead = false;
+        nesting = 0;
     }
 
     public static final FlexerState EMPTY = new FlexerState();
@@ -34,6 +36,7 @@ public class FlexerState {
             hi = 1L << c;
         }
         isHead = false;
+        nesting = 0;
     }
 
     public FlexerState(char c1, FlexerState state1, char c2, FlexerState state2) {
@@ -54,6 +57,7 @@ public class FlexerState {
         this.lo = lo;
         this.hi = hi;
         isHead = false;
+        nesting = 0;
     }
 
     public FlexerState(char c1, FlexerState state1, char c2, FlexerState state2, char c3, FlexerState state3) {
@@ -80,6 +84,7 @@ public class FlexerState {
         this.lo = lo;
         this.hi = hi;
         isHead = false;
+        nesting = 0;
     }
 
     public FlexerState(String ranges, FlexerState state) {
@@ -109,6 +114,7 @@ public class FlexerState {
         this.lo = lo;
         this.hi = hi;
         isHead = false;
+        nesting = 0;
     }
 
     public FlexerState(FlexerState[] uncompressed) {
@@ -135,22 +141,32 @@ public class FlexerState {
         this.lo = lo;
         this.hi = hi;
         isHead = false;
+        nesting = 0;
     }
 
     public FlexerState tail() {
-        return new FlexerState(this, false);
+        return new FlexerState(this, false, this.nesting);
     }
 
     public FlexerState head() {
-        return new FlexerState(this, true);
+        return new FlexerState(this, true, this.nesting);
     }
 
-    private FlexerState(FlexerState that, boolean isHead) {
+    public FlexerState opening() {
+        return new FlexerState(this, this.isHead, (byte) +1);
+    }
+
+    public FlexerState closing() {
+        return new FlexerState(this, this.isHead, (byte) -1);
+    }
+
+    private FlexerState(FlexerState that, boolean isHead, byte nesting) {
         defaultValue = that.defaultValue;
         next = that.next;
         lo = that.lo;
         hi = that.hi;
         this.isHead = isHead;
+        this.nesting = nesting;
     }
 
     public FlexerState with(char c, FlexerState state) {
@@ -182,6 +198,7 @@ public class FlexerState {
         this.lo = lo;
         this.hi = hi;
         isHead = that.isHead;
+        nesting = that.nesting;
     }
 
     private static FlexerState[] replace(FlexerState[] next, int index, FlexerState state) {
@@ -253,9 +270,5 @@ public class FlexerState {
 
     public FlexerState[] read(String... words) {
         return Arrays.stream(words).map(this::read).toArray(FlexerState[]::new);
-    }
-
-    public boolean isHead() {
-        return isHead;
     }
 }
