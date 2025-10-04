@@ -1,10 +1,10 @@
 package freditor;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class CharZipperTest {
     private final CharZipper text = new CharZipper();
