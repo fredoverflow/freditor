@@ -1,16 +1,16 @@
 package freditor;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.awt.*;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class SystemClipboardTest {
-    @Before
+    @BeforeEach
     public void skipSystemClipboardTestsInHeadlessEnvironment() {
         assumeFalse(GraphicsEnvironment.isHeadless());
     }
