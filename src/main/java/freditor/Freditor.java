@@ -143,13 +143,14 @@ public final class Freditor extends CharZipper {
         }
     }
 
-    public int findTopLevelFrom(int start) {
+    public int findTopLevelFrom(int start, FlexerState closer) {
         int nesting = 0;
 
         int lastCloser = -1;
         for (int i = 0; i < start; ++i) {
-            nesting += flexerStates.get(i).nesting;
-            if (nesting == 0) {
+            FlexerState state = flexerStates.get(i);
+            nesting += state.nesting;
+            if (nesting == 0 && state == closer) {
                 lastCloser = i;
             }
         }
@@ -470,15 +471,19 @@ public final class Freditor extends CharZipper {
         return subSequence(start, end);
     }
 
-    public String symbolNearCursor(FlexerState symbolTail) {
-        // coerce keyword/literal prefixes to symbol
-        if (stateAt(cursor).next('_') == symbolTail) {
-            return lexemeAt(cursor);
-        } else if (cursor >= 1 && stateAt(cursor - 1).next('_') == symbolTail) {
-            return lexemeAt(cursor - 1);
-        } else {
-            return "";
+    public String symbolNearCursor(FlexerState symbolHead, FlexerState symbolTail) {
+        String symbol = symbolAt(cursor, symbolHead, symbolTail);
+        if (symbol.isEmpty() && stateAt(cursor).isHead && cursor > 0) {
+            symbol = symbolAt(cursor - 1, symbolHead, symbolTail);
         }
+        return symbol;
+    }
+
+    private String symbolAt(int index, FlexerState symbolHead, FlexerState symbolTail) {
+        int start = startOfLexeme(index);
+        int end = endOfLexeme(index);
+        FlexerState state = stateAt(end - 1);
+        return state == symbolHead || state == symbolTail ? subSequence(start, end) : "";
     }
 
     // TEXT MANIPULATION

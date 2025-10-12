@@ -406,8 +406,8 @@ public class FreditorUI extends JComponent {
         return freditor.lexemeAtCursor();
     }
 
-    public String symbolNearCursor(FlexerState symbolTail) {
-        return freditor.symbolNearCursor(symbolTail);
+    public String symbolNearCursor(FlexerState symbolHead, FlexerState symbolTail) {
+        return freditor.symbolNearCursor(symbolHead, symbolTail);
     }
 
     private ArrayList<Diagnostic> diagnostics = new ArrayList<>();
@@ -625,8 +625,8 @@ public class FreditorUI extends JComponent {
         componentToRepaint.repaint();
     }
 
-    public int findTopLevelFrom(int start) {
-        return freditor.findTopLevelFrom(start);
+    public int findTopLevelFrom(int start, FlexerState closer) {
+        return freditor.findTopLevelFrom(start, closer);
     }
 
     public void insert(CharSequence s) {
