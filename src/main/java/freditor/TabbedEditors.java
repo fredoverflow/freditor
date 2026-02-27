@@ -23,6 +23,9 @@ public class TabbedEditors {
     private static final String TOOLTIP = "\uD83D\uDDB0 new tab";
 
     private final Path applicationDirectory;
+    private final Flexer flexer;
+    private final Indenter indenter;
+    private final Function<Freditor, FreditorUI> create;
 
     public final JTabbedPane tabs;
 
@@ -42,11 +45,15 @@ public class TabbedEditors {
     public TabbedEditors(String application, Flexer flexer, Indenter indenter, Function<Freditor, FreditorUI> create) {
 
         applicationDirectory = Paths.get(System.getProperty("user.home")).resolve(application);
+        String applicationTxt = application + ".txt";
+        this.flexer = flexer;
+        this.indenter = indenter;
+        this.create = create;
 
         tabs = new JTabbedPane();
         tabs.setFont(Fronts.sansSerif);
 
-        for (Freditor freditor : loadFreditors(application, flexer, indenter)) {
+        for (Freditor freditor : loadFreditors(applicationTxt)) {
             String title = freditor.file.getFileName().toString();
             tabs.addTab(title, null, withLineNumbers(create.apply(freditor)), TOOLTIP);
         }
@@ -55,36 +62,19 @@ public class TabbedEditors {
             @Override
             public void mouseClicked(MouseEvent event) {
                 if (event.getButton() == MouseEvent.BUTTON3) {
-                    int selectedIndex = tabs.getSelectedIndex();
-                    String selectedTitle = tabs.getTitleAt(selectedIndex);
-
-                    String nextTitle = nextTitle(selectedTitle);
-                    int indexOfNextTitle = indexOfTitle(nextTitle);
-                    if (indexOfNextTitle != -1) {
-                        tabs.setSelectedIndex(indexOfNextTitle);
-                    } else {
-                        Freditor freditor = new Freditor(flexer, indenter, applicationDirectory.resolve(nextTitle));
-                        try {
-                            freditor.load();
-                        } catch (IOException expected) {
-                            // unless the file materialized after starting the application
-                        }
-                        int nextIndex = insertionIndex(nextTitle);
-                        tabs.insertTab(nextTitle, null, withLineNumbers(create.apply(freditor)), TOOLTIP, nextIndex);
-                        tabs.setSelectedIndex(nextIndex);
-                    }
+                    selectOrCreateEditor(nextTitle(getSelectedTitle()));
                 }
                 getSelectedEditor().requestFocusInWindow();
             }
         });
 
-        int applicationIndex = indexOfTitle(application + ".txt");
+        int applicationIndex = indexOfTitle(applicationTxt);
         if (applicationIndex != -1) {
             tabs.setSelectedIndex(applicationIndex);
         }
     }
 
-    private List<Freditor> loadFreditors(String application, Flexer flexer, Indenter indenter) {
+    private List<Freditor> loadFreditors(String applicationTxt) {
         List<Freditor> freditors = new ArrayList<>();
         for (Path file : sortedFiles()) {
             Freditor freditor = new Freditor(flexer, indenter, file);
@@ -99,7 +89,7 @@ public class TabbedEditors {
             }
         }
         if (freditors.isEmpty()) {
-            freditors.add(new Freditor(flexer, indenter, applicationDirectory.resolve(application + ".txt")));
+            freditors.add(new Freditor(flexer, indenter, applicationDirectory.resolve(applicationTxt)));
         }
         return freditors;
     }
@@ -109,7 +99,7 @@ public class TabbedEditors {
             return applicationFiles
                     .filter(Files::isRegularFile)
                     .filter(TabbedEditors::fileHasPlausibleSize)
-                    .filter(file -> !isLegacyBackupFile(file))
+                    .filter(file -> !ignoreFile(file))
                     .sorted()
                     .collect(Collectors.toList());
         } catch (IOException directoryAbsent) {
@@ -126,9 +116,10 @@ public class TabbedEditors {
         }
     }
 
-    private static boolean isLegacyBackupFile(Path file) {
+    private static boolean ignoreFile(Path file) {
         String fileName = file.getFileName().toString();
-        return fileName.length() == 31 && LEGACY_BACKUP_FILE.matcher(fileName).matches();
+        return fileName.equals("report") ||
+                fileName.length() == 31 && LEGACY_BACKUP_FILE.matcher(fileName).matches();
     }
 
     private static final Pattern LEGACY_BACKUP_FILE = Pattern.compile("[A-Za-z0-9_-]{27}[.]txt");
@@ -173,6 +164,44 @@ public class TabbedEditors {
                 tabs.setSelectedIndex(i);
                 return;
             }
+        }
+    }
+
+    public void selectOrCreateEditor(String title) {
+        int index = indexOfTitle(title);
+        if (index == -1) {
+            Freditor freditor = new Freditor(flexer, indenter, applicationDirectory.resolve(title));
+            try {
+                freditor.load();
+            } catch (IOException expected) {
+                // ...unless the file materialized after starting the application
+            }
+            index = insertionIndex(title);
+            tabs.insertTab(title, null, withLineNumbers(create.apply(freditor)), TOOLTIP, index);
+        }
+        tabs.setSelectedIndex(index);
+    }
+
+    public String getSelectedTitle() {
+        return tabs.getTitleAt(tabs.getSelectedIndex());
+    }
+
+    public boolean isReportSelected() {
+        return getSelectedTitle().equals("report");
+    }
+
+    public void selectReport() {
+        if (!isReportSelected()) {
+            nonReport = getSelectedEditor();
+            selectOrCreateEditor("report");
+        }
+    }
+
+    private FreditorUI nonReport;
+
+    public void selectNonReport() {
+        if (isReportSelected()) {
+            selectEditor(nonReport);
         }
     }
 
