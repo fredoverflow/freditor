@@ -625,27 +625,27 @@ public class FreditorUI extends JComponent {
 
     public void insert(CharSequence s) {
         freditor.insert(s);
-        componentToRepaint.repaint();
+        adjustView();
     }
 
     public void insert(CharSequence beforeCursor, CharSequence beforeSelection, CharSequence afterSelection) {
         freditor.insert(beforeCursor, beforeSelection, afterSelection);
-        componentToRepaint.repaint();
+        adjustView();
     }
 
     public void append(CharSequence s) {
         freditor.insertAt(freditor.length(), s);
-        componentToRepaint.repaint();
+        adjustView();
     }
 
     public void undo() {
         freditor.undo();
-        componentToRepaint.repaint();
+        adjustView();
     }
 
     public void redo() {
         freditor.redo();
-        componentToRepaint.repaint();
+        adjustView();
     }
 
     public void uncommit() {
