@@ -178,6 +178,7 @@ public class TabbedEditors {
             }
             index = insertionIndex(title);
             tabs.insertTab(title, null, withLineNumbers(create.apply(freditor)), TOOLTIP, index);
+            tabs.validate();
         }
         tabs.setSelectedIndex(index);
     }
