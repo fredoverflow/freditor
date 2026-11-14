@@ -200,10 +200,19 @@ public class Front {
 
     public void drawHexRight(Graphics g, int x, int y, int number, int rgb) {
         do {
-            x -= width;
-            int digit = number & 15;
-            number = number >>> 4;
-            drawCharacter(g, x, y, "0123456789abcdef".charAt(digit), rgb);
+            drawCharacter(g, x -= width, y, "0123456789abcdef".charAt(number & 15), rgb);
+            number >>>= 4;
+        } while (number != 0);
+    }
+
+    public void drawHexRight2(Graphics g, int x, int y, int number, int rgb) {
+
+        drawCharacter(g, x -= width, y, "0123456789abcdef".charAt(number & 15), rgb);
+        number >>>= 4;
+
+        do {
+            drawCharacter(g, x -= width, y, "0123456789abcdef".charAt(number & 15), rgb);
+            number >>>= 4;
         } while (number != 0);
     }
 }
